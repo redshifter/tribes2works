@@ -34,62 +34,62 @@ That's not the whole story.  You can lose points as well.
 You may notice a lack of stations, and a lack of pickups.  Fear not, for you can still gain healing through the powers of Vampirism! Every time you make a kill, 
 you gain back about 30% of your health.  This will protect you from a single blaster shot.  If you are already at full health, you will gain a Repair Kit.
 
-## ACCURACY, or the lack thereof
+## Accuracy, or the lack thereof
 How bad is your aim?  Your accuracy is measured during the game.  Go to the score screen and see if your aim is really as bad as you think it is.
 
-## FLARES
+## Flares
 Throw a few flares around.  VGW VGW VGW!
 
 Every time you get hit, you will spontaneously throw a flare.  This flare doesn't come from your inventory, so get hit as often as you can!  Or not...
 
 # KNOW YOUR TERRAIN
-## ALCATRAZ
+## Alzatraz
 A fortified island base has become the site of a dangerous free-for-all.  This map combines
 outdoor and indoor areas into a chaotic battlefield.  This darker, more menacing version of
 Alcatraz was specifically designed for Deathmatch.  Stay away from the lethal water, or you
 will get killed.  Use the stations inside to power up, but watch your back.
 - Map by Dynamix Staff.  Adaptation by Red Shifter.
 
-## BLASTED BATTLEFIELD
+## Blasted Battlefield
 Play outdoors for a change of pace.  This map will require accuracy, energy conservation,
 and amazing dueling skills.  If you truly wish to prove your mastery of the blaster, you
 will do it on this battlefield.  The hilly terrain is makes it very difficult to duel with
 a blaster, and is your major obstacle.
 - Map by Red Shifter.
 
-## FRANTIC
+## Frantic
 Holy crap!  There is little room to move, little room to jet, and to top it all off, there
 are no hiding places in this map of pure insanity.  A very simple design gives way to the
 twitch gameplay that one would look for in a map named "Frantic".  Strafe like crazy, shoot
 like crazy, and hope that you survive.
 - Map by Red Shifter.  Inspired by a TK fest on the pond.
 
-## GORGON
+## Gorgon
 A large base which seems specifically designed for Blaster Deathmatch.  There are no real
 chokepoints, only some frantic battles around the level.  Keep moving, hunt your enemies
 down, but remember - there is no way out of this maze.  Also, you may want to be careful of
 sloped walls - your blaster will reflect in strange ways...
 - Map by Nefilim.  Adaptation by Red Shifter.
 
-## SCARABRAE
+## Scarabrae
 - Map by Nefilim/Dynamix.  Adaptation by Red Shifter.  Thoughts by Gogo0.
 A classical showdown of the masters of the blasters.  Undertake in an epic blaster duel that
 spans outdoors and indoors!  Move around the massive base, or sit around outdoors.  Players
 can use stations to heal themselves, or just duel their ways to pure ownage.
 
-## SUN DRIED
+## Sun Dried
 Standard Deathmatch fare.  Mostly flat ground and large open spaces make it very difficult
 to use the terrain to your advantage.  You need energy conservation, great accuracy, and
 decent dueling skills to win on this map.
 - Map by Dynamix Staff.  Adaptation by Red Shifter.
 
-## THE BASEMENT
+## The Basement
 Forcefields haunt you at every turn.  They can appear and disappear as they please.  These
 evil forcefields like to spring up on you when you're fighting and throw you off your game.
 Don't be foiled!  Beware of ledges in a few rooms, for enemies can hide and snipe at you.
 - Map by Red Shifter.
 
-THE GREAT HALL
+## The Great Hall
 A simple little room.  What's the worst that could happen?  ALL HELL BREAKS LOOSE on this
 decievingly calm map.  The lower part of the room is where people duel it out for the right
 to own, while the upper part of the room is used by players who like to play it safe and
@@ -97,7 +97,7 @@ try to snipe their enemies.  With over 10 people, this map can become a frantic 
 five seconds.
 - Map by Red Shifter.  Concept by DSEZ.
 
-ULTIMA THULE
+## Ultima Thule
 A huge base to explore.  Be careful and cautious, or you may run into an ambush!  This map
 was built for a lot of players.  Hang out in the complicated outer hallways, or undertake
 in a massive free-for-all in the great hall!  Stations will heal the weary warrior, while
