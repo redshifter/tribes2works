@@ -33,7 +33,6 @@ It says "switching sides" between rounds but it doesn't actually switch sides. D
 - The Main Generators power the switch.
 - There's a path that can skip the Containment Generator, so be careful!
 
-
 # MAPPING CONSIDERATIONS
 
 ## Standard Mapping Practice
@@ -49,3 +48,9 @@ Any equipment with notRepairable = 1 is not repairable. Disabling an object in t
 If you want to add a script to fire at the beginning of the round, right before players are dropped into the map, overload **WarfareGame::initScript** in your map package. See Blackout.mis for an example.
 
 If you want to add a script to fire as the round begins, when the countdown hits 0, overload **WarfareGame::startMatch** in your map package. See IronFist.mis for an example.
+
+# CREDITS
+Gametype concept and design by Red Shifter
+Blackout, Phalanx by Red Shifter
+Iron Fist by Celios
+Katazatic by [uncredited]
