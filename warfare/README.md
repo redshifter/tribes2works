@@ -5,7 +5,11 @@ The game is played in 10 minute rounds. Best 3 out of 5 rounds. If neither side 
 
 It says "switching sides" between rounds but it doesn't actually switch sides. Don't worry about that.
 
-# MAPS
+# INSTALLATION INSTRUCTIONS
+- Simply drop the VL2 folder into your installation.
+- [OPTIONAL] If you use an admin mod to customize the MapRotation, make sure to add Blackout/Phalanx/IronFist as part of Warfare gametype. (You can add Katazatic too, but that map sucks.)
+
+# WARFARE MAPS
 ## Blackout
 "That one played surprisingly well.  I was shocked." -Celios
 - Two Sanctuary-looking bases sit a few hundred meters from each other. Blow up the generators within to capture the switch directly.
