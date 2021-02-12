@@ -1052,12 +1052,8 @@ new SimGroup(MissionGroup) {
 };
 //--- OBJECT WRITE END ---
 
+// packages should never be named the exact same as the name of the map. it's bad luck
 package RSBlackout {
-
-function WarfareGame::gameOver(%game) {
-	deactivatePackage(RSBlackout);
-	Parent::gameOver(%game);
-}
 
 // initScript is called at the beginning of every round, before countdown
 function WarfareGame::initScript(%game) {
@@ -1066,6 +1062,7 @@ function WarfareGame::initScript(%game) {
 	nameToID("ProtectGen").setDamageLevel(2.5);
 }
 
+// run the blackout power switch code
 function FlipFlop::playerTouch(%data, %flipflop, %player) {
 	if(%player.client.team == %flipflop.team)
 		return;
@@ -1082,6 +1079,18 @@ function FlipFlop::playerTouch(%data, %flipflop, %player) {
 			nameToID("BlackoutGen1").setDamageLevel(2.5);
 		}
 	}
+}
+
+// shut down correctly (map end)
+function WarfareGame::gameOver(%game) {
+	deactivatePackage(RSBlackout);
+	Parent::gameOver(%game);
+}
+
+// shut down correctly (local shutdown)
+function DisconnectedCleanup() {
+	deactivatePackage(RSBlackout);
+	Parent::DisconnectedCleanup();
 }
 
 };

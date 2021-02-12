@@ -2775,7 +2775,9 @@ new SimGroup(MissionGroup) {
 };
 //--- OBJECT WRITE END ---
 
-package IronFist
+// packages should never be named the exact same as the name of the map. it's bad luck
+// note: the package name was changed by red shifter
+package MarcelIronFist
 {
 
 function BackdoorCountdown1()
@@ -2800,6 +2802,7 @@ function DisableBackdoorGens()
 	nameToId("Team2BackdoorGen").setDamageLevel(2.5);
 }
 
+// 
 function WarfareGame::startMatch(%game)
 {
 	Parent::startMatch(%game);
@@ -2811,6 +2814,7 @@ function WarfareGame::startMatch(%game)
 	Game.backdoorSchedule = schedule(300000, game, "DisableBackdoorGens");
 }
 
+// i don't think this is the correct method to overload but i'm not going to bother changing to initScript
 function WarfareGame::halftimeOver(%game)
 {
 	Parent::halftimeOver(%game);
@@ -2822,6 +2826,7 @@ function WarfareGame::halftimeOver(%game)
 }
 	
 
+// shut down correctly (map end)
 function WarfareGame::gameOver(%game)
 {
 	Parent::gameOver(%game);
@@ -2830,8 +2835,19 @@ function WarfareGame::gameOver(%game)
 	cancel(Game.countdown2Schedule);
 	cancel(Game.countdown3Schedule);
 	cancel(Game.backdoorSchedule);
-	deactivatePackage(IronFist);
+	deactivatePackage(MarcelIronFist);
+}
+
+// shut down correctly (local shutdown)
+function DisconnectedCleanup() {
+	cancel(Game.countdown1Schedule);
+	cancel(Game.countdown2Schedule);
+	cancel(Game.countdown3Schedule);
+	cancel(Game.backdoorSchedule);
+	deactivatePackage(MarcelIronFist);
+
+	Parent::DisconnectedCleanup();
 }
 
 };
-activatePackage(IronFist);
+activatePackage(MarcelIronFist);
