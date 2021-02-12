@@ -50,7 +50,7 @@ If you want to add a script to fire at the beginning of the round, right before 
 If you want to add a script to fire as the round begins, when the countdown hits 0, overload **WarfareGame::startMatch** in your map package. See IronFist.mis for an example.
 
 # CREDITS
-Gametype concept and design by Red Shifter
-Blackout, Phalanx by Red Shifter
-Iron Fist by Celios
-Katazatic by [uncredited]
+- Gametype concept and design by Red Shifter
+- Blackout, Phalanx by Red Shifter
+- Iron Fist by Celios
+- Katazatic by [uncredited]
