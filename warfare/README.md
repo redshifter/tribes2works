@@ -18,8 +18,8 @@ It says "switching sides" between rounds but it doesn't actually switch sides. D
 
 ## Phalanx
 - Based on Broadside. Blow up a bunch of generators in order so you can attack the Main generators at the top and grab the the final switch.
-- With the exception of the Main generators, none of the generators can be repaired. Stand clear, as they will explode early!
-- Of course there's no easter eggs. Why would you even ask?
+- With the exception of the Main generators, none of the generators can be repaired. Stand clear, since they will automatically overload and explode when they no longer provide power!
+- <s>Of course there's no easter eggs. Why would you even ask a question like that?</s>
 
 ## Iron Fist
 - Based on Gauntlet. Blow up the forcefield generator to assault the main base for the switch. Really simple.
