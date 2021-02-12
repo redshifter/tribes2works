@@ -2,7 +2,7 @@
 
 ## Team Gametypes
 
-##### Warfare
+##### [Warfare](warfare)
 This is basically two-sided Siege. Explode the gens to drop the forcefields and touch the enemy switch! But don't let your opponent do the same! Best of 5 rounds. Not many maps were made.
 
 ##### Capture and Hold modification
@@ -22,6 +22,9 @@ The latest version that I know to exist. Mostly redundant by the existence of Je
 ##### Blaster Deathmatch
 Deathmatch involving only the blaster. This was fleshed out into a full gametype unlike the other DM variants on this list. Most of the maps are indoors, making it more <s>fun</s> spammy.
 
+##### Shrike Deathmatch
+A gametype I made when I had morbid curiosity. You accelerate really fast into the thing.
+
 ##### Chaingun Deathmatch
 Deathmatch only involving the chaingun. I mostly made this as a joke.
 
@@ -36,9 +39,6 @@ A gametype about skiing through flags. It's pretty garbage and there's probably 
 
 ##### Golf
 A gametype about precision mortaring. (WARNING: This gametype carries a terrible curse that destroys computers.)
-
-##### Shrike Deathmatch
-A gametype I made when I had morbid curiosity.
 
 ## Server Mods that I don't know why I made
 
