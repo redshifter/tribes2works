@@ -1,0 +1,234 @@
+// DisplayName = Gorgon
+// MissionTypes = BlasterDM
+
+//--- MISSION QUOTE BEGIN ---
+//We the survivors are not the true witnesses; those who saw the Gorgon have not returned to tell about it.
+//  -- Primo Levi
+//--- MISSION QUOTE END ---
+
+//--- MISSION STRING BEGIN ---
+//Map by Nefilim, adaptation by Red Shifter
+//Fight within the confines of Gorgon
+//--- MISSION STRING END ---
+
+//--- OBJECT WRITE BEGIN ---
+new SimGroup(MissionGroup) {
+
+	powerCount = "0";
+	CTF_scoreLimit = "6";
+	cdTrack = "6";
+	musicTrack = "desert";
+
+	new MissionArea(MissionArea) {
+		area = "-424 -264 496 1008";
+		flightCeiling = "2000";
+		flightCeilingRange = "20";
+
+		locked = "false";
+	};
+	new Sky(Sky) {
+		position = "-312 -64 0";
+		rotation = "1 0 0 0";
+		scale = "1 1 1";
+		cloudHeightPer[0] = "0.349971";
+		cloudHeightPer[1] = "0.25";
+		cloudHeightPer[2] = "0.199973";
+		cloudSpeed1 = "0.0001";
+		cloudSpeed2 = "0.0002";
+		cloudSpeed3 = "0.0003";
+		visibleDistance = "500";
+		useSkyTextures = "1";
+		renderBottomTexture = "0";
+		SkySolidColor = "0.900000 0.500000 0.350000 1.000000";
+		fogDistance = "300";
+		fogColor = "0.900000 0.500000 0.350000 1.000000";
+		fogVolume1 = "0 0 0";
+		fogVolume2 = "0 0 0";
+		fogVolume3 = "0 0 0";
+		materialList = "nef_RedPlanet.dml";
+		windVelocity = "1 0 0";
+		windEffectPrecipitation = "0";
+		fogVolumeColor1 = "128.000000 128.000000 128.000000 -70138839232381912800000000000000.000000";
+		fogVolumeColor2 = "128.000000 128.000000 128.000000 0.003575";
+		fogVolumeColor3 = "128.000000 128.000000 128.000000 148037830649288698000000000000.000000";
+		high_visibleDistance = "700";
+		high_fogDistance = "675";
+		high_fogVolume1 = "200 0 53";
+		high_fogVolume2 = "500 53 58";
+		high_fogVolume3 = "1500 58 200";
+
+		cloudSpeed0 = "0.000503 0.000020";
+		locked = "true";
+	};
+	new Sun() {
+		position = "2 3 0";
+		rotation = "1 0 0 0";
+		scale = "1 1 1";
+		direction = "0.57735 0.57735 -0.57735";
+		color = "0.200000 0.200000 0.200000 1.000000";
+		ambient = "0.400000 0.400000 0.400000 1.000000";
+		texture[0] = "special/sunFlare";
+		texture[1] = "special/sunFlare02";
+		texture[2] = "special/LensFlare/flare01";
+		texture[3] = "special/LensFlare/flare02";
+		texture[4] = "special/LensFlare/flare03";
+		lensFlareScale = "0.7";
+		lensFlareIntensity = "1";
+		frontFlareSize = "300";
+		backFlareSize = "450";
+		flareColor = "1.000000 1.000000 1.000000 1.000000";
+
+		locked = "false";
+	};
+	new TerrainBlock(Terrain) {
+		rotation = "1 0 0 0";
+		scale = "1 1 1";
+		detailTexture = "details/desertdet1";
+		terrainFile = "Gorgon.ter";
+		squareSize = "8";
+		emptySquares = "230498 296048 177777 243554 178033";
+
+		position = "-1024 -1024 0";
+		locked = "true";
+	};
+	new NavigationGraph(NavGraph) {
+		conjoinAngleDev = "65";
+		cullDensity = "0.3";
+		customArea = "0 0 0 0";
+
+		scale = "1 1 1";
+		conjoinBowlDev = "20";
+		GraphFile = "Gorgon_BDM.nav";
+		coverage = "0";
+		position = "0 0 0 1";
+		locked = "true";
+		rotation = "0 0 0 0";
+	};
+	new SimGroup(Teams) {
+
+		providesPower = "1";
+
+		new SimGroup(Team1) {
+
+
+			new SimGroup(spawnspheres) {
+
+
+				new SpawnSphere() {
+					position = "-171.082 241.313 46.986";
+					rotation = "1 0 0 0";
+					scale = "1 1 1";
+					dataBlock = "SpawnSphereMarker";
+					lockCount = "0";
+					homingCount = "0";
+					radius = "140";
+					sphereWeight = "100";
+					indoorWeight = "100";
+					outdoorWeight = "0";
+
+				};
+			};
+		};
+		new SimGroup(Team2) {
+
+
+			new SimGroup(spawnspheres) {
+
+
+				new SpawnSphere() {
+					position = "-171.082 241.313 46.986";
+					rotation = "1 0 0 0";
+					scale = "1 1 1";
+					dataBlock = "SpawnSphereMarker";
+					lockCount = "0";
+					homingCount = "0";
+					radius = "140";
+					sphereWeight = "100";
+					indoorWeight = "100";
+					outdoorWeight = "0";
+
+				};
+			};
+		};
+		new SimGroup(team0) {
+
+			providesPower = "1";
+
+			new SimGroup(base) {
+
+				providesPower = "1";
+
+				new InteriorInstance() {
+					position = "-170.857 238.481 43.5438";
+					rotation = "0 0 1 90";
+					scale = "1 1 1";
+					interiorFile = "pbase_nef_giant.dif";
+					showTerrainInside = "0";
+
+					locked = "false";
+				};
+				new ForceFieldBare() {
+					position = "-238.217 367.072 53.2087";
+					rotation = "1 0 0 0";
+					scale = "17.3521 1 8.68642";
+					dataBlock = "defaultForceFieldBare";
+					lockCount = "0";
+					homingCount = "0";
+
+				};
+				new ForceFieldBare() {
+					position = "-120.431 366.8 53.2983";
+					rotation = "1 0 0 0";
+					scale = "17.3521 1 8.68642";
+					dataBlock = "defaultForceFieldBare";
+					lockCount = "0";
+					homingCount = "0";
+
+				};
+				new ForceFieldBare() {
+					position = "-120.091 109.042 53.0674";
+					rotation = "1 0 0 0";
+					scale = "17.3521 1 8.68642";
+					dataBlock = "defaultForceFieldBare";
+					lockCount = "0";
+					homingCount = "0";
+
+				};
+				new ForceFieldBare() {
+					position = "-238.464 108.959 53.1757";
+					rotation = "1 0 0 0";
+					scale = "17.3521 1 8.68642";
+					dataBlock = "defaultForceFieldBare";
+					lockCount = "0";
+					homingCount = "0";
+
+				};
+			};
+		};
+	};
+	new SimGroup(ObserverDropPoints) {
+
+
+		new Camera() {
+			position = "-157.573 370.036 63.881";
+			rotation = "0.567921 0.203492 -0.797532 48.3864";
+			scale = "1 1 1";
+			dataBlock = "Observer";
+			lockCount = "0";
+			homingCount = "0";
+
+			locked = "false";
+		};
+		new Camera() {
+			position = "-158.031 88.7326 61.4133";
+			rotation = "0.199666 0.138846 -0.969977 71.2745";
+			scale = "1 1 1";
+			dataBlock = "Observer";
+			lockCount = "0";
+			homingCount = "0";
+
+			locked = "false";
+		};
+	};
+};
+//--- OBJECT WRITE END ---

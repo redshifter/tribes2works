@@ -1,0 +1,467 @@
+// DisplayName = The Basement
+// MissionTypes = BlasterDM
+
+//--- MISSION QUOTE BEGIN ---
+//You never know what will happen next.
+//  -- Red Shifter
+//--- MISSION QUOTE END ---
+
+//--- MISSION STRING BEGIN ---
+//Map by Red Shifter
+//All battle takes place within a simple basement
+//Forcefields appear at random to add a new element
+//--- MISSION STRING END ---
+
+//--- OBJECT WRITE BEGIN ---
+new SimGroup(MissionGroup) {
+		powerCount = "0";
+		musicTrack = "desert";
+		cdTrack = "6";
+
+	new MissionArea(MissionArea) {
+		area = "-744 -680 336 304";
+		flightCeiling = "300";
+		flightCeilingRange = "20";
+			locked = "true";
+	};
+	new Sky(Sky) {
+		position = "40 760 0";
+		rotation = "1 0 0 0";
+		scale = "1 1 1";
+		cloudHeightPer[0] = "0.349971";
+		cloudHeightPer[1] = "0.25";
+		cloudHeightPer[2] = "0.199973";
+		cloudSpeed1 = "0.0001";
+		cloudSpeed2 = "0.0002";
+		cloudSpeed3 = "0.0003";
+		visibleDistance = "550";
+		useSkyTextures = "1";
+		renderBottomTexture = "0";
+		SkySolidColor = "0.365000 0.390000 0.420000 0.000000";
+		fogDistance = "250";
+		fogColor = "0.630000 0.550000 0.500000 1.000000";
+		fogVolume1 = "0 0 0";
+		fogVolume2 = "0 0 0";
+		fogVolume3 = "0 0 0";
+		materialList = "sky_desert_blue.dml";
+		windVelocity = "1 0 0";
+		windEffectPrecipitation = "0";
+		fogVolumeColor1 = "128.000000 128.000000 128.000000 1186587107689272090000000000.000000";
+		fogVolumeColor2 = "128.000000 128.000000 128.000000 17030994512461995600000000.000000";
+		fogVolumeColor3 = "128.000000 128.000000 128.000000 651223309426231435000000000000000.000000";
+			locked = "true";
+			cloudSpeed0 = "0.000000 0.000400";
+	};
+	new Sun() {
+		direction = "0.57735 0.57735 -0.57735";
+		color = "0.800000 0.800000 0.800000 1.000000";
+		ambient = "0.600000 0.600000 0.600000 1.000000";
+			locked = "true";
+			scale = "1 1 1";
+			position = "40 760 0";
+			rotation = "1 0 0 0";
+	};
+	new TerrainBlock(Terrain) {
+		rotation = "1 0 0 0";
+		scale = "1 1 1";
+		detailTexture = "details/desertdet2";
+		terrainFile = "Rasp.ter";
+		squareSize = "8";
+		emptySquares = "148783 214574 83507 214830 83763";
+			locked = "true";
+			position = "-1024 -1024 0";
+	};
+	new NavigationGraph(NavGraph) {
+		conjoinAngleDev = "45";
+		cullDensity = "0.3";
+		customArea = "0 0 0 0";
+			YDimOverSize = "0";
+			GraphFile = "TheBasement_BDM.nav";
+			locked = "true";
+			scale = "1 1 1";
+			XDimOverSize = "0";
+			conjoinBowlDev = "20";
+			position = "0 0 0 1";
+			coverage = "0";
+			rotation = "0 0 0 0";
+	};
+	new SimGroup(ObserverDropPoints) {
+			powerCount = "0";
+
+		new Camera() {
+			position = "-660.882 -550.617 56.2201";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "Observer";
+			lockCount = "0";
+			homingCount = "0";
+				team = "0";
+		};
+	};
+	new SimGroup(Teams) {
+			powerCount = "0";
+
+		new SimGroup(Team1) {
+				powerCount = "0";
+
+			new SimGroup(spawnspheres) {
+					powerCount = "0";
+
+				new SpawnSphere() {
+					position = "-602.109 -451.78 54.4066";
+					rotation = "1 0 0 0";
+					scale = "1 1 1";
+					dataBlock = "SpawnSphereMarker";
+					lockCount = "0";
+					homingCount = "0";
+					radius = "20";
+					sphereWeight = "100";
+					indoorWeight = "100";
+					outdoorWeight = "0";
+				};
+				new SpawnSphere() {
+					position = "-636.144 -448.359 54.4536";
+					rotation = "1 0 0 0";
+					scale = "1 1 1";
+					dataBlock = "SpawnSphereMarker";
+					lockCount = "0";
+					homingCount = "0";
+					radius = "20";
+					sphereWeight = "100";
+					indoorWeight = "100";
+					outdoorWeight = "0";
+				};
+				new SpawnSphere() {
+					position = "-635.374 -500.739 53.741";
+					rotation = "1 0 0 0";
+					scale = "1 1 1";
+					dataBlock = "SpawnSphereMarker";
+					lockCount = "0";
+					homingCount = "0";
+					radius = "20";
+					sphereWeight = "100";
+					indoorWeight = "100";
+					outdoorWeight = "0";
+				};
+				new SpawnSphere() {
+					position = "-607.271 -538.477 50.103";
+					rotation = "1 0 0 0";
+					scale = "1 1 1";
+					dataBlock = "SpawnSphereMarker";
+					lockCount = "0";
+					homingCount = "0";
+					radius = "10";
+					sphereWeight = "100";
+					indoorWeight = "100";
+					outdoorWeight = "0";
+				};
+				new SpawnSphere() {
+					position = "-653.897 -543.791 51.7042";
+					rotation = "1 0 0 0";
+					scale = "1 1 1";
+					dataBlock = "SpawnSphereMarker";
+					lockCount = "0";
+					homingCount = "0";
+					radius = "12";
+					sphereWeight = "100";
+					indoorWeight = "100";
+					outdoorWeight = "0";
+				};
+			};
+		};
+		new SimGroup(Team2) {
+				powerCount = "0";
+
+			new SimGroup(spawnspheres) {
+					powerCount = "0";
+
+				new SpawnSphere() {
+					position = "-602.109 -451.78 54.4066";
+					rotation = "1 0 0 0";
+					scale = "1 1 1";
+					dataBlock = "SpawnSphereMarker";
+					lockCount = "0";
+					homingCount = "0";
+					radius = "20";
+					sphereWeight = "100";
+					indoorWeight = "100";
+					outdoorWeight = "0";
+				};
+				new SpawnSphere() {
+					position = "-636.144 -448.359 54.4536";
+					rotation = "1 0 0 0";
+					scale = "1 1 1";
+					dataBlock = "SpawnSphereMarker";
+					lockCount = "0";
+					homingCount = "0";
+					radius = "20";
+					sphereWeight = "100";
+					indoorWeight = "100";
+					outdoorWeight = "0";
+				};
+				new SpawnSphere() {
+					position = "-635.374 -500.739 53.741";
+					rotation = "1 0 0 0";
+					scale = "1 1 1";
+					dataBlock = "SpawnSphereMarker";
+					lockCount = "0";
+					homingCount = "0";
+					radius = "20";
+					sphereWeight = "100";
+					indoorWeight = "100";
+					outdoorWeight = "0";
+				};
+				new SpawnSphere() {
+					position = "-607.271 -538.477 50.103";
+					rotation = "1 0 0 0";
+					scale = "1 1 1";
+					dataBlock = "SpawnSphereMarker";
+					lockCount = "0";
+					homingCount = "0";
+					radius = "10";
+					sphereWeight = "100";
+					indoorWeight = "100";
+					outdoorWeight = "0";
+				};
+				new SpawnSphere() {
+					position = "-653.897 -543.791 51.7042";
+					rotation = "1 0 0 0";
+					scale = "1 1 1";
+					dataBlock = "SpawnSphereMarker";
+					lockCount = "0";
+					homingCount = "0";
+					radius = "12";
+					sphereWeight = "100";
+					indoorWeight = "100";
+					outdoorWeight = "0";
+				};
+			};
+		};
+		new SimGroup(team0) {
+				powerCount = "1";
+				providesPower = "1";
+		};
+	};
+	new SimGroup(missionBase) {
+			powerCount = "1";
+                        providesPower = "1";
+
+		new InteriorInstance() {
+			position = "-642.636 -497.369 70.1328";
+			rotation = "0 0 -1 89.9544";
+			scale = "1 1 1";
+			interiorFile = "pbase3.dif";
+			showTerrainInside = "0";
+			AudioProfile = "Universal_Base_2";
+				locked = "true";
+		};
+	};
+	new SimGroup(immobileFF) {
+			powerCount = "1";
+			providesPower = "1";
+
+		new ForceFieldBare() {
+			position = "-656.151 -487.072 52.7804";
+			rotation = "1 0 0 0";
+			scale = "9.75507 1 13.678";
+			dataBlock = "defaultForceFieldBare";
+				Target = "34";
+		};
+		new ForceFieldBare() {
+			position = "-647.742 -524.811 51.6832";
+			rotation = "1 0 0 0";
+			scale = "9.75507 1 13.678";
+			dataBlock = "defaultForceFieldBare";
+				Target = "35";
+		};
+		new ForceFieldBare() {
+			position = "-661.817 -558.009 51.4022";
+			rotation = "1 0 0 0";
+			scale = "9.75507 1 13.678";
+			dataBlock = "defaultForceFieldBare";
+				Target = "36";
+		};
+	};
+	new SimGroup(FF1) {
+
+		new ForceFieldBare() {
+			position = "-668.967 -521.574 51.7833";
+			rotation = "1 0 0 0";
+			scale = "16.4543 1 13.4056";
+                        dataBlock = "defaultSolidFieldBare";
+				Target = "37";
+		};
+		new StaticShape(FG1) {
+			position = "-599.579 -529.392 -500.226";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "SolarPanel";
+			lockCount = "0";
+			homingCount = "0";
+				Target = "44";
+		};
+	};
+	new SimGroup(FF2) {
+
+		new ForceFieldBare() {
+			position = "-625.167 -548.235 50.6322";
+			rotation = "0 0 -1 90.5273";
+			scale = "16.4543 1 13.4056";
+                        dataBlock = "defaultSolidFieldBare";
+				Target = "38";
+		};
+		new StaticShape(FG2) {
+			position = "-599.579 -529.392 -500.226";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "SolarPanel";
+			lockCount = "0";
+			homingCount = "0";
+				Target = "45";
+		};
+	};
+	new SimGroup(FF3) {
+
+		new ForceFieldBare() {
+			position = "-610.35 -517.084 51.0906";
+			rotation = "1 0 0 0";
+			scale = "16.4543 1 13.4056";
+                        dataBlock = "defaultSolidFieldBare";
+				Target = "39";
+		};
+		new StaticShape(FG3) {
+			position = "-599.579 -529.392 -500.226";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "SolarPanel";
+			lockCount = "0";
+			homingCount = "0";
+				Target = "46";
+		};
+	};
+	new SimGroup(FF4) {
+
+		new ForceFieldBare() {
+			position = "-611.017 -470.852 50.047";
+			rotation = "1 0 0 0";
+			scale = "16.4543 1 13.4056";
+                        dataBlock = "defaultSolidFieldBare";
+				Target = "40";
+		};
+		new StaticShape(FG4) {
+			position = "-599.579 -529.392 -500.226";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "SolarPanel";
+			lockCount = "0";
+			homingCount = "0";
+				Target = "47";
+		};
+	};
+	new SimGroup(FF5) {
+
+		new ForceFieldBare() {
+			position = "-643.08 -467.481 50.3223";
+			rotation = "1 0 0 0";
+			scale = "16.4543 1 13.4056";
+                        dataBlock = "defaultSolidFieldBare";
+				Target = "41";
+		};
+		new StaticShape(FG5) {
+			position = "-599.579 -529.392 -500.226";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "SolarPanel";
+			lockCount = "0";
+			homingCount = "0";
+				Target = "48";
+		};
+	};
+	new SimGroup(FF6) {
+
+		new ForceFieldBare() {
+			position = "-617.824 -457.272 50.2169";
+			rotation = "0 0 -1 90.5273";
+			scale = "16.4543 1 13.4056";
+                        dataBlock = "defaultSolidFieldBare";
+				Target = "42";
+		};
+		new StaticShape(FG6) {
+			position = "-599.579 -529.392 -500.226";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "SolarPanel";
+			lockCount = "0";
+			homingCount = "0";
+				Target = "49";
+		};
+	};
+	new SimGroup(FF7) {
+
+		new ForceFieldBare() {
+			position = "-609.11 -505.654 49.7364";
+			rotation = "0 0 -1 90.5273";
+			scale = "16.4543 1 13.4056";
+                        dataBlock = "defaultSolidFieldBare";
+				Target = "43";
+		};
+		new StaticShape(FG7) {
+			position = "-599.579 -529.392 -500.226";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "SolarPanel";
+			lockCount = "0";
+			homingCount = "0";
+				Target = "50";
+		};
+	};
+};
+//--- OBJECT WRITE END ---
+
+package RS_TheBasement {
+
+// shut down correctly (local shutdown)
+function DisconnectedCleanup() {
+	deactivatePackage(RS_TheBasement);
+	Parent::DisconnectedCleanup();
+}
+
+function BlasterDMGame::gameOver(%game)
+{
+// Deactivates the package, stops the generators, sets stuff back to normal
+   Parent::gameOver(%game);
+   deactivatePackage(RS_TheBasement);
+}
+
+function TheBasement_setStateFF(%obj, %state)
+{
+  %obj.setDamageState(%state);
+
+  if(%state $= "Enabled") {
+     // leave enabled for 4-7 seconds
+     %state = "Disabled";
+     %z = getRandom(4000, 7000);
+  }
+  else {
+     // leave disabled for 11-22 seconds
+     %state = "Enabled";
+     %z = getRandom(11000,22000);
+  }
+
+  schedule(%z,0,TheBasement_setStateFF,%obj,%state);
+}
+
+};
+
+function TheBasement_setStateFF(%obj, %state) {
+  // avoids console spam
+}
+
+activatePackage(RS_TheBasement);
+TheBasement_setStateFF(nameToId("FG1"), "Enabled");
+TheBasement_setStateFF(nameToId("FG2"), "Enabled");
+TheBasement_setStateFF(nameToId("FG3"), "Enabled");
+TheBasement_setStateFF(nameToId("FG4"), "Enabled");
+TheBasement_setStateFF(nameToId("FG5"), "Enabled");
+TheBasement_setStateFF(nameToId("FG6"), "Enabled");
+TheBasement_setStateFF(nameToId("FG7"), "Enabled");
