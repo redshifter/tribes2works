@@ -50,3 +50,6 @@ Basically UltraRS except getting an Energy Pack and press the pack button turns 
 
 ##### Hyperdrive
 A fork of UltraRS where you only have a fast firing disc and grenade launcher, which have very limited ammo that refill after a few seconds, meaning players can't spam. Also has a super fast walk speed and a few other surprises.
+
+## NOTE
+All uploaded files are available for viewing on [the repository](https://github.com/redshifter/tribes2works) in their raw format.
