@@ -6,7 +6,7 @@ The game is played in 10 minute rounds. Best 3 out of 5 rounds. If neither side 
 It says "switching sides" between rounds but it doesn't actually switch sides. Don't worry about that.
 
 # INSTALLATION INSTRUCTIONS
-- Simply drop the VL2 folder into your installation.
+- Simply drop the <a href="https://github.com/redshifter/tribes2works/raw/main/warfare/WarfareGameType.vl2">WarfareGameType.vl2</a> folder into your Tribes 2 base folder, like a normal map download.
 - [OPTIONAL] If you use an admin mod to customize the MapRotation, make sure to add Blackout/Phalanx/IronFist as part of Warfare gametype. (You can add Katazatic too, but that map sucks.)
 
 # WARFARE MAPS
