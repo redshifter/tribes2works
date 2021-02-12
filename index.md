@@ -23,7 +23,7 @@ The latest version that I know to exist. Mostly redundant by the existence of Je
 Deathmatch involving only the blaster. This was fleshed out into a full gametype unlike the other DM variants on this list. Most of the maps are indoors, making it more <s>fun</s> spammy.
 
 ##### Shrike Deathmatch
-A gametype I made when I had morbid curiosity. You accelerate really fast into the thing.
+A gametype I made when I had morbid curiosity. You accelerate really fast into the field of battle.
 
 ##### Chaingun Deathmatch
 Deathmatch only involving the chaingun. I mostly made this as a joke.
@@ -52,4 +52,4 @@ Basically UltraRS except getting an Energy Pack and press the pack button turns 
 A fork of UltraRS where you only have a fast firing disc and grenade launcher, which have very limited ammo that refill after a few seconds, meaning players can't spam. Also has a super fast walk speed and a few other surprises.
 
 ## NOTE
-All uploaded files are available for viewing on [the repository](https://github.com/redshifter/tribes2works) in their raw format.
+All uploaded files are available for viewing on [the repository](https://github.com/redshifter/tribes2works) in their unpackaged format.
