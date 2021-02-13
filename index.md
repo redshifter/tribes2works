@@ -42,13 +42,13 @@ A gametype about precision mortaring. (WARNING: This gametype carries a terrible
 
 ## Server Mods that I don't know why I made
 
-##### [UltraRS](_mods/UltraRS)
+##### [UltraRS](servermods/UltraRS)
 Most ultra mods are based on instagib and near-hitscan weapons. I decided that was stupid. I just made all the guns fire super fast. This was still pretty stupid.
 
-##### [Overdrive](_mods/Overdrive)
+##### [Overdrive](servermods/Overdrive)
 Basically UltraRS except based on classic physics. Also getting an Energy Pack and press the pack button turns your already super gun into an even superer overdrive gun for a few seconds. This didn't really fix how stupid it was, but the weapons are pretty hilarious. I was especially proud of the Chaingun Mortar.
 
-##### [Hyperdrive]](_mods/HyperDrive)
+##### [Hyperdrive](servermods/HyperDrive)
 A fork of UltraRS where you only have a fast firing disc and grenade launcher, which have very limited ammo that refill after a few seconds, meaning players can't spam. Also has a super fast walk speed and a few other surprises.
 
 ## NOTE
