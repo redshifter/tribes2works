@@ -5,7 +5,7 @@
 ##### [Warfare](warfare)
 This is basically two-sided Siege. Explode the gens to drop the forcefields and touch the enemy switch! But don't let your opponent do the same! Best of 5 rounds. Not many maps were made.
 
-##### Capture and Hold modification
+##### [Capture and Hold mod](cnhmod)
 Spawn with Energy, a few other QoL improvements, and a new team scoring system that aims for much shorter games (around 15 minutes for a balanced game, less than 5 minutes for a pub-stomp).
 
 ##### Pirates of the Caribbean
