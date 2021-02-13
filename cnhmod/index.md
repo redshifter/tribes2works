@@ -22,10 +22,12 @@ Normal CnH takes a very, very long time and the gametype generally overstays its
 
 In layman's terms, when Advanced Scoring is on, the game will end more quickly as one team is performing better than the other. Full curbstomps go by very quickly (around 4 minutes), and fully balanced games will take longer (around 15 minutes at worst).
 
+The chat will be sent a message for every 10 percent that a team gains, since the score numbers are otherwise pretty weird.
+
 <details>
 <summary>Click here for a technical explanation of Advanced Scoring and how it differs from the normal Tribes 2 CnH scoring system.</summary>
 
-##### Normal Scoring
+```##### Normal Scoring
 - 1200 points per switch to win
 - Points awarded after holding a switch for 12 seconds. In a gametype like classic, this is a really long time.
 - 120 points awarded per switch per minute
@@ -38,7 +40,7 @@ In layman's terms, when Advanced Scoring is on, the game will end more quickly a
 - If a team holds all the switches, this works out to roughly 3.75 minutes of hold time to win the game.
 - If both teams hold an equal number of switches, the game will slowly move towards its end in 15 minutes, though cuts will be made when teams hold the enemy switch.
 
-Why did I choose 225 as a number instead of 240? I dunno. It doesn't really matter though.
+Why did I choose 225 as a number instead of 240? I dunno. It doesn't really matter though.```
 </details>
 
 ## Spawn w/Energy Pack (default ON)
@@ -52,7 +54,22 @@ Turning on Secured Switches will make it so standing next to the switch makes it
 The range is pretty low (around 5 meters) but you don't need to be touching it.
 
 ## Slow Respawn (default OFF)
-Respawn time changes to 5 seconds. I forget why I put this in the game. Maybe I was drunk? Maybe I thought it would stop people from clustering a secured switch? I forget. But I didn't feel like removing it.
+Respawn time changes to 5 seconds. I forget why I put this in the game. Maybe I was drunk? Maybe I thought it would stop people from clustering a secured switch? I forget. But I don't feel like removing it.
+
+A better option would be disabling a spawnsphere if the enemy is attacking a place, but I'm too lazy to do that.
+
+# MAPPING CONSIDERATIONS
+Just use normal CnH mapping conventions.
+
+Of course, you need to think about what makes a good CnH map.
+
+Here's some hints for CnH map design:
+- Don't just take a CTF map and tack CnH onto it by putting objectives in the center. Please don't.
+- Teams should generally spawn on opposite sides of the map. Don't do weird things like spawning everyone together in the middle. They don't need more than a couple stations and repair pack.
+- Your map should have at least 3 objectives. More is better if you want a bigger map, but more than 5 or 6 is probably too much.
+- Some objectives should be closer to your base than to the enemy base. It makes it easier for teams to coordinate together on the fly if they're given a suggestion of where to go first, and where they're eventually working towards. Just dropping a few objectives an equal distance from both teams just feels like you're trying to hold a switch rather than holding an objective.
+- Objectives don't always need a spawnsphere, but any objective with a spawnsphere should have inventory and a repair pack, as well as not being in a remote corner of the map. People should want to spawn there. Make sure to think about the sphereWeight too.
+- A central objective should be easy to attack and take back. You don't want one team to be able to farm it up and use its power to dominate the game without a lot of effort.
 
 # CREDITS
 - Red Shifter: Gametype redesign, lead scripter
