@@ -27,20 +27,20 @@ The chat will be sent a message for every 10 percent that a team gains, since th
 <details>
 <summary>Click here for a technical explanation of Advanced Scoring and how it differs from the normal Tribes 2 CnH scoring system.</summary>
 
-```##### Normal Scoring
-- 1200 points per switch to win
-- Points awarded after holding a switch for 12 seconds. In a gametype like classic, this is a really long time.
-- 120 points awarded per switch per minute
-- This normally works out to a maximum of 20 minutes, until you factor in the fight over switches requiring 12 seconds of hold time before you score. You can see how this generally overstays its welcome.
+  ##### Normal Scoring
+  - 1200 points per switch to win
+  - Points awarded after holding a switch for 12 seconds. In a gametype like classic, this is a really long time.
+  - 120 points awarded per switch per minute
+  - This normally works out to a maximum of 20 minutes, until you factor in the fight over switches requiring 12 seconds of hold time before you score. You can see how this generally overstays its welcome.
 
-##### Advanced Scoring
-- The score limit is changed to **225 x n²**, where **n** is the number of switches.
-- Once every switch is claimed, or after 2 minutes have passed since mission start, team points will start being awarded.
-- Each team gains **n²** points per second, where **n** is the number of switches their team has claimed.
-- If a team holds all the switches, this works out to roughly 3.75 minutes of hold time to win the game.
-- If both teams hold an equal number of switches, the game will slowly move towards its end in 15 minutes, though cuts will be made when teams hold the enemy switch.
+  ##### Advanced Scoring
+  - The score limit is changed to **225 x n²**, where **n** is the number of switches.
+  - Once every switch is claimed, or after 2 minutes have passed since mission start, team points will start being awarded.
+  - Each team gains **n²** points per second, where **n** is the number of switches their team has claimed.
+  - If a team holds all the switches, this works out to roughly 3.75 minutes of hold time to win the game.
+  - If both teams hold an equal number of switches, the game will slowly move towards its end in 15 minutes, though cuts will be made when teams hold the enemy switch.
 
-Why did I choose 225 as a number instead of 240? I dunno. It doesn't really matter though.```
+  Why did I choose 225 as a number instead of 240? I dunno. It doesn't really matter though.
 </details>
 
 ## Spawn w/Energy Pack (default ON)
