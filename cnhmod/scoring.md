@@ -1,5 +1,5 @@
 # Tribes 2: Capture and Hold modification - Scoring differences
-Why was the scoring system changed? Read up on why.
+Why was the scoring system changed anyway?
 
 ##### Normal Scoring (stock Tribes 2)
 - The score limit is **1200 x n**, where **n** is the number of switches.
