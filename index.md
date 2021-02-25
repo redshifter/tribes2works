@@ -22,7 +22,7 @@ The latest version that I know to exist. Mostly redundant by the existence of Je
 ##### [Blaster Deathmatch](blasterdm)
 Deathmatch involving only the blaster. This was fleshed out into a full gametype unlike the other DM variants on this list. Most of the maps are indoors, making it more <s>fun</s> spammy.
 
-##### Shrike Deathmatch
+##### [Shrike Deathmatch](shrikedm)
 A gametype I made when I had morbid curiosity. You accelerate really fast into the field of battle.
 
 ##### Chaingun Deathmatch
