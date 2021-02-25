@@ -53,3 +53,6 @@ A fork of UltraRS where you only have a fast firing disc and grenade launcher, w
 
 ## NOTE
 All uploaded files are available for viewing on [the repository](https://github.com/redshifter/tribes2works) in their unpackaged format.
+
+## A;sp Mpte
+You may not modify or redistribute my Tribes 2 works without first reading and accepting terms of the [LICENSE](LICENSE).
