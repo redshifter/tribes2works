@@ -1,0 +1,942 @@
+// DisplayName = Equinox
+// MissionTypes = ShrikeDM
+
+//--- MISSION QUOTE BEGIN ---
+//Gentle rains, come wash my sins away, cleanse me of these memories.
+//  -- Great Eagle Alexandre Konavalev, 3940 CE
+//--- MISSION QUOTE END ---
+
+//--- MISSION STRING BEGIN ---
+//A bunch of canyons and mountains are probably cool terrain
+//--- MISSION STRING END ---
+
+//--- OBJECT WRITE BEGIN ---
+new SimGroup(MissionGroup) {
+
+	musicTrack = "lush";
+	cdTrack = "2";
+	powerCount = "0";
+
+	new MissionArea(MissionArea) {
+		area = "-648 -704 1536 1584";
+		flightCeiling = "550";
+		flightCeilingRange = "50";
+
+		locked = "false";
+	};
+	new Sun() {
+		position = "-832 -1272 0";
+		rotation = "1 0 0 0";
+		scale = "1 1 1";
+		direction = "0.57735 0.57735 -0.57735";
+		color = "0.700000 0.700000 0.700000 1.000000";
+		ambient = "0.500000 0.500000 0.500000 1.000000";
+		texture[0] = "special/sunFlare";
+		texture[1] = "special/sunFlare02";
+		texture[2] = "special/LensFlare/flare01";
+		texture[3] = "special/LensFlare/flare02";
+		texture[4] = "special/LensFlare/flare03";
+		lensFlareScale = "0.7";
+		lensFlareIntensity = "1";
+		frontFlareSize = "300";
+		backFlareSize = "450";
+		flareColor = "1.000000 1.000000 1.000000 1.000000";
+
+		locked = "false";
+	};
+	new TerrainBlock(Terrain) {
+		rotation = "1 0 0 0";
+		scale = "1 1 1";
+		detailTexture = "details/lushdet1";
+		terrainFile = "Equinox.ter";
+		squareSize = "8";
+
+		hazeDistance = "250";
+		visibleDistance = "1200";
+		position = "-1024 -1024 0";
+		locked = "true";
+	};
+	new NavigationGraph(NavGraph) {
+		conjoinAngleDev = "45";
+		cullDensity = "0.3";
+		customArea = "0 0 0 0";
+
+		GraphFile = "Equinox.nav";
+		XDimOverSize = "0";
+		scale = "1 1 1";
+		conjoinBowlDev = "20";
+		coverage = "0";
+		position = "0 0 0 1";
+		YDimOverSize = "0";
+		locked = "true";
+		rotation = "0 0 0 0";
+	};
+	new Sky(Sky) {
+		position = "-832 -1272 0";
+		rotation = "1 0 0 0";
+		scale = "1 1 1";
+		cloudHeightPer[0] = "0.349971";
+		cloudHeightPer[1] = "0.25";
+		cloudHeightPer[2] = "0.199973";
+		cloudSpeed1 = "0.0001";
+		cloudSpeed2 = "0.0002";
+		cloudSpeed3 = "0.0003";
+		visibleDistance = "700";
+		useSkyTextures = "1";
+		renderBottomTexture = "0";
+		SkySolidColor = "0.390000 0.390000 0.390000 0.000000";
+		fogDistance = "500";
+		fogColor = "0.500000 0.500000 0.500000 1.000000";
+		fogVolume1 = "0 0 0";
+		fogVolume2 = "0 0 0";
+		fogVolume3 = "0 0 0";
+		materialList = "Lush_l4.dml";
+		windVelocity = "1 0 0";
+		windEffectPrecipitation = "0";
+		fogVolumeColor1 = "128.000000 128.000000 128.000000 0.000000";
+		fogVolumeColor2 = "128.000000 128.000000 128.000000 -nan";
+		fogVolumeColor3 = "128.000000 128.000000 128.000000 -nan";
+		high_visibleDistance = "-1";
+		high_fogDistance = "-1";
+		high_fogVolume1 = "-1 0 0";
+		high_fogVolume2 = "-1 0 0";
+		high_fogVolume3 = "-1 0 0";
+
+		cloudSpeed0 = "0.000500 0.000500";
+		locked = "true";
+	};
+	new SimGroup(ObserverDropPoints) {
+
+
+		new Camera() {
+			position = "75.1682 158.808 136.933";
+			rotation = "0.0271823 -0.069917 0.997182 137.619";
+			scale = "1 1 1";
+			dataBlock = "Observer";
+			lockCount = "0";
+			homingCount = "0";
+
+			locked = "false";
+		};
+		new Camera() {
+			position = "-212.984 448.855 92.0225";
+			rotation = "0 0 1 154.699";
+			scale = "1 1 1";
+			dataBlock = "Observer";
+			lockCount = "0";
+			homingCount = "0";
+
+			locked = "false";
+		};
+		new Camera() {
+			position = "403.809 377.135 110.141";
+			rotation = "-0.0491699 -0.25677 0.965221 200.944";
+			scale = "1 1 1";
+			dataBlock = "Observer";
+			lockCount = "0";
+			homingCount = "0";
+
+			locked = "false";
+		};
+		new Camera() {
+			position = "298.72 -246.869 102.851";
+			rotation = "0.0285852 -0.039973 0.998792 108.928";
+			scale = "1 1 1";
+			dataBlock = "Observer";
+			lockCount = "0";
+			homingCount = "0";
+
+			locked = "false";
+		};
+		new Camera() {
+			position = "-62.1428 -368.961 91.7874";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "Observer";
+			lockCount = "0";
+			homingCount = "0";
+
+			locked = "false";
+		};
+	};
+	new SimGroup(Teams) {
+
+
+		new SimGroup(Team0) {
+
+		};
+	};
+	new SimGroup(Environmental) {
+
+	};
+	new SimGroup(Ambiance) {
+
+
+		new AudioEmitter() {
+			position = "116.659 93.9778 125.739";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			fileName = "fx/environment/fog.wav";
+			useProfileDescription = "0";
+			outsideAmbient = "1";
+			volume = "1";
+			isLooping = "1";
+			is3D = "0";
+			minDistance = "20";
+			maxDistance = "1280";
+			coneInsideAngle = "360";
+			coneOutsideAngle = "360";
+			coneOutsideVolume = "1";
+			coneVector = "0 0 1";
+			loopCount = "-1";
+			minLoopGap = "0";
+			maxLoopGap = "0";
+			type = "EffectAudioType";
+
+			locked = "false";
+		};
+		new AudioEmitter() {
+			position = "239.654 404.275 111.407";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			fileName = "fx/environment/bird_echo5.wav";
+			useProfileDescription = "0";
+			outsideAmbient = "1";
+			volume = "1";
+			isLooping = "1";
+			is3D = "1";
+			minDistance = "20";
+			maxDistance = "1280";
+			coneInsideAngle = "360";
+			coneOutsideAngle = "360";
+			coneOutsideVolume = "1";
+			coneVector = "0 0 1";
+			loopCount = "-1";
+			minLoopGap = "10000";
+			maxLoopGap = "50000";
+			type = "EffectAudioType";
+
+			locked = "false";
+		};
+		new AudioEmitter() {
+			position = "422.654 -234.613 116.139";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			fileName = "fx/environment/bird_echo4.wav";
+			useProfileDescription = "0";
+			outsideAmbient = "1";
+			volume = "1";
+			isLooping = "1";
+			is3D = "1";
+			minDistance = "20";
+			maxDistance = "1280";
+			coneInsideAngle = "360";
+			coneOutsideAngle = "360";
+			coneOutsideVolume = "1";
+			coneVector = "0 0 1";
+			loopCount = "-1";
+			minLoopGap = "10000";
+			maxLoopGap = "40000";
+			type = "EffectAudioType";
+
+			locked = "false";
+		};
+		new InteriorInstance() {
+			position = "128.533 104.994 123.009";
+			rotation = "-0.178128 0.901868 0.39358 53.2976";
+			scale = "2 2 2";
+			interiorFile = "brock6.dif";
+			showTerrainInside = "0";
+
+			locked = "false";
+		};
+		new InteriorInstance() {
+			position = "126.874 83.3308 121.234";
+			rotation = "-0.178128 0.901868 0.39358 53.2976";
+			scale = "2 2 2";
+			interiorFile = "brock6.dif";
+			showTerrainInside = "0";
+
+			locked = "false";
+		};
+		new InteriorInstance() {
+			position = "103.925 86.7246 119.895";
+			rotation = "-0.178128 0.901868 0.39358 53.2976";
+			scale = "2 2 2";
+			interiorFile = "brock6.dif";
+			showTerrainInside = "0";
+
+			locked = "false";
+		};
+		new InteriorInstance() {
+			position = "107.504 106.021 118.877";
+			rotation = "0.588212 0.523641 0.616285 66.1512";
+			scale = "2 2 2";
+			interiorFile = "brock6.dif";
+			showTerrainInside = "0";
+
+			locked = "false";
+		};
+		new Precipitation(Precipitation) {
+			position = "-147.128 240.097 57.9164";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "Rain";
+			lockCount = "0";
+			homingCount = "0";
+			percentage = "1";
+			color1 = "0.600000 0.600000 0.600000 1.000000";
+			color2 = "-1.000000 0.000000 0.000000 1.000000";
+			color3 = "-1.000000 0.000000 0.000000 1.000000";
+			offsetSpeed = "0.25";
+			minVelocity = "1.25";
+			maxVelocity = "4";
+			maxNumDrops = "500";
+			maxRadius = "80";
+
+			locked = "false";
+		};
+	};
+	new SimGroup(ShrikeSpawns) {
+
+
+		new SpawnSphere() {
+			position = "120 -724 200";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "SpawnSphereMarker";
+			lockCount = "0";
+			homingCount = "0";
+			radius = "8";
+			sphereWeight = "100";
+			indoorWeight = "100";
+			outdoorWeight = "100";
+
+		};
+		new SpawnSphere() {
+			position = "120 900 200";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "SpawnSphereMarker";
+			lockCount = "0";
+			homingCount = "0";
+			radius = "8";
+			sphereWeight = "100";
+			indoorWeight = "100";
+			outdoorWeight = "100";
+
+		};
+		new SpawnSphere() {
+			position = "0 -724 200";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "SpawnSphereMarker";
+			lockCount = "0";
+			homingCount = "0";
+			radius = "8";
+			sphereWeight = "100";
+			indoorWeight = "100";
+			outdoorWeight = "100";
+
+		};
+		new SpawnSphere() {
+			position = "0 900 200";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "SpawnSphereMarker";
+			lockCount = "0";
+			homingCount = "0";
+			radius = "8";
+			sphereWeight = "100";
+			indoorWeight = "100";
+			outdoorWeight = "100";
+
+		};
+		new SpawnSphere() {
+			position = "-120 -724 200";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "SpawnSphereMarker";
+			lockCount = "0";
+			homingCount = "0";
+			radius = "8";
+			sphereWeight = "100";
+			indoorWeight = "100";
+			outdoorWeight = "100";
+
+		};
+		new SpawnSphere() {
+			position = "-120 900 200";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "SpawnSphereMarker";
+			lockCount = "0";
+			homingCount = "0";
+			radius = "8";
+			sphereWeight = "100";
+			indoorWeight = "100";
+			outdoorWeight = "100";
+
+		};
+		new SpawnSphere() {
+			position = "-240 -724 200";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "SpawnSphereMarker";
+			lockCount = "0";
+			homingCount = "0";
+			radius = "8";
+			sphereWeight = "100";
+			indoorWeight = "100";
+			outdoorWeight = "100";
+
+		};
+		new SpawnSphere() {
+			position = "-240 900 200";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "SpawnSphereMarker";
+			lockCount = "0";
+			homingCount = "0";
+			radius = "8";
+			sphereWeight = "100";
+			indoorWeight = "100";
+			outdoorWeight = "100";
+
+		};
+		new SpawnSphere() {
+			position = "-360 -724 200";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "SpawnSphereMarker";
+			lockCount = "0";
+			homingCount = "0";
+			radius = "8";
+			sphereWeight = "100";
+			indoorWeight = "100";
+			outdoorWeight = "100";
+
+		};
+		new SpawnSphere() {
+			position = "-360 900 200";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "SpawnSphereMarker";
+			lockCount = "0";
+			homingCount = "0";
+			radius = "8";
+			sphereWeight = "100";
+			indoorWeight = "100";
+			outdoorWeight = "100";
+
+		};
+		new SpawnSphere() {
+			position = "-480 -724 200";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "SpawnSphereMarker";
+			lockCount = "0";
+			homingCount = "0";
+			radius = "8";
+			sphereWeight = "100";
+			indoorWeight = "100";
+			outdoorWeight = "100";
+
+		};
+		new SpawnSphere() {
+			position = "-480 900 200";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "SpawnSphereMarker";
+			lockCount = "0";
+			homingCount = "0";
+			radius = "8";
+			sphereWeight = "100";
+			indoorWeight = "100";
+			outdoorWeight = "100";
+
+		};
+		new SpawnSphere() {
+			position = "-600 -724 200";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "SpawnSphereMarker";
+			lockCount = "0";
+			homingCount = "0";
+			radius = "8";
+			sphereWeight = "100";
+			indoorWeight = "100";
+			outdoorWeight = "100";
+
+		};
+		new SpawnSphere() {
+			position = "-600 900 200";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "SpawnSphereMarker";
+			lockCount = "0";
+			homingCount = "0";
+			radius = "8";
+			sphereWeight = "100";
+			indoorWeight = "100";
+			outdoorWeight = "100";
+
+		};
+		new SpawnSphere() {
+			position = "240 -724 200";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "SpawnSphereMarker";
+			lockCount = "0";
+			homingCount = "0";
+			radius = "8";
+			sphereWeight = "100";
+			indoorWeight = "100";
+			outdoorWeight = "100";
+
+		};
+		new SpawnSphere() {
+			position = "240 900 200";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "SpawnSphereMarker";
+			lockCount = "0";
+			homingCount = "0";
+			radius = "8";
+			sphereWeight = "100";
+			indoorWeight = "100";
+			outdoorWeight = "100";
+
+		};
+		new SpawnSphere() {
+			position = "360 -724 200";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "SpawnSphereMarker";
+			lockCount = "0";
+			homingCount = "0";
+			radius = "8";
+			sphereWeight = "100";
+			indoorWeight = "100";
+			outdoorWeight = "100";
+
+		};
+		new SpawnSphere() {
+			position = "360 900 200";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "SpawnSphereMarker";
+			lockCount = "0";
+			homingCount = "0";
+			radius = "8";
+			sphereWeight = "100";
+			indoorWeight = "100";
+			outdoorWeight = "100";
+
+		};
+		new SpawnSphere() {
+			position = "480 -724 200";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "SpawnSphereMarker";
+			lockCount = "0";
+			homingCount = "0";
+			radius = "8";
+			sphereWeight = "100";
+			indoorWeight = "100";
+			outdoorWeight = "100";
+
+		};
+		new SpawnSphere() {
+			position = "480 900 200";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "SpawnSphereMarker";
+			lockCount = "0";
+			homingCount = "0";
+			radius = "8";
+			sphereWeight = "100";
+			indoorWeight = "100";
+			outdoorWeight = "100";
+
+		};
+		new SpawnSphere() {
+			position = "600 -724 200";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "SpawnSphereMarker";
+			lockCount = "0";
+			homingCount = "0";
+			radius = "8";
+			sphereWeight = "100";
+			indoorWeight = "100";
+			outdoorWeight = "100";
+
+		};
+		new SpawnSphere() {
+			position = "600 900 200";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "SpawnSphereMarker";
+			lockCount = "0";
+			homingCount = "0";
+			radius = "8";
+			sphereWeight = "100";
+			indoorWeight = "100";
+			outdoorWeight = "100";
+
+		};
+		new SpawnSphere() {
+			position = "720 -724 200";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "SpawnSphereMarker";
+			lockCount = "0";
+			homingCount = "0";
+			radius = "8";
+			sphereWeight = "100";
+			indoorWeight = "100";
+			outdoorWeight = "100";
+
+		};
+		new SpawnSphere() {
+			position = "720 900 200";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "SpawnSphereMarker";
+			lockCount = "0";
+			homingCount = "0";
+			radius = "8";
+			sphereWeight = "100";
+			indoorWeight = "100";
+			outdoorWeight = "100";
+
+		};
+		new SpawnSphere() {
+			position = "840 -724 200";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "SpawnSphereMarker";
+			lockCount = "0";
+			homingCount = "0";
+			radius = "8";
+			sphereWeight = "100";
+			indoorWeight = "100";
+			outdoorWeight = "100";
+
+		};
+		new SpawnSphere() {
+			position = "840 900 200";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "SpawnSphereMarker";
+			lockCount = "0";
+			homingCount = "0";
+			radius = "8";
+			sphereWeight = "100";
+			indoorWeight = "100";
+			outdoorWeight = "100";
+
+		};
+		new SpawnSphere() {
+			position = "-668 88 200";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "SpawnSphereMarker";
+			lockCount = "0";
+			homingCount = "0";
+			radius = "8";
+			sphereWeight = "100";
+			indoorWeight = "100";
+			outdoorWeight = "100";
+
+		};
+		new SpawnSphere() {
+			position = "908 88 200";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "SpawnSphereMarker";
+			lockCount = "0";
+			homingCount = "0";
+			radius = "8";
+			sphereWeight = "100";
+			indoorWeight = "100";
+			outdoorWeight = "100";
+
+		};
+		new SpawnSphere() {
+			position = "908 688 200";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "SpawnSphereMarker";
+			lockCount = "0";
+			homingCount = "0";
+			radius = "8";
+			sphereWeight = "100";
+			indoorWeight = "100";
+			outdoorWeight = "100";
+
+		};
+		new SpawnSphere() {
+			position = "908 -32 200";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "SpawnSphereMarker";
+			lockCount = "0";
+			homingCount = "0";
+			radius = "8";
+			sphereWeight = "100";
+			indoorWeight = "100";
+			outdoorWeight = "100";
+
+		};
+		new SpawnSphere() {
+			position = "-668 -152 200";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "SpawnSphereMarker";
+			lockCount = "0";
+			homingCount = "0";
+			radius = "8";
+			sphereWeight = "100";
+			indoorWeight = "100";
+			outdoorWeight = "100";
+
+		};
+		new SpawnSphere() {
+			position = "908 -152 200";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "SpawnSphereMarker";
+			lockCount = "0";
+			homingCount = "0";
+			radius = "8";
+			sphereWeight = "100";
+			indoorWeight = "100";
+			outdoorWeight = "100";
+
+		};
+		new SpawnSphere() {
+			position = "-668 -272 200";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "SpawnSphereMarker";
+			lockCount = "0";
+			homingCount = "0";
+			radius = "8";
+			sphereWeight = "100";
+			indoorWeight = "100";
+			outdoorWeight = "100";
+
+		};
+		new SpawnSphere() {
+			position = "-668 808 200";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "SpawnSphereMarker";
+			lockCount = "0";
+			homingCount = "0";
+			radius = "8";
+			sphereWeight = "100";
+			indoorWeight = "100";
+			outdoorWeight = "100";
+
+		};
+		new SpawnSphere() {
+			position = "-668 -392 200";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "SpawnSphereMarker";
+			lockCount = "0";
+			homingCount = "0";
+			radius = "8";
+			sphereWeight = "100";
+			indoorWeight = "100";
+			outdoorWeight = "100";
+
+		};
+		new SpawnSphere() {
+			position = "908 808 200";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "SpawnSphereMarker";
+			lockCount = "0";
+			homingCount = "0";
+			radius = "8";
+			sphereWeight = "100";
+			indoorWeight = "100";
+			outdoorWeight = "100";
+
+		};
+		new SpawnSphere() {
+			position = "-668 -512 200";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "SpawnSphereMarker";
+			lockCount = "0";
+			homingCount = "0";
+			radius = "8";
+			sphereWeight = "100";
+			indoorWeight = "100";
+			outdoorWeight = "100";
+
+		};
+		new SpawnSphere() {
+			position = "908 -512 200";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "SpawnSphereMarker";
+			lockCount = "0";
+			homingCount = "0";
+			radius = "8";
+			sphereWeight = "100";
+			indoorWeight = "100";
+			outdoorWeight = "100";
+
+		};
+		new SpawnSphere() {
+			position = "-668 -632 200";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "SpawnSphereMarker";
+			lockCount = "0";
+			homingCount = "0";
+			radius = "8";
+			sphereWeight = "100";
+			indoorWeight = "100";
+			outdoorWeight = "100";
+
+		};
+		new SpawnSphere() {
+			position = "908 -632 200";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "SpawnSphereMarker";
+			lockCount = "0";
+			homingCount = "0";
+			radius = "8";
+			sphereWeight = "100";
+			indoorWeight = "100";
+			outdoorWeight = "100";
+
+		};
+		new SpawnSphere() {
+			position = "-668 208 200";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "SpawnSphereMarker";
+			lockCount = "0";
+			homingCount = "0";
+			radius = "8";
+			sphereWeight = "100";
+			indoorWeight = "100";
+			outdoorWeight = "100";
+
+		};
+		new SpawnSphere() {
+			position = "908 208 200";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "SpawnSphereMarker";
+			lockCount = "0";
+			homingCount = "0";
+			radius = "8";
+			sphereWeight = "100";
+			indoorWeight = "100";
+			outdoorWeight = "100";
+
+		};
+		new SpawnSphere() {
+			position = "-668 328 200";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "SpawnSphereMarker";
+			lockCount = "0";
+			homingCount = "0";
+			radius = "8";
+			sphereWeight = "100";
+			indoorWeight = "100";
+			outdoorWeight = "100";
+
+		};
+		new SpawnSphere() {
+			position = "908 328 200";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "SpawnSphereMarker";
+			lockCount = "0";
+			homingCount = "0";
+			radius = "8";
+			sphereWeight = "100";
+			indoorWeight = "100";
+			outdoorWeight = "100";
+
+		};
+		new SpawnSphere() {
+			position = "-668 448 200";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "SpawnSphereMarker";
+			lockCount = "0";
+			homingCount = "0";
+			radius = "8";
+			sphereWeight = "100";
+			indoorWeight = "100";
+			outdoorWeight = "100";
+
+		};
+		new SpawnSphere() {
+			position = "908 448 200";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "SpawnSphereMarker";
+			lockCount = "0";
+			homingCount = "0";
+			radius = "8";
+			sphereWeight = "100";
+			indoorWeight = "100";
+			outdoorWeight = "100";
+
+		};
+		new SpawnSphere() {
+			position = "-668 568 200";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "SpawnSphereMarker";
+			lockCount = "0";
+			homingCount = "0";
+			radius = "8";
+			sphereWeight = "100";
+			indoorWeight = "100";
+			outdoorWeight = "100";
+
+		};
+		new SpawnSphere() {
+			position = "908 568 200";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "SpawnSphereMarker";
+			lockCount = "0";
+			homingCount = "0";
+			radius = "8";
+			sphereWeight = "100";
+			indoorWeight = "100";
+			outdoorWeight = "100";
+
+		};
+		new SpawnSphere() {
+			position = "-668 688 200";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "SpawnSphereMarker";
+			lockCount = "0";
+			homingCount = "0";
+			radius = "8";
+			sphereWeight = "100";
+			indoorWeight = "100";
+			outdoorWeight = "100";
+
+		};
+	};
+};
+//--- OBJECT WRITE END ---

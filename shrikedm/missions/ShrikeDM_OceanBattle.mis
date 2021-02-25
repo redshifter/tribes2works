@@ -1,0 +1,450 @@
+// DisplayName = Ocean Battle
+// MissionTypes = ShrikeDM
+
+//--- MISSION QUOTE BEGIN ---
+//Target ahead!
+//  -- Ultimate Air Combat, the inspiration of this uninspired map
+//--- MISSION QUOTE END ---
+
+//--- MISSION STRING BEGIN ---
+//Don't touch the water; it is lethal!
+//--- MISSION STRING END ---
+
+//--- OBJECT WRITE BEGIN ---
+new SimGroup(MissionGroup) {
+
+	cdTrack = "2";
+	powerCount = "0";
+	musicTrack = "lush";
+
+	new MissionArea(MissionArea) {
+		area = "-480 -560 944 960";
+		flightCeiling = "550";
+		flightCeilingRange = "50";
+
+		locked = "false";
+	};
+	new Sun() {
+		position = "-832 -1272 0";
+		rotation = "1 0 0 0";
+		scale = "1 1 1";
+		direction = "0.57735 0.57735 -0.57735";
+		color = "0.700000 0.700000 0.700000 1.000000";
+		ambient = "0.500000 0.500000 0.500000 1.000000";
+		texture[0] = "special/sunFlare";
+		texture[1] = "special/sunFlare02";
+		texture[2] = "special/LensFlare/flare01";
+		texture[3] = "special/LensFlare/flare02";
+		texture[4] = "special/LensFlare/flare03";
+		lensFlareScale = "0.7";
+		lensFlareIntensity = "1";
+		frontFlareSize = "300";
+		backFlareSize = "450";
+		flareColor = "1.000000 1.000000 1.000000 1.000000";
+
+		locked = "false";
+	};
+	new TerrainBlock(Terrain) {
+		rotation = "1 0 0 0";
+		scale = "1 1 1";
+		detailTexture = "details/lushdet1";
+		terrainFile = "Equinox.ter";
+		squareSize = "8";
+
+		hazeDistance = "250";
+		visibleDistance = "1200";
+		position = "-1024 -1024 0";
+		locked = "true";
+	};
+	new NavigationGraph(NavGraph) {
+		conjoinAngleDev = "45";
+		cullDensity = "0.3";
+		customArea = "0 0 0 0";
+
+		GraphFile = "Equinox.nav";
+		scale = "1 1 1";
+		coverage = "0";
+		YDimOverSize = "0";
+		XDimOverSize = "0";
+		position = "0 0 0 1";
+		locked = "true";
+		conjoinBowlDev = "20";
+		rotation = "0 0 0 0";
+	};
+	new Sky(Sky) {
+		position = "728 -288 0";
+		rotation = "1 0 0 0";
+		scale = "1 1 1";
+		cloudHeightPer[0] = "100";
+		cloudHeightPer[1] = "0.25";
+		cloudHeightPer[2] = "0.199973";
+		cloudSpeed1 = "0.01";
+		cloudSpeed2 = "0.02";
+		cloudSpeed3 = "0.03";
+		visibleDistance = "900";
+		useSkyTextures = "1";
+		renderBottomTexture = "0";
+		SkySolidColor = "0.365000 0.390000 0.420000 0.000000";
+		fogDistance = "750";
+		fogColor = "0.200000 0.525000 0.625000 1.000000";
+		fogVolume1 = "50 0 310";
+		fogVolume2 = "0 0 0";
+		fogVolume3 = "0 0 0";
+		materialList = "lush_ram.dml";
+		windVelocity = "0 0 0";
+		windEffectPrecipitation = "0";
+		fogVolumeColor1 = "10.000000 128.000000 28.000000 0.000000";
+		fogVolumeColor2 = "128.000000 128.000000 128.000000 0.000000";
+		fogVolumeColor3 = "128.000000 128.000000 128.000000 0.000000";
+		high_visibleDistance = "-1";
+		high_fogDistance = "-1";
+		high_fogVolume1 = "-1 3344 6.27351e-39";
+		high_fogVolume2 = "-1 3.51342e-39 2.46878e+27";
+		high_fogVolume3 = "-1 5.3766e+08 -3.21499e+06";
+
+		cloudSpeed0 = "0.000150 0.000050";
+		locked = "false";
+	};
+	new SimGroup(ObserverDropPoints) {
+
+
+		new Camera() {
+			position = "75.1682 158.808 136.933";
+			rotation = "0.0271823 -0.069917 0.997182 137.619";
+			scale = "1 1 1";
+			dataBlock = "Observer";
+			lockCount = "0";
+			homingCount = "0";
+
+			locked = "false";
+		};
+		new Camera() {
+			position = "-212.984 448.855 92.0225";
+			rotation = "0 0 1 154.699";
+			scale = "1 1 1";
+			dataBlock = "Observer";
+			lockCount = "0";
+			homingCount = "0";
+
+			locked = "false";
+		};
+		new Camera() {
+			position = "403.809 377.135 110.141";
+			rotation = "-0.0491699 -0.25677 0.965221 200.944";
+			scale = "1 1 1";
+			dataBlock = "Observer";
+			lockCount = "0";
+			homingCount = "0";
+
+			locked = "false";
+		};
+		new Camera() {
+			position = "298.72 -246.869 102.851";
+			rotation = "0.0285852 -0.039973 0.998792 108.928";
+			scale = "1 1 1";
+			dataBlock = "Observer";
+			lockCount = "0";
+			homingCount = "0";
+
+			locked = "false";
+		};
+		new Camera() {
+			position = "-62.1428 -368.961 91.7874";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "Observer";
+			lockCount = "0";
+			homingCount = "0";
+
+			locked = "false";
+		};
+	};
+	new SimGroup(Teams) {
+
+
+		new SimGroup(Team0) {
+
+		};
+	};
+	new WaterBlock() {
+		position = "-1024 -816 160";
+		rotation = "1 0 0 0";
+		scale = "2048 2048 150";
+		liquidType = "Lava";
+		density = "1";
+		viscosity = "5";
+		waveMagnitude = "3";
+		surfaceTexture = "LiquidTiles/BlueWater";
+		surfaceOpacity = "0.3";
+		envMapTexture = "lush/skies/lushcloud1";
+		envMapIntensity = "0.3";
+		removeWetEdges = "0";
+
+		locked = "true";
+	};
+	new SimGroup(ShrikeSpawns) {
+
+
+		new SpawnSphere() {
+			position = "-8 -585 450";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "SpawnSphereMarker";
+			lockCount = "0";
+			homingCount = "0";
+			radius = "8";
+			sphereWeight = "100";
+			indoorWeight = "100";
+			outdoorWeight = "100";
+
+		};
+		new SpawnSphere() {
+			position = "-8 425 450";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "SpawnSphereMarker";
+			lockCount = "0";
+			homingCount = "0";
+			radius = "8";
+			sphereWeight = "100";
+			indoorWeight = "100";
+			outdoorWeight = "100";
+
+		};
+		new SpawnSphere() {
+			position = "-208 -585 450";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "SpawnSphereMarker";
+			lockCount = "0";
+			homingCount = "0";
+			radius = "8";
+			sphereWeight = "100";
+			indoorWeight = "100";
+			outdoorWeight = "100";
+
+		};
+		new SpawnSphere() {
+			position = "-208 425 450";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "SpawnSphereMarker";
+			lockCount = "0";
+			homingCount = "0";
+			radius = "8";
+			sphereWeight = "100";
+			indoorWeight = "100";
+			outdoorWeight = "100";
+
+		};
+		new SpawnSphere() {
+			position = "-408 -585 450";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "SpawnSphereMarker";
+			lockCount = "0";
+			homingCount = "0";
+			radius = "8";
+			sphereWeight = "100";
+			indoorWeight = "100";
+			outdoorWeight = "100";
+
+		};
+		new SpawnSphere() {
+			position = "-408 425 450";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "SpawnSphereMarker";
+			lockCount = "0";
+			homingCount = "0";
+			radius = "8";
+			sphereWeight = "100";
+			indoorWeight = "100";
+			outdoorWeight = "100";
+
+		};
+		new SpawnSphere() {
+			position = "192 -585 450";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "SpawnSphereMarker";
+			lockCount = "0";
+			homingCount = "0";
+			radius = "8";
+			sphereWeight = "100";
+			indoorWeight = "100";
+			outdoorWeight = "100";
+
+		};
+		new SpawnSphere() {
+			position = "192 425 450";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "SpawnSphereMarker";
+			lockCount = "0";
+			homingCount = "0";
+			radius = "8";
+			sphereWeight = "100";
+			indoorWeight = "100";
+			outdoorWeight = "100";
+
+		};
+		new SpawnSphere() {
+			position = "392 -585 450";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "SpawnSphereMarker";
+			lockCount = "0";
+			homingCount = "0";
+			radius = "8";
+			sphereWeight = "100";
+			indoorWeight = "100";
+			outdoorWeight = "100";
+
+		};
+		new SpawnSphere() {
+			position = "392 425 450";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "SpawnSphereMarker";
+			lockCount = "0";
+			homingCount = "0";
+			radius = "8";
+			sphereWeight = "100";
+			indoorWeight = "100";
+			outdoorWeight = "100";
+
+		};
+		new SpawnSphere() {
+			position = "-505 -80 450";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "SpawnSphereMarker";
+			lockCount = "0";
+			homingCount = "0";
+			radius = "8";
+			sphereWeight = "100";
+			indoorWeight = "100";
+			outdoorWeight = "100";
+
+		};
+		new SpawnSphere() {
+			position = "489 -80 450";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "SpawnSphereMarker";
+			lockCount = "0";
+			homingCount = "0";
+			radius = "8";
+			sphereWeight = "100";
+			indoorWeight = "100";
+			outdoorWeight = "100";
+
+		};
+		new SpawnSphere() {
+			position = "-505 -280 450";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "SpawnSphereMarker";
+			lockCount = "0";
+			homingCount = "0";
+			radius = "8";
+			sphereWeight = "100";
+			indoorWeight = "100";
+			outdoorWeight = "100";
+
+		};
+		new SpawnSphere() {
+			position = "489 -280 450";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "SpawnSphereMarker";
+			lockCount = "0";
+			homingCount = "0";
+			radius = "8";
+			sphereWeight = "100";
+			indoorWeight = "100";
+			outdoorWeight = "100";
+
+		};
+		new SpawnSphere() {
+			position = "-505 -480 450";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "SpawnSphereMarker";
+			lockCount = "0";
+			homingCount = "0";
+			radius = "8";
+			sphereWeight = "100";
+			indoorWeight = "100";
+			outdoorWeight = "100";
+
+		};
+		new SpawnSphere() {
+			position = "489 -480 450";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "SpawnSphereMarker";
+			lockCount = "0";
+			homingCount = "0";
+			radius = "8";
+			sphereWeight = "100";
+			indoorWeight = "100";
+			outdoorWeight = "100";
+
+		};
+		new SpawnSphere() {
+			position = "-505 120 450";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "SpawnSphereMarker";
+			lockCount = "0";
+			homingCount = "0";
+			radius = "8";
+			sphereWeight = "100";
+			indoorWeight = "100";
+			outdoorWeight = "100";
+
+		};
+		new SpawnSphere() {
+			position = "489 120 450";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "SpawnSphereMarker";
+			lockCount = "0";
+			homingCount = "0";
+			radius = "8";
+			sphereWeight = "100";
+			indoorWeight = "100";
+			outdoorWeight = "100";
+
+		};
+		new SpawnSphere() {
+			position = "-505 320 450";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "SpawnSphereMarker";
+			lockCount = "0";
+			homingCount = "0";
+			radius = "8";
+			sphereWeight = "100";
+			indoorWeight = "100";
+			outdoorWeight = "100";
+
+		};
+		new SpawnSphere() {
+			position = "489 320 450";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "SpawnSphereMarker";
+			lockCount = "0";
+			homingCount = "0";
+			radius = "8";
+			sphereWeight = "100";
+			indoorWeight = "100";
+			outdoorWeight = "100";
+
+		};
+	};
+};
+//--- OBJECT WRITE END ---
