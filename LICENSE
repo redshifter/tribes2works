@@ -1,0 +1,76 @@
+Red Shifter's License for Tribes 2 Works v1.1
+
+Copyright (c) 2021 "Red Shifter"
+
+The goal of this license is to
+- Forbid commerical use
+- Forbid the soliciation of donations except by people of high moral standing
+- Preserve derivative works and keep server admins from hiding them away
+- Indemnify the creators of the works, taking away all implications of liability and warranty
+
+PERSONAL USE
+Blanket permission is granted to keep a copy of the work and use it for your own personal use. Personal use is defined as any use on a game server with
+a maximum of 4 human players on it.
+
+COMMERICAL USE
+Commerical use is explicitly prohibited. This includes, but is not limited to running a server for money, pay-to-play servers, etc. An exception to
+this rule is made for servers that solicit donations to continue running, as long as such servers are publicly available for play by a reasonable
+player (one that does not get themselves banned by reducing the ability to play by others on their team, cheating, spouting racial epithets, spreading
+Russian right-wing propaganda, illegal activites, etc).
+
+Donations may not be solicited to run a server that runs this work or its derivatives, except by server providers of high moral standing, both in
+general and as defined in this license. Running a public Discord server tangential to a game server, or any other related activity, is not considered
+the soliciation of donations, as long as boosting/donating to the server does not give a person additional access to any aspect of the server.
+
+Admin rights may be given to trusted high donors, but any unexpected features of the admin toolset (such as being able to lightning strike someone
+or drive around in a shrike on team 3) must be plainly obvious upon invocation, such as through a chat message that has the proper sound attached
+when said power is invoked, or through its use making it blatantly obvious.
+
+Server/game access may not be given only to donors. However, a priority queue may be used on a server and access to it may be given to donors, as
+long as it does not comprise more than 12.5% of the available slots on said server (ex. 4 slots of a 32 player server).
+
+No other special access to a server may be given in exchange for a donation.
+
+DERIVATIVE WORKS
+In this license, a "derivative work" is any map, any code modification, any code addition with the explicit purpose of changing how the code works, etc.
+
+All derivative works are fine as long as such modifications are PUBLICLY AVAILABLE. It is EXPRESSLY PROHIBITED to run any derivative work on a server
+without making it publicly available, such as through a website or FTP. Works in progress, test versions, etc. do not need to be uploaded for public
+availability immediately. However, if said versions are requested and are still in active use on a server, it should be made available as soon as
+convenient, such as within 24 hours of the request, and such files could be made available through Discord, etc.
+
+You may not solicit donations to create a derivative work except within the confines of the COMMERICAL USE clause. All derivative work created through
+solicited donations must be publicly available as written in this license.
+
+Derivative works must contain this license. Additional terms may be attached to the license, as long as this license is unmodified. However, all clauses
+of this license supercede existing licenses.
+
+HIGH MORAL STANDING
+To have a high moral standing as specified in this license, such individuals must not believe in, condone, or tolerate Russian right-wing cult theories
+and icons, such as psuedoscience, Nazism, racism, facism, terrorism, the rigging of the 2020 US election, etc.
+
+They must not hold cryptocurrency that is based on proof-of-work (Bitcoin, Etherium), nor may they hold cryptocurrency where they don't know if it's
+based on proof-of-work (exception: daytrading in Dogecoin).
+
+They must not cheat or distribute cheats for online games (no exceptions) or in offline games (exception: cheats for an offline game must be plainly
+obvious through some on-screen text, or through interactions that make it blatantly obvious that offline game cheating is happening).
+
+They must not work for Epic Games, nor may they work for a company that has uploaded a work to Epic Game Store or any other online storefront run by
+Epic Games without also releasing said work to either Steam or a non-DRM PC storefront first. They must not condone any other company that expects a
+work week of 70 hours or more.
+
+"High moral standing" is not limited by the explicit terms of this license.
+
+As written in other sections, if you lack a high moral standing, you may not solicit donations for any aspect of running a server or to create a
+derivative work (though you may still create a derivative work as laid out in its section; you are just not allowed to solicit donations for such
+a thing).
+
+INDEMNIFICATION
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+IN THE SOFTWARE.
+
+TRICKERY CLAUSE
+This is not an ironclad contract. I am not a lawyer. This license will be interpreted how I see fit. Malicious attempts to get around loopholes in
+the license are considered violatios of the license, and you immediately forfeit all rights to the work and its derivatives.
