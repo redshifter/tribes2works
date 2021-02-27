@@ -11,12 +11,6 @@ Spawn with Energy, a few other QoL improvements, and a new team scoring system t
 ##### [Pirates of the Caribbean](potc)
 A gametype where you grab a Havoc and sail the scurvy seas, matey! There is no win condition, so just do whatever you feel is right.
 
-##### Team Deatchmatch
-Deathmatch with teams. Mostly ran its course, allowing people on pond to pretend to play Arena without drawing actual Arena players into their game.
-
-##### Team Rabbit 2 v4.31
-The latest version that I know to exist. Mostly redundant by the existence of Jetball.
-
 ## Single Player Gametypes
 
 ##### [Blaster Deathmatch](blasterdm)
@@ -24,6 +18,24 @@ Deathmatch involving only the blaster. This was fleshed out into a full gametype
 
 ##### [Shrike Deathmatch](shrikedm)
 A gametype I made when I had morbid curiosity. You accelerate really fast into the field of battle.
+
+## Server Mods that I don't know why I made
+
+##### [UltraRS](servermods/UltraRS)
+Most ultra mods are based on instagib and near-hitscan weapons. I decided that was stupid. I just made all the projectile guns fire super fast. This was still pretty stupid.
+
+##### [Overdrive](servermods/Overdrive)
+Basically UltraRS except based on classic physics. Also getting an Energy Pack and press the pack button turns your already super gun into an even superer overdrive gun for a few seconds. This didn't really fix how stupid it was, but the weapons are pretty hilarious. I was especially proud of the Chaingun Mortar.
+
+##### [Hyperdrive](servermods/Hyperdrive)
+A fork of UltraRS where you only have a fast firing disc and grenade launcher, which have very limited ammo that refill after a few seconds, meaning players can't spam. Also has a super fast walk speed and a few other surprises.
+
+## ABANDONED WORKS
+##### Team Deatchmatch
+Deathmatch with teams. Mostly ran its course, allowing people on pond to pretend to play Arena without drawing actual Arena players into their game.
+
+##### Team Rabbit 2 v4.31
+The latest version that I know to exist. Mostly redundant by the existence of Jetball.
 
 ##### Chaingun Deathmatch
 Deathmatch only involving the chaingun. I mostly made this as a joke.
@@ -39,17 +51,6 @@ A gametype about skiing through flags. It's pretty garbage and there's probably 
 
 ##### Golf
 A gametype about precision mortaring. (WARNING: This gametype carries a terrible curse that destroys computers.)
-
-## Server Mods that I don't know why I made
-
-##### [UltraRS](servermods/UltraRS)
-Most ultra mods are based on instagib and near-hitscan weapons. I decided that was stupid. I just made all the projectile guns fire super fast. This was still pretty stupid.
-
-##### [Overdrive](servermods/Overdrive)
-Basically UltraRS except based on classic physics. Also getting an Energy Pack and press the pack button turns your already super gun into an even superer overdrive gun for a few seconds. This didn't really fix how stupid it was, but the weapons are pretty hilarious. I was especially proud of the Chaingun Mortar.
-
-##### [Hyperdrive](servermods/Hyperdrive)
-A fork of UltraRS where you only have a fast firing disc and grenade launcher, which have very limited ammo that refill after a few seconds, meaning players can't spam. Also has a super fast walk speed and a few other surprises.
 
 ## NOTE
 All uploaded files are available for viewing on [the repository](https://github.com/redshifter/tribes2works) in their unpackaged format.
