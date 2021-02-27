@@ -31,10 +31,10 @@ Don't ye DARE be caught wit' these weapons, or I'll make ye walk th' plank mesel
 - Ye can not destroy any o' th' base equipment, so don't even try.
 
 # MAPS
-## Pirates of the Caribbean
+## Pirates of the Caribbean (POTC.mis)
 Th' classic. Ye can only get Havocs here.
 
-## Whalers on the Moon
+## Whalers on the Moon (POTCBomb.mis)
 Ye can also get Bombers on this one. I don't remember why I split this out.
 
 # CREDITS
