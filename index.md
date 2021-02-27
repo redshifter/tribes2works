@@ -8,7 +8,7 @@ This is basically two-sided Siege. Explode the gens to drop the forcefields and 
 ##### [Capture and Hold mod](cnhmod)
 Spawn with Energy, a few other QoL improvements, and a new team scoring system that aims for much shorter games (around 15 minutes for a balanced game, less than 5 minutes for a pub-stomp).
 
-##### Pirates of the Caribbean
+##### [Pirates of the Caribbean](potc)
 A gametype where you grab a Havoc and sail the scurvy seas, matey! There is no win condition, so just do whatever you feel is right.
 
 ##### Team Deatchmatch
