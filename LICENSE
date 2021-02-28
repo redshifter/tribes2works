@@ -1,4 +1,4 @@
-Red Shifter's License for Tribes 2 Works v1.1
+Red Shifter's License for Tribes 2 Works v1.2, updated 2021-02-28
 
 Copyright (c) 2021 "Red Shifter"
 
@@ -14,6 +14,7 @@ Blanket permission is granted to keep a copy of the work and use it for your own
 a maximum of 4 human players on it.
 
 Acceptance of this license is not required in order to play on a server using the work. Only to host the work on your own server.
+
 
 3. COMMERCIAL USE
 Commercial use is explicitly prohibited. This includes, but is not limited to running a server for money, pay-to-play servers, etc. An exception to
@@ -33,6 +34,9 @@ Server/game access may not be given only to donors. However, a priority queue ma
 long as it does not comprise more than 12.5% of the available slots on said server (ex. 4 slots of a 32 player server).
 
 No other special access to a server may be given in exchange for a donation.
+
+The commerical use clause does not apply to server infrastructure providers (i.e. Branzone), as long as the server operator (i.e. the person who paid
+money to Branzone for said server) is the one that makes the decision to include said works on the server.
 
 4. DERIVATIVE WORKS
 In this license, a "derivative work" is any map, any code modification, any code addition with the explicit purpose of changing how the code works, etc.
