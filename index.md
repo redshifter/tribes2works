@@ -55,5 +55,5 @@ A gametype about precision mortaring. (WARNING: This gametype carries a terrible
 ## NOTE
 All uploaded files are available for viewing on [the repository](https://github.com/redshifter/tribes2works) in their unpackaged format.
 
-## ALSO NOTE
-You may not modify or redistribute my Tribes 2 works without first reading and accepting terms of the [LICENSE](LICENSE).
+## ALSO NOTE: LICENSE TERMS
+These works may not be used for commercial purposes. Derivative works must be released publicly when completed, or made available upon request if not. See [LICENSE](LICENSE) terms for more information.
