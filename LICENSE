@@ -1,4 +1,4 @@
-Red Shifter's License for Tribes 2 Works v1.2, updated 2021-02-28
+Red Shifter's License for Tribes 2 Works v1.3, updated 2021-03-04
 
 Copyright (c) 2021 "Red Shifter"
 
@@ -15,7 +15,6 @@ a maximum of 4 human players on it.
 
 Acceptance of this license is not required in order to play on a server using the work. Only to host the work on your own server.
 
-
 3. COMMERCIAL USE
 Commercial use is explicitly prohibited. This includes, but is not limited to running a server for money, pay-to-play servers, etc. An exception to
 this rule is made for servers that solicit donations to continue running, as long as such servers are publicly available for play by a reasonable
@@ -30,8 +29,8 @@ Admin rights may be given to trusted high donors, but any unexpected features of
 or drive around in a shrike on team 3) must be plainly obvious upon invocation, such as through a chat message that has the proper sound attached
 when said power is invoked, or through its use making it blatantly obvious.
 
-Server/game access may not be given only to donors. However, a priority queue may be used on a server and access to it may be given to donors, as
-long as it does not comprise more than 12.5% of the available slots on said server (ex. 4 slots of a 32 player server).
+Server/game access may not be given only to donors. However, a priority queue may be used on a server and access to it may be given to donors, as long
+as it does not comprise more than 4 slots on said server.
 
 No other special access to a server may be given in exchange for a donation.
 
@@ -63,16 +62,17 @@ They must not hold cryptocurrency that is based on proof-of-work (Bitcoin, Ether
 based on proof-of-work.
 
 They must not cheat or distribute cheats for online games (no exceptions) or in offline games (exception: cheats for an offline game must be plainly
-obvious through some on-screen text, or through interactions that make it blatantly obvious that offline game cheating is happening).
+obvious through some on-screen text, or through interactions that make it blatantly obvious that offline game cheating is happening, and may not be
+used in situations where it reports back results to an online leaderboard, etc).
 
 They must not work for Epic Games, nor may they work for a company that has uploaded a work to Epic Game Store or any other online storefront run by
-Epic Games without also releasing said work to either Steam or a non-DRM PC storefront first. They must not condone any other company that expects a
-work week of 70 hours or more.
+Epic Games without also releasing said work to either Steam or a non-DRM PC storefront first. They must not condone any other company that expects an
+average work week of 70 hours or more.
 
 "High moral standing" is not limited by the explicit terms of this license.
 
 As written in other sections, if you lack a high moral standing, you may not solicit donations for any aspect of running a server with this code on
-that server, or to create a d erivative work (though you may still create a derivative work as laid out in its section; you are just not allowed to
+that server, or to create a derivative work (though you may still create a derivative work as laid out in its section; you are just not allowed to
 solicit donations for such an activity).
 
 6. INDEMNIFICATION
