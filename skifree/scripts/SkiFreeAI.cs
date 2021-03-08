@@ -2,9 +2,25 @@
 // no, not aiSkiFree.cs - that naming convention is stupid
 
 // level 1 - the bot will just be handled by the game
-// level 2 - ski down hills, everything else the same
-// level 3 - ski down hills and jet up/over hills
+// level 2 - ski down hills, everything else the same (skiing doesn't work very well because bots are too afraid of fall damage)
+// level 3 - don't be afraid of fall damage, ski down hills, jet up/over hills
 // level 4 - probably not happening ever
+
+// TODO fix bots committing to going alone before the mission starts
+
+//
+function SkiFreeGame::addBots(%game) {
+	// please don't call this more than once
+	for( %i = 0; %i < ClientGroup.getCount(); %i++ ) {
+		%cl = ClientGroup.getObject(%i);
+		if( %cl.isAIControlled() ) return;
+	}
+	
+	// note: there's something fucky with this code so it should be BELOW the skill level seen in AIHasJoined method
+	aiConnect("Level 3", 1, 1.00, true);
+	aiConnect("Level 2", 1, 0.60, true);
+	aiConnect("Level 1", 1, 0.30, true);
+}
 
 function SkiFreeGame::AIHasJoined(%game, %client) {
 	%skill = %client.getSkillLevel();
@@ -18,6 +34,7 @@ function SkiFreeGame::AIHasJoined(%game, %client) {
 		%client.AI_skiFreeBotLevel = 3;
 	}
 }
+
 function SkiFreeGame::AIinit(%game) {
 	// keeps ai from spamming the console - no idea what else it does
 	AIInit();
@@ -53,14 +70,24 @@ function SkiFreeGame::AI_heartbeat(%game, %client, %player) {
 	}
 	else if( %client.AI_skiFreeBotLevel <= 1 ) {
 		// level 1 is just "turn off the heartbeat and use the standard bot behavior"
-		// it already knows where it needs to go, t2 can handle that
+		// it already knows where it needs to go, t2 can handle that much
 		return;
 	}
 	else if( %client.AI_skiFreeBotLevel == 2 ) {
+		// level 2 is "ski down hills, otherwise let t2 handle it"
+		// weaknesses:
+		// - it uses jets to try and avoid fall damage because that's the default t2 behavior
+		// - it's really not much better than level 1
 		%game.AI_playGameLevel2(%client, %player);
 		%heartbeat = 20;
 	}
 	else if( %client.AI_skiFreeBotLevel == 3 ) {
+		// level 3 is "ski down hills, jet over hills"
+		// weaknesses:
+		// - it doesn't see whether skiing down is actually a good idea or not
+		// - it doesn't understand what to do once it has the speed
+		// - sometimes it misses the downhill directly and lands on the next uphill
+		// - sometimes it overshoots the gate because it's going too fast
 		%game.AI_playGameLevel3(%client, %player);
 		%heartbeat = 20;
 	}
@@ -75,16 +102,18 @@ function SkiFreeGame::AI_mingle(%game, %client, %player) {
 	for( %i = 0; %i < ClientGroup.getCount(); %i++ ) {
 		%cl = ClientGroup.getObject(%i);
 		if( !%cl.isAIControlled() && %cl.team == 1 ) {
-			// player in game - bots only go if someone else goes
+			// player in game, don't go on your own
 			%alone = false;
 			break;
 		}
 		else if( %cl.isAIControlled() ) {
 			if( !isObject(%cl.player) ) {
+				// a bot is dead, so they're respawning
 				%alone = false;
 				break;
 			}
 			else if( %cl.player.launchTime !$= "" ) {
+				// a bot is still in the field, don't desync
 				%alone = false;
 				break;
 			}
@@ -129,6 +158,9 @@ function SkiFreeGame::AI_startRun(%game, %client, %player) {
 	%player.AI_meantToLaunch = 1;
 	%client.stepMove(GatePoint1.position, 5);
 	%player.use(Disc);
+	
+	// tell the other bots that it's time to go
+	%game.lastLaunchTime = getSimTime();
 }
 
 function SkiFreeGame::AI_crossedGate(%game, %client, %player) {
@@ -155,8 +187,7 @@ function SkiFreeGame::AI_playGameLevel2(%game, %client, %player) {
 	// return if we haven't launched yet - just do standard bot things up to that point
 	if( %player.launchTime $= "" ) return;
 	
-	// this is little more than a "going downhill? hold ski" bot
-	// TODO stop it from jetting if it's too far above terrain, but only if the terrain is downhill
+	// this is little more than "is the target point downhill? hold ski" bot
 	%dir = VectorSub(%player.position, nameToID("GatePoint" @ %player.gate).position);
 	%dir = VectorNormalize(getWords(%dir, 0, 1) SPC "0");
 	%dir = VectorScale(%dir, 2);
@@ -182,6 +213,7 @@ function SkiFreeGame::AI_playGameLevel3(%game, %client, %player) {
 	if( %player.launchTime $= "" ) return;
 	
 	// disable the bot's jets when i don't tell you to use them
+	// TODO this doesn't actually work correctly - bots just seem to completely refill their energy when this is called
 	if( %player.storedEnergy > 0 ) {
 		%player.setEnergyLevel(%player.getEnergyLevel() + %player.storedEnergy);
 		%player.storedEnergy = 0;
