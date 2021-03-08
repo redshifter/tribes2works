@@ -99,6 +99,12 @@ function SkiFreeGame::checkDeadstop(%game, %targetObject, %oldVector) {
 		%minh = 500;
 		%maxh = -100;
 		%h = %game.findHeight( getWords(%targetObject.position, 0, 1) );
+
+		if( mAbs(getWord(%targetObject.position, 2) - %h) > 0.01 ) {
+			// deadstops happen on the ground
+			return;
+		}
+		
 		for( %x = -1; %x <= 1; %x++ ) {
 			for( %y = -1; %y <= 1; %y++ ) {
 				%pos = (getWord(%targetObject.position, 0) + %x) SPC (getWord(%targetObject.position, 1) + %y);
@@ -109,9 +115,11 @@ function SkiFreeGame::checkDeadstop(%game, %targetObject, %oldVector) {
 		}
 		
 		if( %minh != %maxh ) {
-			error("deadstop detected at" SPC %targetObject.position SPC "but variance is" SPC mAbs(%minh - %maxh) SPC "- no explosion");
+			//error("deadstop detected at" SPC %targetObject.position SPC "but variance is" SPC mAbs(%minh - %maxh) SPC "- no explosion");
 			return;
 		}
+		// check the terrain height - should be close to 0
+
 		error("deadstop detected at" SPC %targetObject.position SPC "- kill the run");
 		
 		// what if, instead of exploding, we just go back to playing? just kidding! unless...
