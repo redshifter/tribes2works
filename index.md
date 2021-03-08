@@ -13,6 +13,9 @@ A gametype where you grab a Havoc and sail the scurvy seas, matey! There is no w
 
 ## Single Player Gametypes
 
+##### [SkiFree](skifree)
+SkiFree. The official\* gametype of the 20th anniversary of Tribes 2.
+
 ##### [Blaster Deathmatch](blasterdm)
 Deathmatch involving only the blaster. This was fleshed out into a full gametype unlike the other DM variants on this list. Most of the maps are indoors, making it more <s>fun</s> spammy.
 

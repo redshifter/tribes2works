@@ -1,273 +1,79 @@
 // DisplayName = SkiFree
 
 //--- GAME RULES BEGIN ---
-//SkiFree by Red Shifter
 //Ski through the gates in order
 //Go as far as you can in one minute
 //Happy 20th Anniversary to Tribes 2
 //--- GAME RULES END ---
 
-// mission load:
-// - load a new terrain from the list and give it a number - 0-128 - seed number
-// - create a platform in a random location, create spawn points, trigger, observer drop point looking at it
-// - move the mission boundaries around the platform - leaving that area will start your timer
-// - make first gate (gate 1)
-// - make extended gate (gate 2)
-// - drop players into the mission
-// - set timer to 10 minutes instead of whatever it normally is
+// created by Red Shifter
+// thanks to:
+// - DarkTiger for the phase through players code
 
-// script kill the player 60 seconds after leaving mission area
+// mapping instructions:
+// - your terrainblock should be called Terrain. this is normally done in a T2 mission already.
+//   (one would be created if you didn't have one, but the SkiFree map already does that - no reason to make another)
+//
+// - spawn platform will be auto-generated somewhere from -1024/-1024 to 1024/1024, unless you've included one
+//   it you include a spawn platform, it should be named "SpawnPlatform", and be bwall4.dif at scale 3 3 3
+//   everything a spawn platform needs (triggers, spawnpoints, observer cameras, etc) will be auto-generated. no need to include any of this
+//
+// - the game will be ignoring buildings when it generates gates, so don't put too many of the building
+//
+// - if you want to define gates, too bad. i didn't get that far.
+//   TODO make it possible to define gates
+//   gates will continue being generated even after your final gate (in SkiFree). so if you're making an indoor map, be sure to have an exit to the outdoors and a good terrain for skiing
+//
+// - bots have no idea how to play indoor games so you probably shouldn't bother with a navgraph
+// - though it's usually a good idea to include a two-team spawngraph even if it's not being used
 
-// when a player crosses a gate trigger, make sure gate trigger +2 is created (gate 1 creates gate 3, gate 2 creates gate 4)
+// TODO organize the shit out of the methods and put them into extra CS files, i mean holy shit this is super disorganized
+// there should be files for:
+// - datablocks
+// - map generation
+// - ai
+// - SkiFreeGame package code
 
-// when the player dies, calculate their score
+// TODO put waypoints on the next two relevant gates (wasn't working when i tried it)
 
-// [DONE] make players invulnerable to all weapons but their own
-
-// display information to player?
-
-// TODO put waypoints on the next two relevant gates
-// TODO enforce 10 minute games
-
-// TODO racing mode (will probably be SkiRace instead of SkiFree)
-// starts out as SkiFree without scoring, but game turns into a race when 2+ players are in the race
-// normal races will have minimum of 4 gates, and increase by 1 for every 2 extra players, up to a maximum of 8 gates
+// TODO vaporware racing mode (will probably be SkiRace instead of SkiFree, which means i need to unify this code when i get there)
+// starts out as SkiFree without scoring, but game turns into a race when 2+ players join the game. should allow player joins up until 5 seconds after race starts
+// normal races will have minimum of 4 gates, and increase by 1 for every 2 extra players, up to a maximum of 8 gates at 8+ players
 // elimination races (minimum 4 players) will have 1 gate per player up to the maximum of 8 gates. the last person to not have crossed each gate dies (if someone dies between gates, count that as the gate kill)
-// - race timer will be gate x 20 seconds (afk players will be exploded if they take more than 30 seconds to cross any gate)
+// - race timer will be gate x 20 seconds (with a 30 second timer to explode a player that fails to cross a gate every 30 seconds)
 // - exploding deadstop does not kill you
-// - gates should refill discs and give you extra repair so you can discjump more
+// - gates should give you extra repair so you can discjump more
 // - enemies you MA have their momentum cut in half
-// - ambient crowd noise that gets louder if the first 2/3 players are close to each other, collective gasp if first place gets MA'd or flubs a route
+//
+// if making a map with predefined gates, the missiongroup will have some variables for this
+// SkiRace_EndAtFinal - the race will finish at your final gate (if not defined, all gates must be crossed and then it will generate additional gates if needed to get up to 8)
+// SkiRace_TimeLimit - lets you define a time limit, in seconds (if not defined, will be 20 x gate count)
+//
+// ambient crowd noise:
+// - gets louder if the first 2/3 players are close to each other
+// - collective gasp if first place loses more than 40% of speed inside a second (from a deadstop, flubbing the route, or getting MA'ed)
+// - cheering at the end
 
-// special gate - gives a nice yellow complexion
-datablock ForceFieldBareData(SkiFreeGateField) : defaultAllSlowFieldBare
-{
-	fadeMS           = 1000;
-	baseTranslucency = 0.69; // nice (not actually nice, looks awful)
-	powerOffTranslucency = 0.10;
-	powerOffColor    = "1.0 1.0 0.0";
-
-	scrollSpeed = -1;
-};
-
-datablock TriggerData(SkiFreeTriggerSpawn) {
-	tickPeriodMS = 50;
-};
-
-datablock TriggerData(SkiFreeTriggerGate) {
-	tickPeriodMS = 50;
-};
-
-// you can't just summon an explosion - you need to blow something up
-datablock ItemData(SatchelChargeDeadstop) : SatchelChargeThrown
-{
-   explosion = VehicleBombExplosion;
-   underwaterExplosion = VehicleBombExplosion;
-   maxDamage = 0.1;
-   kickBackStrength = 0;
-   armDelay = 1;
-   computeCRC = false;
-};
-
-package SkiFreeGame {
-	
-// players can only damage themselves. however they can apply impulse to others
-function Armor::damageObject(%data, %targetObject, %sourceObject, %position, %amount, %damageType, %momVec, %mineSC) {
-	//error("Armor::damageObject( "@%data@", "@%targetObject@", "@%sourceObject@", "@%position@", "@%amount@", "@%damageType@", "@%momVec@" )");
-	%oldVector = %targetObject.getVelocity();
-	%sourceClient = isObject(%sourceObject) ? %sourceObject.getOwnerClient() : 0; // don't hurt others
-	
-	// why did i even write this shite
-	if( %damageType == $DamageType::Ground ) {
-		Game.schedule(0, checkDeadstop, %targetObject, %oldVector);
-	}
-	
-	if( !%sourceClient || %targetObject == %sourceObject ) {
-		// copy/pasta from classix 1.5.2, with modifications
-				
-		   if(%targetObject.invincible || %targetObject.getState() $= "Dead")
-			  return;
-
-		   //----------------------------------------------------------------
-		   // z0dd - ZOD, 6/09/02. Check to see if this vehicle is destroyed, 
-		   // if it is do no damage. Fixes vehicle ghosting bug. We do not
-		   // check for isObject here, destroyed objects fail it even though
-		   // they exist as objects, go figure.
-		   if(%damageType == $DamageType::Impact)
-			  if(%sourceObject.getDamageState() $= "Destroyed")
-				 return;
-
-		   if (%targetObject.isMounted() && %targetObject.scriptKilled $= "")
-		   {
-			  %mount = %targetObject.getObjectMount();
-			  if(%mount.team == %targetObject.team)
-			  {
-				 %found = -1;
-				 for (%i = 0; %i < %mount.getDataBlock().numMountPoints; %i++)
-				 {
-					if (%mount.getMountNodeObject(%i) == %targetObject)
-					{
-					   %found = %i;
-					   break;
-					}
-				 }
-
-				 if (%found != -1)
-				 {
-					if (%mount.getDataBlock().isProtectedMountPoint[%found])
-					{
-					   // z0dd - ZOD, 5/07/04. Let players be damaged if gameplay changes in affect.
-					   if(!$Host::ClassicLoadPlayerChanges)
-					   {
-						  %mount.getDataBlock().damageObject(%mount, %sourceObject, %position, %amount, %damageType);
-						  return;
-					   }
-					   else
-					   {
-						  if(%damageType != $DamageType::Laser && %damageType != $DamageType::Bullet && %damageType != $DamageType::Blaster) 
-							 return;
-					   }
-					}
-				 }
-			  }
-		   }
-
-		   %targetClient = %targetObject.getOwnerClient();
-		   if(isObject(%mineSC))
-			  %sourceClient = %mineSC;   
-		   else
-			  %sourceClient = isObject(%sourceObject) ? %sourceObject.getOwnerClient() : 0;
-
-		   %targetTeam = %targetClient.team;
-
-		   //if the source object is a player object, player's don't have sensor groups
-		   // if it's a turret, get the sensor group of the target
-		   // if its a vehicle (of any type) use the sensor group
-		   if (%sourceClient)
-			  %sourceTeam = %sourceClient.getSensorGroup();
-		   else if(%damageType == $DamageType::Suicide)
-			  %sourceTeam = 0;
-		   //--------------------------------------------------------------------------------------------------------------------
-		   // z0dd - ZOD, 4/8/02. Check to see if this turret has a valid owner, if not clear the variable. 
-		   else if(isObject(%sourceObject) && %sourceObject.getClassName() $= "Turret")
-		   {
-			  %sourceTeam = getTargetSensorGroup(%sourceObject.getTarget());
-			  if(%sourceObject.owner !$="" && (%sourceObject.owner.team != %sourceObject.team || !isObject(%sourceObject.owner)))
-			  {
-				 %sourceObject.owner = "";
-			  }
-		   }
-		   //--------------------------------------------------------------------------------------------------------------------
-		   else if( isObject(%sourceObject) &&
-			( %sourceObject.getClassName() $= "FlyingVehicle" || %sourceObject.getClassName() $= "WheeledVehicle" || %sourceObject.getClassName() $= "HoverVehicle"))
-			  %sourceTeam = getTargetSensorGroup(%sourceObject.getTarget());
-		   else
-		   {
-			  if (isObject(%sourceObject) && %sourceObject.getTarget() >= 0 )
-			  {
-				 %sourceTeam = getTargetSensorGroup(%sourceObject.getTarget());
-			  }
-			  else
-			  {
-				 %sourceTeam = -1;
-			  }
-		   }
-
-		   // if teamdamage is off, and both parties are on the same team
-		   // (but are not the same person), apply no damage
-		   if(!$teamDamage && (%targetClient != %sourceClient) && (%targetTeam == %sourceTeam))
-			  return;
-
-		   if(%targetObject.isShielded && %damageType != $DamageType::Blaster)
-			  %amount = %data.checkShields(%targetObject, %position, %amount, %damageType);
-
-		   if(%amount == 0)
-			  return;
-			  
-  		   // if the damage of a discjump would kill, override
-		   if( %damageType == $DamageType::Disc && %targetObject.getDamageLevel() + %amount > 0.66 ) {
-			   if( %targetObject.safetyFeature $= "" ) {
-				   %targetObject.safetyFeature = 1;
-				   messageClient(%targetClient, 0, 'NOT ENOUGH HEALTH FOR DISCJUMP~wfx/misc/red_alert_short.wav');
-			   }
-			   else {
-				   messageClient(%targetClient, 0, '~wfx/misc/red_alert_short.wav');
-			   }
-			   %targetObject.schedule(0, setVelocity, %oldVector);
-			   return;
-		   }
-
-		   // Set the damage flash
-		   %damageScale = %data.damageScale[%damageType];
-		   if(%damageScale !$= "")
-			  %amount *= %damageScale;
-		   
-		   %flash = %targetObject.getDamageFlash() + (%amount * 2);
-		   if (%flash > 0.75)
-			  %flash = 0.75;
-		   
-		   %previousDamage = %targetObject.getDamagePercent();
-		   %targetObject.setDamageFlash(%flash);
-		   
-		   %targetObject.applyDamage(%amount);
-		   Game.onClientDamaged(%targetClient, %sourceClient, %damageType, %sourceObject);
-
-		   %targetClient.lastDamagedBy = %damagingClient;
-		   %targetClient.lastDamaged = getSimTime();
-		   
-		   //now call the "onKilled" function if the client was... you know...  
-		   if(%targetObject.getState() $= "Dead")
-		   {
-			  // where did this guy get it?
-			  %damLoc = %targetObject.getDamageLocation(%position);
-			  
-			  // should this guy be blown apart?
-			  if( %damageType == $DamageType::Explosion || 
-				  %damageType == $DamageType::TankMortar ||
-				  %damageType == $DamageType::Mortar ||
-				  %damageType == $DamageType::MortarTurret ||
-				  %damageType == $DamageType::BomberBombs ||
-				  %damageType == $DamageType::SatchelCharge ||
-				  %damageType == $DamageType::Missile )     
-			  {
-				 if( %previousDamage >= 0.35 ) // only if <= 35 percent damage remaining
-				 {
-					%targetObject.setMomentumVector(%momVec);
-					%targetObject.blowup(); 
-				 }
-			  }
-		   
-			  // this should be funny...
-			  if( %damageType == $DamageType::VehicleSpawn )
-			  {   
-				 %targetObject.setMomentumVector("0 0 1");
-				 %targetObject.blowup();
-			  }
-			  
-			  // If we were killed, max out the flash
-			  %targetObject.setDamageFlash(0.75);
-			  
-			  %damLoc = %targetObject.getDamageLocation(%position);
-			  Game.onClientKilled(%targetClient, %sourceClient, %damageType, %sourceObject, %damLoc);
-		   }
-		   else if ( %amount > 0.1 )
-		   {   
-			  if( %targetObject.station $= "" && %targetObject.isCloaked() )
-			  {
-				 %targetObject.setCloaked( false );
-				 %targetObject.reCloak = %targetObject.schedule( 500, "setCloaked", true ); 
-			  }
-			  
-			  playPain( %targetObject );
-		   }
-	}
+if( $Host::SkiRacePhaseThroughPlayers $= "" ) {
+	$Host::SkiRacePhaseThroughPlayers = 0;
 }
 
-function SatchelChargeDeadstop::onCollision(%data,%obj,%col) {
-   // Do nothing...
-}
+exec("scripts/SkiFreeDatablock.cs");
+exec("scripts/SkiFreeOverrides.cs");
+exec("scripts/SkiFreeAI.cs");
 
-};
+function SkiFreeGame::sendGameVoteMenu( %game, %client, %key ) {
+	DefaultGame::sendGameVoteMenu(%game, %client, %key);
+	
+	if(%client.isAdmin) {
+		if( $Host::SkiRacePhaseThroughPlayers ) {
+			messageClient( %client, 'MsgVoteItem', "", %key, 'VotePhaseThroughPlayers', "", 'SkiFree: Turn Player Phasing OFF');
+		}
+		else {
+			messageClient( %client, 'MsgVoteItem', "", %key, 'VotePhaseThroughPlayers', "", 'SkiFree: Turn Player Phasing ON');
+		}
+	}
+}
 
 function SkiFreeGame::checkDeadstop(%game, %targetObject, %oldVector) {
 	%newVector = %targetObject.getVelocity();
@@ -311,7 +117,7 @@ function SkiFreeGame::checkDeadstop(%game, %targetObject, %oldVector) {
 		// what if, instead of exploding, we just go back to playing? just kidding! unless...
 		// it is possible, though unlikely, to cut out like 50% of deadstops (the ones that do damage)
 		// you would need to remove ground damage and schedule it to after the deadstop check
-		// so it is possible, but getting to 100% 
+		// so it is possible, but getting to 100% is definitely not going to be easy
 		//%targetObject.setVelocity(%oldVector);
 		//return;
 		
@@ -324,10 +130,9 @@ function SkiFreeGame::checkDeadstop(%game, %targetObject, %oldVector) {
 		};
 		MissionCleanup.add(%charge);
 		%charge.setTransform(%targetObject.getTransform());
-		%charge.schedule(100, setDamageState, "Destroyed");
-		%charge.schedule(100, blowup);
-		%charge.schedule(3000, delete);
-		//schedule(0, 0, RadiusExplosion, %charge, %charge.getPosition(), 0, 0, 0, %targetObject, 0);
+		%charge.schedule(200, setDamageState, "Destroyed");
+		%charge.schedule(200, blowup);
+		%charge.schedule(2000, delete);
 	}
 }
 
@@ -337,19 +142,20 @@ function SkiFreeGame::initGameVars(%game) {
 	%game.gate = 0;
 	
 	// player variables
-	%game.lifeTime              = 60 * 1000;
-	%game.warningTime           = 10 * 1000;
-	%game.scorePerGate = 100;
-	//%game.heartbeatTime         = 1 * 1000;
+	%game.lifeTime        = 60 * 1000; // length of run
+	%game.warningTime     = 10 * 1000; // amount of time remaining until warning
+	%game.followTime      =  5 * 1000; // if someone follows you off the spawn platform in this amount of time, give a message
+
+	//%game.heartbeatTime         = 1 * 1000; // would be used for giving waypoints if it worked
 
 	// auto-generation variables
-	%game.firstGateMin = 800;
-	%game.firstGateMax = 1100;
-	%game.extraGateMin = 600;
-	%game.extraGateMax = 900;
-	%game.minGateAngle   = 45 * (3.1415927 / 180);
+	%game.firstGateMin   =  800;
+	%game.firstGateMax   = 1100;
+	%game.extraGateMin   =  600;
+	%game.extraGateMax   =  900;
+	%game.minGateAngle   = 45 * (3.1415927 / 180); // should be up to 22.5 degrees offset from last gate
 	%game.angleIncrement = 15 * (3.1415927 / 180);
-	%game.maxGateAngle   = 90 * (3.1415927 / 180);
+	%game.maxGateAngle   = 90 * (3.1415927 / 180); // should be up to 45.0 degrees offset from last gate
 }
 
 function SkiFreeGame::setUpTeams(%game) {  
@@ -451,29 +257,21 @@ function SkiFreeGame::pickPlayerSpawn(%game, %client, %respawn) {
 	return "0 0 300";
 }
 
-function SkiFreeGame::playerSpawned(%game, %player) {
-	DefaultGame::playerSpawned(%game, %player);
-	
-	// TODO fix waypoint scheduler
-	//%game.schedule(%game.heartbeatTime, heartbeat, %player);
-}
-
-function SkiFreeGame::heartbeat(%game, %player) {
-	if( !$missionRunning ) return;
-	if( !isObject(%player.client) ) return;
-	if( %player.getState() $= "Dead" ) return;
-
-	%client = %player.client;
-	
-	%gate = %player.gate $= "" ? 1 : %player.gate;
-	
+//function SkiFreeGame::heartbeat(%game, %player) {
+//	if( !isObject(%player.client) ) return;
+//	if( %player.getState() $= "Dead" ) return;
+//
+//	%client = %player.client;
+//	
+//	%gate = %player.gate $= "" ? 1 : %player.gate;
+//	
 	// couldn't get this to work - dunno why. does it not accept waypoint as a target?
 	//%client.setTargetId(nameToID("GatePoint" @ %gate).target);
 	//commandToClient(%client, 'TaskInfo', %client, -1, false, "> > > > > > [Gate " @ %gate @ "] < < < < < <");
 	//%client.sendTargetTo(%client, false);
 	
-	%game.schedule(%game.heartbeatTime, heartbeat, %player);
-}
+//	%game.schedule(%game.heartbeatTime, heartbeat, %player);
+//}
 
 function SkiFreeGame::clientJoinTeam( %game, %client, %team, %respawn )
 {
@@ -522,7 +320,7 @@ function SkiFreeGame::createPlayer(%game, %client, %spawnLoc, %respawn)
 
 function SkiFreeGame::resetScore(%game, %client) {
 	%client.score = 0;
-	%client.distance = 0;
+	%client.maxGates = 0;
 	%client.runs = 0;
 	%client.fullRuns = 0;
 	
@@ -537,14 +335,13 @@ function SkiFreeGame::onClientKilled(%game, %clVictim, %clKiller, %damageType, %
 	%player = %clVictim.player;
 	
 	// make sure we started and that this is a valid run
-	if( %player.pointLaunch !$= "" && %player.gate > 1 ) {
+	if( %player.launchTime !$= "" && %player.gate > 1 ) {
 		// if we skipped a gate, don't bother
 		if( %damageType != $DamageType::ForceFieldPowerup ) {
-			// calculate score for the run
-			%gateScore = (%player.gate - 1) * %game.scorePerGate;
-			%distance = 0;
+			// calculate score for the run v2
+			%score = 0;
 			for( %i = 1; %i < %player.gate; %i++ ) {
-				%distance += nameToID("GatePoint" @ %i).gateDistance;
+				%score += nameToID("GatePoint" @ %i).gateDistance;
 				//echo("dist after gate " SPC %i SPC %distance);
 			}
 			
@@ -556,15 +353,17 @@ function SkiFreeGame::onClientKilled(%game, %clVictim, %clKiller, %damageType, %
 			%progress = %nextGate.gateDistance - vectorDist(%nextPos, %playerPos);
 			if( %progress < 0 ) %progress = 0;
 			
-			%distance += %progress;
-			%distance = mFloor(%distance * 10) / 10;
-
-			%progScore = mFloor((%progress / %nextGate.gateDistance) * %game.scorePerGate);
-			if( %progScore == %game.scorePerGate ) %progScore--;
-
-			%totalScore = %gateScore + %progScore;
+			%score += %progress;
+			%score = mFloor(%score * 10) / 10;
 
 			%playerName = stripChars( getTaggedString( %clVictim.name ), "\cp\co\c6\c7\c8\c9" );
+			
+			if( %player.handicap $= "NONE" ) {
+				%handicap = "";
+			}
+			else {
+				%handicap = %player.handicap @ " ";
+			}
 
 			%clVictim.runs++;
 			if( %damageType == $DamageType::NexusCamping ) {
@@ -586,11 +385,9 @@ function SkiFreeGame::onClientKilled(%game, %clVictim, %clKiller, %damageType, %
 			}
 			
 			// recalculate score so we know who the best player is
-			%pb = %clVictim.distance < %distance;
-			%pbDisplay = %clVictim.score < %totalScore;
-			if( %pb ) {
-				%clVictim.score = %totalScore;
-				%clVictim.distance = %distance;
+			if( %clVictim.score < %score ) {
+				%clVictim.score = %score;
+				%clVictim.maxGates = (%player.gate - 1);
 				
 				for( %i = 1; %i < 420; %i++ ) {
 					if( %player.curGateTime[%i] $= "" ) break;
@@ -598,9 +395,7 @@ function SkiFreeGame::onClientKilled(%game, %clVictim, %clKiller, %damageType, %
 				}
 
 				%game.recalcScore(%clVictim);
-			}
-			
-			if( %pbDisplay ) {
+				
 				if( $TeamRank[0, count] > 1 ) {
 					%rankNumber = 0;
 					for( %i = 0; %i < $TeamRank[0, count]; %i++ ) {
@@ -616,11 +411,10 @@ function SkiFreeGame::onClientKilled(%game, %clVictim, %clKiller, %damageType, %
 						%rankOthers = " " SPC %gender SPC "is now in" SPC %game.getWordForRank(%rankNumber) SPC "place.";
 					}
 				}
-
-				messageAllExcept(%clVictim, -1, 0, '%1 did a run worth %2 points (%3m).%4', %playerName, %totalScore, %distance, %rankOthers);
 			}
 			
-			messageClient(%clVictim, 0, '\c2That run was worth %2 points (%3m).%4', %playerName, %totalScore, %distance, %rankPersonal);
+			messageAllExcept(%clVictim, -1, 0, '%1 did a %2m %5run (%3 gates).%4', %playerName, %score, %player.gate - 1, %rankOthers, %handicap);
+			messageClient(%clVictim, 0, '\c2That %5run went %2m (%3 gates).%4', %playerName, %score, %player.gate - 1, %rankPersonal, %handicap);
 		}
 	}
 	
@@ -667,6 +461,9 @@ function SkiFreeGame::gameOver(%game) {
 		%game.resetScore(%client);
 		cancel(%client.waypointSchedule);
 	}
+	
+	// turn off phasing in case we're moving to a new gametype
+	%game.phaseThroughPlayers(false);
 }
 
 function SkiFreeGame::enterMissionArea(%game, %playerData, %player) {
@@ -683,7 +480,7 @@ function SkiFreeGame::updateScoreHud(%game, %client, %tag)
 	messageClient( %client, 'SetScoreHudHeader', "", "" );
 
 	// Send the subheader:
-	messageClient(%client, 'SetScoreHudSubheader', "", '<tab:15,247,420>\tPLAYER\tRUNS (FULL)\tSCORE');
+	messageClient(%client, 'SetScoreHudSubheader', "", '<tab:15,247,430>\tPLAYER\tRUNS (FULL)\tBEST');
 
 	for (%index = 0; %index < $TeamRank[0, count]; %index++)
 	{
@@ -691,19 +488,31 @@ function SkiFreeGame::updateScoreHud(%game, %client, %tag)
 		%cl = $TeamRank[0, %index];
 
 		%clStyle = %cl == %client ? "<color:dcdcdc>" : "";
+		
+		%score = mFloor(%cl.score) == %cl.score
+			? %cl.score @ ".0"
+			: %cl.score;
+			
+		if( %cl.AI_skiFreeBotLevel !$= "" ) {
+			%botLevel = "<spush><color:ff8080>Lv" @ %cl.AI_skiFreeBotLevel @ "<spop>";
+		}
+		else {
+			%botLevel = "";
+		}
+
 
 		//if the client is not an observer, send the message
 		if (%client.team != 0)
 		{
-			messageClient( %client, 'SetLineHud', "", %tag, %index, '%5<tab:20,450,500>\t<clip:200>%1</clip><rmargin:305><just:right>%2 (%7)<rmargin:461><just:right>%3<rmargin:580><just:left> (%4m)', 
-				%cl.name, %cl.runs, %cl.score, %cl.distance, %clStyle, %cl, %cl.fullRuns
+			messageClient( %client, 'SetLineHud', "", %tag, %index, '%5<tab:20,450,500>\t<clip:200>%1</clip><rmargin:200><just:right>%8<rmargin:304><just:right>%2 (%7)<rmargin:461><just:right>%3<rmargin:580><just:left> (%4 gates)', 
+				%cl.name, %cl.runs, %score, %cl.maxGates, %clStyle, %cl, %cl.fullRuns, %botLevel
 			);
 		}
 		//else for observers, create an anchor around the player name so they can be observed
 		else
 		{
-			messageClient( %client, 'SetLineHud', "", %tag, %index, '%5<tab:20,450,500>\t<clip:200><a:gamelink\t%6>%1</a></clip><rmargin:305><just:right>%2 (%7)<rmargin:461><just:right>%3<rmargin:580><just:left> (%4m)', 
-				%cl.name, %cl.runs, %cl.score, %cl.distance, %clStyle, %cl, %cl.fullRuns
+			messageClient( %client, 'SetLineHud', "", %tag, %index, '%5<tab:20,450,500>\t<clip:200><a:gamelink\t%6>%1</a></clip><rmargin:200><just:right>%8<rmargin:304><just:right>%2 (%7)<rmargin:461><just:right>%3<rmargin:580><just:left> (%4 gates)', 
+				%cl.name, %cl.runs, %score, %cl.maxGates, %clStyle, %cl, %cl.fullRuns, %botLevel
 			);
 			
 			//messageClient( %client, 'SetLineHud', "", %tag, %index, '%7<tab:20, 450>\t<clip:200><a:gamelink\t%8>%1</a><rmargin:280><just:right>%2 (%3)<rmargin:370><just:right>%4 (%5)<rmargin:460><just:right>%6', 
@@ -749,10 +558,14 @@ function SkiFreeGame::missionLoadDone(%game) {
 	Parent::missionLoadDone(%game);
 	%game.generateLevel();
 	
+	// all players are team1 - let them watch each other
 	setTargetAlwaysVisMask(1, 1 << 1);
 	setTargetFriendlyMask(1, 1 << 1);
 
+	// change gate colors
 	%game.setSensorWaypointColors();
+	
+	%game.phaseThroughPlayers($Host::SkiRacePhaseThroughPlayers);
 }
 
 function SkiFreeGame::setSensorWaypointColors(%game) {
@@ -763,18 +576,17 @@ function SkiFreeGame::setSensorWaypointColors(%game) {
 	setSensorGroupColor(1, 1 << 6, "0 0 255 255");
 	setSensorGroupColor(1, 1 << 7, "128 0 255 255");
 	setSensorGroupColor(1, 1 << 8, "255 0 255 255");
-	setSensorGroupColor(1, 1 << 9, "255 128 255 255");
-	// the next ones won't be seen, why not just make them random
-	setSensorGroupColor(1, 1 << 10, "255 255 255 255");
-	setSensorGroupColor(1, 1 << 11, "204 204 204 255");
-	setSensorGroupColor(1, 1 << 12, "153 153 153 255");
-	setSensorGroupColor(1, 1 << 13, "102 102 102 255");
-	setSensorGroupColor(1, 1 << 14, "51 51 0 255");
-	setSensorGroupColor(1, 1 << 15, "0 0 0 255");
+	setSensorGroupColor(1, 1 << 9, "255 255 255 255");
+	// getting to these gates is really, really hard so there isn't much reason to worry about how they look
+	setSensorGroupColor(1, 1 << 10, "204 204 204 255");
+	setSensorGroupColor(1, 1 << 11, "153 153 153 255");
+	setSensorGroupColor(1, 1 << 12, "102 102 102 255");
+	setSensorGroupColor(1, 1 << 13, "51 51 0 255");
+	setSensorGroupColor(1, 1 << 14, "0 0 0 255");
+	setSensorGroupColor(1, 1 << 15, "0 0 0 128");
+	setSensorGroupColor(1, 1 << 16, "0 0 0 64");
 }
 
-function SkiFreeGame::AIHasJoined(%game, %client) {}
-function SkiFreeGame::AIinit(%game) { AIInit(); }
 function SkiFreeGame::applyConcussion(%game, %player) {}
 function SkiFreeGame::dropFlag(%game, %player) {}
 
@@ -897,13 +709,15 @@ function SkiFreeGame::addGate(%game, %gate, %position) {
 			getWords(nameToID("GatePoint" @ (%gate - 1)).position, 0, 1) SPC "0"
 		);
 
+	%gateColor = %gate + 1;
+	if( %gateColor > 16 ) %gateColor = 15;
 
 	%waypointObj = new WayPoint("GatePoint" @ %gate) {
 		position = %waypointPosition;
 		rotation = "1 0 0 0";
 		scale = "1 1 1";
 		dataBlock = "WayPointMarker";
-		team = %gate + 1;
+		team = %gateColor;
 		name = "Gate " @ %gate;
 		
 		gateDistance = %distanceFromLastGate;
@@ -917,11 +731,14 @@ function SkiFreeGame::addGate(%game, %gate, %position) {
 		SPC (getWord(%position, 2) - 50.0);
 	
 	// create the forcefield as our visual indicator
+	%gateType = "SkiFreeGateField" @
+		(%gate <= 7 ? %gate : "")
+	;
 	%gateObj = new ForceFieldBare("GateFF" @ %gate) {
 		position = %gatePosition;
 		rotation = "1 0 0 0";
 		scale = "25 25 500";
-		dataBlock = "SkiFreeGateField";
+		dataBlock = %gateType;
 	};
 	
 	// trigger spawns with wrong Y coordinate and needs to be +25, don't ask me Y
@@ -961,53 +778,176 @@ function SkiFreeGame::pickObserverSpawn(%game, %client, %next) {
 	}
 }
 
-function SkiFreeGateField::onAdd(%data, %obj) {
-	// absolutely no physical zone should be created, fuck that shit
-	// not sure if this method is actually called the way i add the forcefield, but it doesn't really matter
-}
-
-function SkiFreeTriggerSpawn::onEnterTrigger(%this, %trigger, %player) {
-	// who dat
-}
-
-function SkiFreeTriggerSpawn::onTickTrigger(%this, %trigger) {
-	// it's dat boi
-}
-
-function SkiFreeTriggerSpawn::onLeaveTrigger(%this, %trigger, %player) {
-	if( !$missionRunning ) return;
+function SkiFreeGame::leaveSpawnTrigger(%game, %player) {
 	if( !isObject(%player.client) ) return;
 	if( %player.getState() $= "Dead" ) return;
 	
 	// make sure we didn't jump the gun already
-	if( %player.pointLaunch !$= "" ) return;
+	if( %player.launchTime !$= "" ) return;
+	
+	// check if we're ai controlling ourselves and if we meant to launch
+	if( %player.client.isAIControlled() && !%player.AI_meantToLaunch && %player.getControllingClient() == %player.client ) {
+		// just set the player back on the platform
+		if( !isObject(%player.resetThread) ) {
+			%player.resetThread = Game.schedule(2000, AI_resetPosition, %player.client, %player);
+		}
+		return;
+	}
 	
 	// TODO check if time is about to expire and inform the player that they can't actually finish another run
 
 	// start the run for this player
+	%mod = "";
+	
+	if( %player.getDamageLevel() >= 0.649 ) {
+		%player.modGlass = 1;
+		%mod = %mod @ "glass ";
+
+		%player.setInventory(RepairKit, 0);
+		Game.schedule(1000, GlassModeAnticheat, %player); // in case we ate a repair kit at exactly the right time
+	}
+	else if( %player.getInventory("Disc") == 0 ) {
+		// check velocity
+		if( !%player.hasDiscjumped ) {
+			%mod = %mod @ "discless ";
+		}
+		else {
+			%mod = %mod @ "discless discjump launch ";
+		}
+	}
+	
+	if( %player.getInventory("EnergyPack") == 0 ) {
+		%player.modHard = 1;
+		%mod = %mod @ "hard mode ";
+	}
+	
+	if( %mod !$= "" ) {
+		%player.handicap = getSubStr(%mod, 0, strlen(%mod) - 1);
+	}
+	else {
+		%player.handicap = "NONE";
+	}
+	
  	%client = %player.client;
-	messageClient(%client, 0, '\c2Your run has begun.~wfx/misc/target_waypoint.wav');
+	messageClient(%client, 0, '\c2Your %1run has begun.~wfx/misc/target_waypoint.wav', %mod);
 	%player.schedule(Game.lifeTime, scriptKill, $DamageType::NexusCamping);
 	Game.schedule(Game.lifeTime - Game.warningTime, warningMessage, %player);
-	%player.pointLaunch = getSimTime();
+	%player.launchTime = getSimTime();
+	Game.lastLaunchTime = getSimTime();
 	%player.gate = 1;
+	
+	// remove invincibility
+	%player.setInvincibleMode(0 ,0.00);
+	%player.setInvincible( false );
+	
+	Game.checkFollowingPlayers(%player);
+	Game.schedule(Game.followTime, listFollowingPlayers, %player);
 }
 
-function SkiFreeTriggerGate::onEnterTrigger(%this, %trigger, %player) {
-	if( !$missionRunning ) return;
+function SkiFreeGame::enterSpawnTrigger(%game, %player) {
+	if( !isObject(%player.client) ) return;
+	if( %player.getState() $= "Dead" ) return;
+	
+	// we jumped the gun
+	if( %player.launchTime !$= "" && !%player.noMulligans ) {
+		%player.noMulligans = true;
+		%client = %player.client;
+		messageClient(%client, 0, '\c2Hey, no mulligans! Your timer is still running!~wfx/packs/shield_hit.wav');
+	}
+}
+
+function SkiFreeGame::checkFollowingPlayers(%game, %player) {
+	%client = %player.client;
+	
+	for( %i = 0; %i < ClientGroup.getCount(); %i++ ) {
+		%clTarget = ClientGroup.getObject(%i);
+		if( %clTarget == %client ) continue;
+		%plTarget = %clTarget.player;
+		if( !isObject( %plTarget ) || %plTarget.launchTime $= "" ) continue;
+
+		// get everyone that started a run within 5 seconds of you
+		if( %player.launchTime - %game.followTime <= %plTarget.launchTime ) {
+			// three different variables based on handicap
+			if( %plTarget.handicap $= "NONE" ) {
+				%plTarget.following++;
+				%plTarget.followName = %client.name;
+			}
+			else if( %plTarget.handicap $= %player.handicap ) {
+				%plTarget.followingMatch++;
+				%plTarget.followMatchName = %client.name;
+			}
+			else if( %plTarget.handicap !$= %player.handicap ) {
+				%plTarget.followingNoMatch++;
+				%plTarget.followNoMatchName = %client.name;
+			}
+			
+			if( %player.handicap $= "NONE" ) {
+				%player.following++;
+				%player.followName = %clTarget.name;
+			}
+			else if( %player.handicap $= %plTarget.handicap ) {
+				%player.followingMatch++;
+				%player.followMatchName = %clTarget.name;
+			}
+			else if( %player.handicap !$= %plTarget.handicap ) {
+				%player.followingNoMatch++;
+				%player.followNoMatchName = %clTarget.name;
+			}
+		}
+	}
+}
+
+function SkiFreeGame::listFollowingPlayers(%game, %player) {
+	if( !isObject(%player.client) ) return;
+	if( %player.getState() $= "Dead" ) return;
+	
+	%client = %player.client;
+	
+	if( %player.handicap $= "NONE" ) {
+		if( %player.following > 1 )
+			messageClient(%client, 0, 'You are in a run with %1 other players.', %player.following);
+		else if( %player.following == 1 )
+			messageClient(%client, 0, 'You are in a run with %1.', %player.followName);
+	}
+	else {
+		if( %player.followingMatch > 1 )
+			messageClient(%client, 0, 'You are in a %2 run with %1 other players.', %player.followingMatch, %player.handicap);
+		else if( %player.followingMatch == 1 )
+			messageClient(%client, 0, 'You are in a %2 run with %1.', %player.followMatchName, %player.handicap);
+			
+		if( %player.followingNoMatch > 1 )
+			messageClient(%client, 0, '%1 players did not choose the same handicap.', %player.followingNoMatch);
+		else if( %player.followingNoMatch == 1 )
+			messageClient(%client, 0, '%1 did not choose the same handicap as you.', %player.followNoMatchName);
+			
+	}
+}
+
+function SkiFreeGame::GlassModeAntiCheat(%game, %player) {
 	if( !isObject(%player.client) ) return;
 	if( %player.getState() $= "Dead" ) return;
 
+	if( %player.getDamageLevel() < 0.649 ) {
+		%player.setDamageLevel(0.65);
+		Game.schedule(100, GlassModeAnticheat, %player);
+	}
+}
+
+
+function SkiFreeGame::enterGateTrigger(%game, %trigger, %player) {
+	if( !isObject(%player.client) ) return;
+	if( %player.getState() $= "Dead" ) return;
+	
 	if( %trigger.gate == %player.gate ) {
 		// ready the next gate
 		%player.gate++;
-		%player.applyRepair(0.125);
+		if( !%player.modGlass ) %player.applyRepair(0.125);
 		%player.setInventory(DiscAmmo, 15);
 
 		// TODO waypoint
 		
 		// get other variables
-		%timeMS = (getSimTime() - %player.pointLaunch) / 1000;
+		%timeMS = (getSimTime() - %player.launchTime) / 1000;
 		%timeMS = mFloor(%timeMS * 1000)/1000;
 		%kph = mFloor(VectorLen(setWord(%player.getVelocity(), 2, 0)) * 3.6);
 
@@ -1037,6 +977,11 @@ function SkiFreeTriggerGate::onEnterTrigger(%this, %trigger, %player) {
 		if( Game.gate == %player.gate ) {
 			Game.generateGate(%player.gate + 1);
 		}
+		
+		// deal with ai
+		if( %player.client.isAIControlled() ) {
+			%game.AI_crossedGate(%player.client, %player);
+		}
 	}
 	else if( %trigger.gate > %player.gate ) {
 		messageClient(%player.client, 0, '\c2GATE SKIP DETECTED!~wfx/misc/red_alert_short.wav');
@@ -1044,16 +989,7 @@ function SkiFreeTriggerGate::onEnterTrigger(%this, %trigger, %player) {
 	}
 }
 
-function SkiFreeTriggerGate::onTickTrigger(%this, %trigger) {
-	// o shit wut up
-}
-
-function SkiFreeTriggerGate::onLeaveTrigger(%this, %trigger, %player) {
-	// pants
-}
-
 function SkiFreeGame::warningMessage(%game, %player) {
-	if( !$missionRunning ) return;
 	if( !isObject(%player.client) ) return;
 	if( %player.getState() $= "Dead" ) return;
 	
@@ -1128,10 +1064,6 @@ function SkiFreeGame::generateSpawnPlatform(%game) {
 	}
 }
 
-function SkiFreeGame::validateSpawnPlatform(%game) {
-	// TODO do i actually want to do this shit
-}
-
 function SkiFreeGame::generateGate(%game, %gate) {
 	// TODO add some mapping mechanism for defining where each gate will be generated
 	if( %gate == 1 ) {
@@ -1167,6 +1099,9 @@ function SkiFreeGame::generateGate(%game, %gate) {
 }
 
 function SkiFreeGame::generateTerrain(%game) {
+	// clear this shit out just in case
+	deleteVariables("$SkiFreeTerrainList*");
+
 	// pick a terrain from the list
 	exec("scripts/SkiFreeTerrains.cs");
 	
@@ -1274,20 +1209,22 @@ function SkiFreeGame::sendDebriefing( %game, %client )
 
 	// Player scores:
 	%count = $TeamRank[0, count];
-	messageClient( %client, 'MsgDebriefAddLine', "", '<spush><color:00dc00><font:univers condensed:18>PLAYER<lmargin%%:60>SCORE<lmargin%%:80>DISTANCE<spop>' );
+	messageClient( %client, 'MsgDebriefAddLine', "", '<spush><color:00dc00><font:univers condensed:18>PLAYER<lmargin%%:60>BEST<lmargin%%:80>GATES<spop>' );
 	for ( %i = 0; %i < %count; %i++ ) {
 		%cl = $TeamRank[0, %i];
 		if ( %cl.score $= "" )
-			%score = 0;
+			%score = "0.0";
+		else if( mFloor(%cl.score) == %cl.score )
+			%score = %cl.score @ ".0";
 		else
 			%score = %cl.score;
 
-		if ( %cl.distance $= "" )
-			%dist = 0;
+		if( %cl.maxGates $= "" )
+			%gates = 0;
 		else
-			%dist = %cl.distance;
+			%gates = %cl.maxGates;
 
-		messageClient( %client, 'MsgDebriefAddLine', "", '<lmargin:0><clip%%:60> %1</clip><lmargin%%:60><clip%%:20> %2</clip><lmargin%%:80><clip%%:20> %3m', %cl.name, %score, %dist );
+		messageClient( %client, 'MsgDebriefAddLine', "", '<lmargin:0><clip%%:60> %1</clip><lmargin%%:60><clip%%:20> %2</clip><lmargin%%:80><clip%%:20> %3', %cl.name, %score, %gates );
 	}
 
 
@@ -1307,17 +1244,26 @@ function SkiFreeGame::sendDebriefing( %game, %client )
          }
 
          //print out the client
-         %score = %cl.score $= "" ? 0 : %cl.score;
+         if ( %cl.score $= "" )
+            %score = "0.0";
+         else if( mFloor(%cl.score) == %cl.score )
+            %score = %cl.score @ ".0";
+         else
+            %score = %cl.score;
+
          messageClient( %client, 'MsgDebriefAddLine', "", '<lmargin:0><clip%%:60> %1</clip><lmargin%%:60><clip%%:40> %2</clip>', %cl.name, %score);
       }
    }
 }
 
-// TODO hook up this code
 function SkiFreeGame::phaseThroughPlayers(%game, %active) {
+	// don't run unneeded mempatches!
+	if( !%active && !%game.phaseActive ) return;
+	%game.phaseActive = %active;
+	
 	// this code adds/removes the player mask from player collisions
-	// so players can phase right through each other if active
-	// thanks to DarkTiger for this code (how did he come up with it so quickly)
+	// so players can phase right through each other if this is active
+	// thanks to DarkTiger for this code
 	%patch1 = %active ? "3CA1" : "3CE1";
 	%patch2 = %active ? "1C21" : "1C61";
 	%patch3 = %active ? "1C21" : "1C61";
