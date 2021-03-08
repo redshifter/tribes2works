@@ -342,6 +342,16 @@ function SkiFreeGame::resetScore(%game, %client) {
 function SkiFreeGame::onClientKilled(%game, %clVictim, %clKiller, %damageType, %implement, %damageLocation) {
 	%player = %clVictim.player;
 	
+	if( %damageType == $DamageType::Ground && %player.modGlass ) {
+		// explode tha player into tiny pieces and make them watch
+		%player.blowup();
+		%player.schedule(0, setVelocity, "0 0 0");
+
+		// make the shattering louder by doing it multiple times, lol
+		messageClient(%clVictim, 0, '~wfx/Bonuses/horz_perppass3_glasssmash.wav');
+		messageClient(%clVictim, 0, '~wfx/Bonuses/horz_perppass3_glasssmash.wav');
+	}
+	
 	// make sure we started and that this is a valid run
 	if( %player.launchTime !$= "" && %player.gate > 1 ) {
 		// if we skipped a gate, don't bother
@@ -467,7 +477,7 @@ function SkiFreeGame::gameOver(%game) {
 	for(%i = 0; %i < ClientGroup.getCount(); %i ++) {
 		%client = ClientGroup.getObject(%i);
 		%game.resetScore(%client);
-		cancel(%client.waypointSchedule);
+	//	cancel(%client.waypointSchedule); // no need to cancel something that doesn't exist
 	}
 	
 	// turn off phasing in case we're moving to a new gametype
@@ -1193,6 +1203,11 @@ function SkiFreeGame::displayDeathMessages(%game, %clVictim, %clKiller, %damageT
 	else if( %damageType == $DamageType::NexusCamping ) {
 		// no message needed for a full run completed
 		logEcho(%clVictim.nameBase@" (pl "@%clVictim.player@"/cl "@%clVictim@") killed by End of Run");
+	}
+
+	else if( %damageType == $DamageType::Ground && %clVictim.player.modGlass ) {
+	      messageAll('msgSelfKill', '%1 shattered into a million pieces.', %victimName, %victimGender, %victimPoss, %killerName, %killerGender, %killerPoss, %damageType, $DamageTypeText[%damageType]);
+      logEcho(%clVictim.nameBase@" (pl "@%clVictim.player@"/cl "@%clVictim@") killed self ("@getTaggedString($DamageTypeText[%damageType])@")");
 	}
 	else {
 		Parent::displayDeathMessages(%game, %clVictim, %clKiller, %damageType, %implement);

@@ -218,6 +218,15 @@ function RepairKit::onCollision(%data, %obj, %col) {}
 // no looting either
 function Armor::onCollision(%this,%obj,%col,%forceVehicleNode) {}
 
+// turn the player to glass if they throw their repair kit away
+function ShapeBase::throwItem(%this, %data) {
+	Parent::throwItem(%this, %data);
+	if( %data $= RepairKit && %this.launchTime $= "" ) {
+		// turn the player to glass
+		%this.setDamageLevel(0.65);
+	}
+}
+
 // turn phasing on/off
 function serverCmdStartNewVote(%client, %typeName, %arg1, %arg2, %arg3, %arg4, %playerVote) {
 	Parent::serverCmdStartNewVote(%client, %typeName, %arg1, %arg2, %arg3, %arg4, %playerVote);
@@ -238,7 +247,7 @@ function serverCmdStartNewVote(%client, %typeName, %arg1, %arg2, %arg3, %arg4, %
 	}
 }
 
-// turn off phasing (this is a client method used for listen servers - you do NOT want this to stay on when you go online)
+// turn off phasing (this is a client method used for listen servers only - you do NOT want this to stay on)
 function lobbyDisconnect() {
 	Game.phaseThroughPlayers(false); // make sure this is OFF
 	Parent::lobbyDisconnect();
