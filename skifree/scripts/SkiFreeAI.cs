@@ -2,15 +2,20 @@
 // no, not aiSkiFree.cs - that naming convention is stupid
 
 // level 1 - the bot will just be handled by the game
-// level 2 - ski down hills and jet up/over hills
+// level 2 - ski down hills, everything else the same
+// level 3 - ski down hills and jet up/over hills
+// level 4 - probably not happening ever
 
 function SkiFreeGame::AIHasJoined(%game, %client) {
 	%skill = %client.getSkillLevel();
-	if( %skill < 0.5 ) {
+	if( %skill <= 0.33 ) {
 		%client.AI_skiFreeBotLevel = 1;
 	}
-	else {
+	else if( %skill <= 0.66 ) {
 		%client.AI_skiFreeBotLevel = 2;
+	}
+	else {
+		%client.AI_skiFreeBotLevel = 3;
 	}
 }
 function SkiFreeGame::AIinit(%game) {
@@ -48,12 +53,15 @@ function SkiFreeGame::AI_heartbeat(%game, %client, %player) {
 	}
 	else if( %client.AI_skiFreeBotLevel <= 1 ) {
 		// level 1 is just "turn off the heartbeat and use the standard bot behavior"
-		// it already knows where it needs to go
+		// it already knows where it needs to go, t2 can handle that
 		return;
 	}
 	else if( %client.AI_skiFreeBotLevel == 2 ) {
-		// 20ms resolution is needed for more direct control of a bot
 		%game.AI_playGameLevel2(%client, %player);
+		%heartbeat = 20;
+	}
+	else if( %client.AI_skiFreeBotLevel == 3 ) {
+		%game.AI_playGameLevel3(%client, %player);
 		%heartbeat = 20;
 	}
 	
@@ -147,6 +155,32 @@ function SkiFreeGame::AI_playGameLevel2(%game, %client, %player) {
 	// return if we haven't launched yet - just do standard bot things up to that point
 	if( %player.launchTime $= "" ) return;
 	
+	// this is little more than a "going downhill? hold ski" bot
+	// TODO stop it from jetting if it's too far above terrain, but only if the terrain is downhill
+	%dir = VectorSub(%player.position, nameToID("GatePoint" @ %player.gate).position);
+	%dir = VectorNormalize(getWords(%dir, 0, 1) SPC "0");
+	%dir = VectorScale(%dir, 2);
+	%x = getWord(%player.position, 0);
+	%y = getWord(%player.position, 1);
+	
+	%terrainHeight = %game.findHeight(%x SPC %y);
+	
+	%xslope = %x + getWord(%dir, 0);
+	%yslope = %y + getWord(%dir, 1);
+	%hslope = %game.findHeight(%xslope SPC %yslope);
+	%slope = %terrainHeight - %hslope;
+
+	if( %slope < 0.02 ) {
+		// going downhill, try skiing?
+		%client.pressjump();
+		%aiHandled = true;
+	}
+}
+
+function SkiFreeGame::AI_playGameLevel3(%game, %client, %player) {
+	// return if we haven't launched yet - just do standard bot things up to that point
+	if( %player.launchTime $= "" ) return;
+	
 	// disable the bot's jets when i don't tell you to use them
 	if( %player.storedEnergy > 0 ) {
 		%player.setEnergyLevel(%player.getEnergyLevel() + %player.storedEnergy);
@@ -184,7 +218,8 @@ function SkiFreeGame::AI_playGameLevel2(%game, %client, %player) {
 	// TODO also use parabolas
 	
 	if( !%aiHandled ) {
-		%xslope = %x + getWord(%dir, 0); %yslope = %y + getWord(%dir, 1);
+		%xslope = %x + getWord(%dir, 0);
+		%yslope = %y + getWord(%dir, 1);
 		%hslope = %game.findHeight(%xslope SPC %yslope);
 		%slope = %terrainHeight - %hslope;
 		
@@ -216,7 +251,7 @@ function SkiFreeGame::AI_playGameLevel2(%game, %client, %player) {
 		%client.pressjet();
 	}
 	else {
-		%player.storedEnergy = %client.player.getEnergyLevel();
+		%player.storedEnergy = %player.getEnergyLevel();
 		%player.setEnergyLevel(0);
 	}
 }
