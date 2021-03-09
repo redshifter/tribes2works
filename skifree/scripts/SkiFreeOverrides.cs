@@ -232,18 +232,7 @@ function serverCmdStartNewVote(%client, %typeName, %arg1, %arg2, %arg3, %arg4, %
 	Parent::serverCmdStartNewVote(%client, %typeName, %arg1, %arg2, %arg3, %arg4, %playerVote);
 	
 	if( %client.isAdmin ) {
-		if( %typeName $= "VotePhaseThroughPlayers" ) {
-			$Host::SkiRacePhaseThroughPlayers = !$Host::SkiRacePhaseThroughPlayers;
-			Game.phaseThroughPlayers($Host::SkiRacePhaseThroughPlayers);
-			
-			// TODO need to trap this event in skifree client script for best performance
-			if( $Host::SkiRacePhaseThroughPlayers ) {
-				messageAll('MsgAdminForce', '\c0%1 turned ON player phasing.', %client.name);
-			}
-			else {
-				messageAll('MsgAdminForce', '\c0%1 turned OFF player phasing.', %client.name);
-			}
-		}
+		Game.checkSkiFreeVote(%client, %typeName);
 	}
 }
 

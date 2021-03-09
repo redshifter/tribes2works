@@ -57,6 +57,9 @@
 if( $Host::SkiRacePhaseThroughPlayers $= "" ) {
 	$Host::SkiRacePhaseThroughPlayers = 0;
 }
+if( $Host::SkiRaceTimeTrialScoringSystem $= "" ) {
+	$Host::SkiRaceTimeTrialScoringSystem = 1;
+}
 
 exec("scripts/SkiFreeDatablock.cs");
 exec("scripts/SkiFreeOverrides.cs");
@@ -66,11 +69,41 @@ function SkiFreeGame::sendGameVoteMenu( %game, %client, %key ) {
 	DefaultGame::sendGameVoteMenu(%game, %client, %key);
 	
 	if(%client.isAdmin) {
+		messageClient( %client, 'MsgVoteItem', "", %key, 'VotePhaseThroughPlayers', "", 
+			$Host::SkiRacePhaseThroughPlayers
+			? 'SkiFree: Turn Player Phasing OFF'
+			: 'SkiFree: Turn Player Phasing ON'
+		);
+		messageClient( %client, 'MsgVoteItem', "", %key, 'VoteChangeScoringSystem', "", 
+			$Host::SkiRaceTimeTrialScoringSystem
+			? 'SkiFree: Scoring by DISTANCE (next map)'
+			: 'SkiFree: Scoring by TIME TRIAL (next map)'
+		);
+		
+	}
+}
+
+function SkiFreeGame::checkSkiFreeVote(%game, %client, %typeName) {
+	if( %typeName $= "VotePhaseThroughPlayers" ) {
+		$Host::SkiRacePhaseThroughPlayers = !$Host::SkiRacePhaseThroughPlayers;
+		Game.phaseThroughPlayers($Host::SkiRacePhaseThroughPlayers);
+		
+		// TODO need to trap this event in skifree client script for best performance
 		if( $Host::SkiRacePhaseThroughPlayers ) {
-			messageClient( %client, 'MsgVoteItem', "", %key, 'VotePhaseThroughPlayers', "", 'SkiFree: Turn Player Phasing OFF');
+			messageAll('MsgAdminForce', '\c0%1 turned ON player phasing.', %client.name);
 		}
 		else {
-			messageClient( %client, 'MsgVoteItem', "", %key, 'VotePhaseThroughPlayers', "", 'SkiFree: Turn Player Phasing ON');
+			messageAll('MsgAdminForce', '\c0%1 turned OFF player phasing.', %client.name);
+		}
+	}
+	else if( %typeName $= "VoteChangeScoringSystem" ) {
+		$Host::SkiRaceTimeTrialScoringSystem = !$Host::SkiRaceTimeTrialScoringSystem;
+		
+		if( $Host::SkiRaceTimeTrialScoringSystem ) {
+			messageAll('MsgAdminForce', '\c0%1 switched to TIME TRIAL scoring (next map).', %client.name);
+		}
+		else {
+			messageAll('MsgAdminForce', '\c0%1 switched to SURVIVAL scoring (next map).', %client.name);
 		}
 	}
 }
@@ -150,9 +183,20 @@ function SkiFreeGame::initGameVars(%game) {
 	%game.gate = 0;
 	
 	// player variables
-	%game.lifeTime        = 60 * 1000; // length of run
-	%game.warningTime     = 10 * 1000; // amount of time remaining until warning
-	%game.followTime      =  5 * 1000; // if someone follows you off the spawn platform in this amount of time, give a message
+	%game.followTime = 5 * 1000; // if someone follows you off the spawn platform in this amount of time, give a message
+	
+	%game.timeTrial = $Host::SkiRaceTimeTrialScoringSystem;
+	if( %game.timeTrial ) {
+		// scoring by time trial
+		%game.trialGates = 8;
+		%game.trialDefaultTime = 60 * 5;
+	}
+	else {
+		// scoring by distance
+		%game.survivalLifeTime    = 60 * 1000; // length of run
+		%game.survivalWarningTime = 10 * 1000; // amount of time remaining until warning
+	}
+	
 
 	//%game.heartbeatTime         = 1 * 1000; // would be used for giving waypoints if it worked
 
@@ -310,7 +354,12 @@ function SkiFreeGame::clientMissionDropReady(%game, %client) {
 		// invoke bounty to give player info (mostly score and terrain info)
 		messageClient(%client, 'MsgClientReady',"", BountyGame);
 		messageClient(%client, 'msgBountyTargetIs', "", %game.terrain); // terrain
-		messageClient(%client, 'MsgYourScoreIs', "", 0);
+		if( %game.timeTrial ) {
+			messageClient(%client, 'MsgYourScoreIs', "", '<none>');
+		}
+		else {
+			messageClient(%client, 'MsgYourScoreIs', "", 0);
+		}
 	}
 	
 	%game.resetScore(%client);
@@ -328,9 +377,10 @@ function SkiFreeGame::createPlayer(%game, %client, %spawnLoc, %respawn)
 
 function SkiFreeGame::resetScore(%game, %client) {
 	%client.score = 0;
+	%client.bestTime = %game.trialDefaultTime;
+	%client.lastTime = %game.trialDefaultTime;
+	%client.bestHandicap = "";
 	%client.maxGates = 0;
-	%client.runs = 0;
-	%client.fullRuns = 0;
 	
 	for( %i = 1; %i < 420; %i++ ) {
 		if( %client.gateTime[%i] $= "" ) break;
@@ -348,95 +398,174 @@ function SkiFreeGame::onClientKilled(%game, %clVictim, %clKiller, %damageType, %
 		%player.schedule(0, setVelocity, "0 0 0");
 
 		// make the shattering louder by doing it multiple times, lol
-		messageClient(%clVictim, 0, '~wfx/Bonuses/horz_perppass3_glasssmash.wav');
-		messageClient(%clVictim, 0, '~wfx/Bonuses/horz_perppass3_glasssmash.wav');
+		for( %i = 0; %i < 2; %i++ ) messageClient(%clVictim, 0, '~wfx/Bonuses/horz_perppass3_glasssmash.wav');
 	}
 	
-	// make sure we started and that this is a valid run
-	if( %player.launchTime !$= "" && %player.gate > 1 ) {
-		// if we skipped a gate, don't bother
-		if( %damageType != $DamageType::ForceFieldPowerup ) {
-			// calculate score for the run v2
-			%score = 0;
-			for( %i = 1; %i < %player.gate; %i++ ) {
-				%score += nameToID("GatePoint" @ %i).gateDistance;
-				//echo("dist after gate " SPC %i SPC %distance);
-			}
-			
-			// measure distance between the current point and the next point, then compare to player/next point. maximum %game.scorePerGate - 1
-			%nextGate = nameToID("GatePoint" @ %player.gate);
-			%nextPos = getWords(%nextGate.position, 0, 1) SPC "0";
-			%playerPos = getWords(%player.position, 0, 1) SPC "0";
-			
-			%progress = %nextGate.gateDistance - vectorDist(%nextPos, %playerPos);
-			if( %progress < 0 ) %progress = 0;
-			
-			%score += %progress;
-			%score = mFloor(%score * 10) / 10;
-
-			%playerName = stripChars( getTaggedString( %clVictim.name ), "\cp\co\c6\c7\c8\c9" );
-			
-			if( %player.handicap $= "NONE" ) {
-				%handicap = "";
-			}
-			else {
-				%handicap = %player.handicap @ " ";
-			}
-
-			%clVictim.runs++;
-			if( %damageType == $DamageType::NexusCamping ) {
-				%clVictim.fullRuns++;
-
-				// also need a sound for the client
-				if( %player.gate > 6 ) {
-					messageClient(%clVictim, 0, '~wfx/misc/MA2.wav');
-				}
-				else if( %player.gate > 4 ) {
-					messageClient(%clVictim, 0, '~wfx/misc/MA1.wav');
-				}
-				else if( %player.gate > 2 ) {
-					messageClient(%clVictim, 0, '~wfx/misc/slapshot.wav');
-				}
-				else {
-					messageClient(%clVictim, 0, '~wfx/bonuses/Nouns/llama.wav');
-				}
-			}
-			
-			// recalculate score so we know who the best player is
-			if( %clVictim.score < %score ) {
-				%clVictim.score = %score;
-				%clVictim.maxGates = (%player.gate - 1);
-				
-				for( %i = 1; %i < 420; %i++ ) {
-					if( %player.curGateTime[%i] $= "" ) break;
-					%clVictim.gateTime[%i] = %player.curGateTime[%i];
-				}
-
-				%game.recalcScore(%clVictim);
-				
-				if( $TeamRank[0, count] > 1 ) {
-					%rankNumber = 0;
-					for( %i = 0; %i < $TeamRank[0, count]; %i++ ) {
-						if( $TeamRank[0, %i] == %clVictim ) {
-							%rankNumber = %i + 1;
-							break;
-						}
-					}
-					
-					if( %rankNumber > 0 ) {
-						%rankPersonal = " You are now in" SPC %game.getWordForRank(%rankNumber) SPC "place.";
-						%gender = (%clVictim.sex $= "Male" ? "He" : "She");
-						%rankOthers = " " SPC %gender SPC "is now in" SPC %game.getWordForRank(%rankNumber) SPC "place.";
-					}
-				}
-			}
-			
-			messageAllExcept(%clVictim, -1, 0, '%1 did a %2m %5run (%3 gates).%4', %playerName, %score, %player.gate - 1, %rankOthers, %handicap);
-			messageClient(%clVictim, 0, '\c2That %5run went %2m (%3 gates).%4', %playerName, %score, %player.gate - 1, %rankPersonal, %handicap);
+	// if we skipped a gate, don't bother
+	if( %damageType != $DamageType::ForceFieldPowerup ) {
+		if( !%game.timeTrial ) {
+			%game.calculateSurvivalScore(%clVictim, %player, %damageType);
 		}
 	}
 	
 	Parent::onClientKilled(%game, %clVictim, %clKiller, %damageType, %implement, %damageLocation);
+}
+
+function SkiFreeGame::calculateTimeTrialScore(%game, %client, %player) {
+	// finished a run
+	%time = (getSimTime() - %player.launchTime) / 1000;
+	%dot = strlen(strchr(%time, "."));
+	if( %dot == 0 ) %time = %time @ ".000";
+	else {
+		while( %dot < 4 ) {
+			%dot++;
+			%time = %time @ "0";
+		}
+	}
+	
+	%client.lastTime = %time;
+	
+	if( %player.handicap $= "NONE" ) {
+		%handicap = "";
+	}
+	else {
+		%handicap = "in a" SPC %player.handicap SPC "run ";
+	}
+	
+	%playerName = stripChars( getTaggedString( %client.name ), "\cp\co\c6\c7\c8\c9" );
+	
+	// TODO message for times
+	messageClient(%client, 0, '~wfx/misc/MA1.wav');
+	
+	// recalculate score so we know who the best player is
+	if( %client.bestTime > %time ) {
+		%client.bestTime = %time;
+		
+		%client.score = %game.trialDefaultTime - %time;
+		
+		%client.bestHandicap =
+			%player.handicap !$= "NONE"
+			? %player.handicap
+			: "";
+		
+		for( %i = 1; %i < 420; %i++ ) {
+			if( %player.curGateTime[%i] $= "" ) break;
+			%client.gateTime[%i] = %player.curGateTime[%i];
+		}
+
+		%game.recalcScore(%client);
+		
+		if( $TeamRank[0, count] > 1 ) {
+			%rankNumber = 0;
+			for( %i = 0; %i < $TeamRank[0, count]; %i++ ) {
+				if( $TeamRank[0, %i] == %client ) {
+					%rankNumber = %i + 1;
+					break;
+				}
+			}
+			
+			if( %rankNumber > 0 ) {
+				%rankPersonal = " You are now in" SPC %game.getWordForRank(%rankNumber) SPC "place.";
+				%gender = (%client.sex $= "Male" ? "He" : "She");
+				%rankOthers = " " SPC %gender SPC "is now in" SPC %game.getWordForRank(%rankNumber) SPC "place.";
+			}
+		}
+		else {
+			%rankPersonal = " New personal best!";
+		}
+	}
+
+	
+	messageAllExcept(%client, -1, 0, '%1 finished the course %3in %2 seconds.%4', %playerName, %time, %handicap, %rankOthers);
+	messageClient(%client, 0, '\c2You finished the course %3in %2 seconds.%4', %playerName, %time, %handicap, %rankPersonal);
+}
+
+function SkiFreeGame::calculateSurvivalScore(%game, %client, %player, %damageType) {
+	// make sure we started and that this is a valid run
+	if( %player.launchTime !$= "" && %player.gate > 1 ) {
+		// calculate score for the run v2
+		%score = 0;
+		for( %i = 1; %i < %player.gate; %i++ ) {
+			%score += nameToID("GatePoint" @ %i).gateDistance;
+			//echo("dist after gate " SPC %i SPC %distance);
+		}
+		
+		// measure distance between the current point and the next point, then compare to player/next point
+		%nextGate = nameToID("GatePoint" @ %player.gate);
+		%nextPos = getWords(%nextGate.position, 0, 1) SPC "0";
+		%playerPos = getWords(%player.position, 0, 1) SPC "0";
+		
+		%progress = %nextGate.gateDistance - vectorDist(%nextPos, %playerPos);
+		if( %progress < 0 ) %progress = 0;
+		
+		%score += %progress;
+		%score = mFloor(%score * 10) / 10;
+
+		%playerName = stripChars( getTaggedString( %client.name ), "\cp\co\c6\c7\c8\c9" );
+		
+		if( %player.handicap $= "NONE" ) {
+			%handicap = "";
+		}
+		else {
+			%handicap = %player.handicap @ " ";
+		}
+
+		if( %damageType == $DamageType::NexusCamping ) {
+			// also need a sound for the client
+			if( %player.gate > 6 ) {
+				messageClient(%client, 0, '~wfx/misc/MA2.wav');
+			}
+			else if( %player.gate > 4 ) {
+				messageClient(%client, 0, '~wfx/misc/MA1.wav');
+			}
+			else if( %player.gate > 2 ) {
+				messageClient(%client, 0, '~wfx/misc/slapshot.wav');
+			}
+			else {
+				messageClient(%client, 0, '~wfx/bonuses/Nouns/llama.wav');
+			}
+		}
+		
+		// recalculate score so we know who the best player is
+		if( %client.score < %score ) {
+			%client.score = %score;
+			%client.maxGates = (%player.gate - 1);
+			
+			for( %i = 1; %i < 420; %i++ ) {
+				if( %player.curGateTime[%i] $= "" ) break;
+				%client.gateTime[%i] = %player.curGateTime[%i];
+			}
+
+			%game.recalcScore(%client);
+			
+			%client.bestHandicap =
+				%player.handicap !$= "NONE"
+				? %player.handicap
+				: "";
+
+			if( $TeamRank[0, count] > 1 ) {
+				%rankNumber = 0;
+				for( %i = 0; %i < $TeamRank[0, count]; %i++ ) {
+					if( $TeamRank[0, %i] == %client ) {
+						%rankNumber = %i + 1;
+						break;
+					}
+				}
+				
+				if( %rankNumber > 0 ) {
+					%rankPersonal = " You are now in" SPC %game.getWordForRank(%rankNumber) SPC "place.";
+					%gender = (%client.sex $= "Male" ? "He" : "She");
+					%rankOthers = " " SPC %gender SPC "is now in" SPC %game.getWordForRank(%rankNumber) SPC "place.";
+				}
+			}
+			else {
+				%rankPersonal = " New personal best!";
+			}
+		}
+		
+		messageAllExcept(%client, -1, 0, '%1 did a %2m %5run (%3 gates).%4', %playerName, %score, %player.gate - 1, %rankOthers, %handicap);
+		messageClient(%client, 0, '\c2That %5run went %2m (%3 gates).%4', %playerName, %score, %player.gate - 1, %rankPersonal, %handicap);
+	}
 }
 
 function SkiFreeGame::updateKillScores(%game, %clVictim, %clKiller, %damageType, %implement) {
@@ -445,7 +574,17 @@ function SkiFreeGame::updateKillScores(%game, %clVictim, %clKiller, %damageType,
 
 // need to do this to get the recalculations
 function SkiFreeGame::recalcScore(%game, %client){
-	messageClient(%client, 'MsgYourScoreIs', "", %client.score);
+	if( %game.timeTrial ) {
+		if( %client.bestTime == %game.trialDefaultTime ) {
+			messageClient(%client, 'MsgYourScoreIs', "", '<none>');
+		}
+		else {
+			messageClient(%client, 'MsgYourScoreIs', "", %client.bestTime);
+		}
+	}
+	else {
+		messageClient(%client, 'MsgYourScoreIs', "", %client.score);
+	}
 
 	%game.recalcTeamRanks(%client);
 	%game.checkScoreLimit(%client);
@@ -498,7 +637,8 @@ function SkiFreeGame::updateScoreHud(%game, %client, %tag)
 	messageClient( %client, 'SetScoreHudHeader', "", "" );
 
 	// Send the subheader:
-	messageClient(%client, 'SetScoreHudSubheader', "", '<tab:15,247,430>\tPLAYER\tRUNS (FULL)\tBEST');
+	//messageClient(%client, 'SetScoreHudSubheader', "", '<tab:15,247,430>\tPLAYER\tRUNS (FULL)\tBEST');
+	messageClient(%client, 'SetScoreHudSubheader', "", '<tab:15,430>\tPLAYER\tBEST');
 
 	for (%index = 0; %index < $TeamRank[0, count]; %index++)
 	{
@@ -507,34 +647,45 @@ function SkiFreeGame::updateScoreHud(%game, %client, %tag)
 
 		%clStyle = %cl == %client ? "<color:dcdcdc>" : "";
 		
-		%score = mFloor(%cl.score) == %cl.score
-			? %cl.score @ ".0"
-			: %cl.score;
-			
-		if( %cl.AI_skiFreeBotLevel !$= "" ) {
-			%botLevel = "<spush><color:ff8080>Lv" @ %cl.AI_skiFreeBotLevel @ "<spop>";
+		if( %game.timeTrial ) {
+			if( %cl.bestTime != %game.trialDefaultTime ) {
+				%score = %cl.bestTime;
+			}
+			else {
+				%score = %game.trialDefaultTime @ ".000";
+			}
+				
+			%scoreAddendum = "";
 		}
 		else {
-			%botLevel = "";
+			%score = mFloor(%cl.score) == %cl.score
+				? %cl.score @ ".0"
+				: %cl.score;
+				
+			%scoreAddendum = " (" @ %cl.maxGates @ " gates";
+		}
+			
+		if( %cl.AI_skiFreeBotLevel !$= "" ) {
+			%title = "<spush><color:ff8080>Bot Level" SPC %cl.AI_skiFreeBotLevel @ "<spop>";
+		}
+		else if( %cl.bestHandicap !$= "" ) {
+			%title = "<spush><color:ff8000>" @ %cl.bestHandicap @ "<spop>";
+		}
+		else {
+			%title = "";
 		}
 
-
 		//if the client is not an observer, send the message
+
 		if (%client.team != 0)
 		{
-			messageClient( %client, 'SetLineHud', "", %tag, %index, '%5<tab:20,450,500>\t<clip:200>%1</clip><rmargin:200><just:right>%8<rmargin:304><just:right>%2 (%7)<rmargin:461><just:right>%3<rmargin:580><just:left> (%4 gates)', 
-				%cl.name, %cl.runs, %score, %cl.maxGates, %clStyle, %cl, %cl.fullRuns, %botLevel
-			);
+			// why am i using word wrap lol
+			messageClient( %client, 'SetLineHud', "", %tag, %index, '%5<tab:20,450,500>\t<clip:200>%1</clip><rmargin:360><just:right>%2<rmargin:461><just:right>%3<rmargin:580><just:left>%4', %cl.name, %title, %score, %scoreAddendum, %clStyle, %cl);
 		}
 		//else for observers, create an anchor around the player name so they can be observed
 		else
 		{
-			messageClient( %client, 'SetLineHud', "", %tag, %index, '%5<tab:20,450,500>\t<clip:200><a:gamelink\t%6>%1</a></clip><rmargin:200><just:right>%8<rmargin:304><just:right>%2 (%7)<rmargin:461><just:right>%3<rmargin:580><just:left> (%4 gates)', 
-				%cl.name, %cl.runs, %score, %cl.maxGates, %clStyle, %cl, %cl.fullRuns, %botLevel
-			);
-			
-			//messageClient( %client, 'SetLineHud', "", %tag, %index, '%7<tab:20, 450>\t<clip:200><a:gamelink\t%8>%1</a><rmargin:280><just:right>%2 (%3)<rmargin:370><just:right>%4 (%5)<rmargin:460><just:right>%6', 
-					//%cl.name, %cl.flags, %flagScore, %cl.slaps, %cl.slapBonus, %cl.score, %clStyle, %cl );
+			messageClient( %client, 'SetLineHud', "", %tag, %index, '%5<tab:20,450,500>\t<clip:200><a:gamelink\t%6>%1</a></clip><rmargin:360><just:right>%2<rmargin:461><just:right>%3<rmargin:580><just:left>%4', %cl.name, %title, %score, %scoreAddendum, %clStyle, %cl);
 		}
 	}
 
@@ -729,6 +880,13 @@ function SkiFreeGame::addGate(%game, %gate, %position) {
 
 	%gateColor = %gate + 1;
 	if( %gateColor > 16 ) %gateColor = 15;
+	
+	if( %game.timeTrial && %gate == %game.trialGates ) {
+		%gateName = "Finish Gate";
+	}
+	else {
+		%gateName = "Gate " @ %gate;
+	}
 
 	%waypointObj = new WayPoint("GatePoint" @ %gate) {
 		position = %waypointPosition;
@@ -736,7 +894,7 @@ function SkiFreeGame::addGate(%game, %gate, %position) {
 		scale = "1 1 1";
 		dataBlock = "WayPointMarker";
 		team = %gateColor;
-		name = "Gate " @ %gate;
+		name = %gateName;
 		
 		gateDistance = %distanceFromLastGate;
 	};
@@ -830,7 +988,7 @@ function SkiFreeGame::leaveSpawnTrigger(%game, %player) {
 			%mod = %mod @ "discless ";
 		}
 		else {
-			%mod = %mod @ "discless discjump launch ";
+			%mod = %mod @ "single discjump ";
 		}
 	}
 	
@@ -847,9 +1005,19 @@ function SkiFreeGame::leaveSpawnTrigger(%game, %player) {
 	}
 	
  	%client = %player.client;
-	messageClient(%client, 0, '\c2Your %1run has begun.~wfx/misc/target_waypoint.wav', %mod);
-	%player.schedule(Game.lifeTime, scriptKill, $DamageType::NexusCamping);
-	Game.schedule(Game.lifeTime - Game.warningTime, warningMessage, %player);
+	
+	if( %game.timeTrial ) {
+		// TODO
+		%objective = "Ski through the gates in order until you get to the Finish Gate.";
+		%player.schedule(Game.trialDefaultTime * 1000, scriptKill, $DamageType::NexusCamping);
+	}
+	else {
+		%objective = "You have" SPC (Game.survivalLifeTime / 1000) SPC "seconds to go as far as you can.";
+		%player.schedule(Game.survivalLifeTime, scriptKill, $DamageType::NexusCamping);
+		Game.schedule(Game.survivalLifeTime - Game.survivalWarningTime, warningMessage, %player);
+	}
+	
+	messageClient(%client, 0, '\c2Your %1run has begun. %2~wfx/misc/target_waypoint.wav', %mod, %objective);
 	%player.launchTime = getSimTime();
 	Game.lastLaunchTime = getSimTime();
 	%player.gate = 1;
@@ -957,48 +1125,54 @@ function SkiFreeGame::enterGateTrigger(%game, %trigger, %player) {
 	if( %player.getState() $= "Dead" ) return;
 	
 	if( %trigger.gate == %player.gate ) {
-		// ready the next gate
 		%player.gate++;
-		if( !%player.modGlass ) %player.applyRepair(0.125);
-		%player.setInventory(DiscAmmo, 15);
-
-		// TODO waypoint
-		
-		// get other variables
-		%timeMS = (getSimTime() - %player.launchTime) / 1000;
-		%timeMS = mFloor(%timeMS * 1000)/1000;
-		%kph = mFloor(VectorLen(setWord(%player.getVelocity(), 2, 0)) * 3.6);
-
-		%bestTimeMS = %player.client.gateTime[%trigger.gate];
-		
-		if( %bestTimeMS !$= "" ) {
-			if( %bestTimeMS < %timeMS ) {
-				%formatL = '(\c5+';
-				%compare = mFloor((%timeMS - %bestTimeMS) * 1000)/1000 ;
-			}
-			else if( %bestTimeMS > %timeMS ) {
-				%formatL = '(\c3-';
-				%compare = mFloor((%bestTimeMS - %timeMS) * 1000)/1000;
-			}
-			else {
-				%formatL = '(+';
-				%compare = 0;
-			}
-			%formatR = '\c0)';
+			
+		if( %game.timeTrial && %trigger.gate == %game.trialGates ) {
+			// finish the game
+			%game.calculateTimeTrialScore(%player.client, %player);
+			%player.schedule(3000, scriptKill, %player, 0);
 		}
-		
-		%player.curGateTime[%trigger.gate] = %timeMS;
-		
-		messageClient(%player.client, 0, '\c0Passed Gate %1 at %2 seconds (Speed: %3kph) %4%5%6~wfx/misc/target_waypoint.wav', %trigger.gate, %timeMS, %kph, %formatL, %compare, %formatR);
-		
-		// generate gate +2 if it doesn't exist
-		if( Game.gate == %player.gate ) {
-			Game.generateGate(%player.gate + 1);
-		}
-		
-		// deal with ai
-		if( %player.client.isAIControlled() ) {
-			%game.AI_crossedGate(%player.client, %player);
+		else {
+			// ready the next gate
+			if( !%player.modGlass ) %player.applyRepair(0.125);
+			%player.setInventory(DiscAmmo, 15);
+			
+			// get other variables
+			%timeMS = (getSimTime() - %player.launchTime) / 1000;
+			%timeMS = mFloor(%timeMS * 1000)/1000;
+			%kph = mFloor(VectorLen(setWord(%player.getVelocity(), 2, 0)) * 3.6);
+
+			%bestTimeMS = %player.client.gateTime[%trigger.gate];
+			
+			if( %bestTimeMS !$= "" ) {
+				if( %bestTimeMS < %timeMS ) {
+					%formatL = '(\c5+';
+					%compare = mFloor((%timeMS - %bestTimeMS) * 1000)/1000 ;
+				}
+				else if( %bestTimeMS > %timeMS ) {
+					%formatL = '(\c3-';
+					%compare = mFloor((%bestTimeMS - %timeMS) * 1000)/1000;
+				}
+				else {
+					%formatL = '(+';
+					%compare = 0;
+				}
+				%formatR = '\c0)';
+			}
+			
+			%player.curGateTime[%trigger.gate] = %timeMS;
+			
+			messageClient(%player.client, 0, '\c0Passed Gate %1 at %2 seconds (Speed: %3kph) %4%5%6~wfx/misc/target_waypoint.wav', %trigger.gate, %timeMS, %kph, %formatL, %compare, %formatR);
+			
+			// generate gate +2 if it doesn't exist
+			if( Game.gate == %player.gate ) {
+				Game.generateGate(%player.gate + 1);
+			}
+			
+			// deal with ai
+			if( %player.client.isAIControlled() ) {
+				%game.AI_crossedGate(%player.client, %player);
+			}
 		}
 	}
 	else if( %trigger.gate > %player.gate ) {
@@ -1011,7 +1185,7 @@ function SkiFreeGame::warningMessage(%game, %player) {
 	if( !isObject(%player.client) ) return;
 	if( %player.getState() $= "Dead" ) return;
 	
-	messageClient(%player.client, 0, '\c2Only %1 seconds left!~wfx/misc/bounty_objrem1.wav', %game.warningTime / 1000);
+	messageClient(%player.client, 0, '\c2Only %1 seconds left!~wfx/misc/bounty_objrem1.wav', %game.survivalWarningTime / 1000);
 }
 
 function SkiFreeGame::generateLevel(%game) {
@@ -1083,6 +1257,10 @@ function SkiFreeGame::generateSpawnPlatform(%game) {
 }
 
 function SkiFreeGame::generateGate(%game, %gate) {
+	if( %game.timeTrial && %gate > %game.trialGates ) {
+		return;
+	}
+
 	// TODO add some mapping mechanism for defining where each gate will be generated
 	if( %gate == 1 ) {
 		// angle should just be anywhere
@@ -1201,6 +1379,10 @@ function SkiFreeGame::displayDeathMessages(%game, %clVictim, %clKiller, %damageT
 		logEcho(%clVictim.nameBase@" (pl "@%clVictim.player@"/cl "@%clVictim@") killed by Deadstop");
 	}
 	else if( %damageType == $DamageType::NexusCamping ) {
+		if( %game.timeTrial ) {
+			messageAll('msgVehicleSpawnKill', '\c0%1 ran out of time.', %victimName, %victimGender, %victimPoss, %killerName, %killerGender, %killerPoss, %damageType, $DamageTypeText[%damageType]);
+		}
+		
 		// no message needed for a full run completed
 		logEcho(%clVictim.nameBase@" (pl "@%clVictim.player@"/cl "@%clVictim@") killed by End of Run");
 	}
@@ -1223,6 +1405,7 @@ function SkiFreeGame::getWordForRank(%game, %rank) {
 
 function SkiFreeGame::sendDebriefing( %game, %client )
 {
+	// TODO fix the results screen to work for time trial
 	// Mission result:
 	%winner = $TeamRank[0, 0];
 	if ( %winner.score > 0 )
@@ -1232,22 +1415,37 @@ function SkiFreeGame::sendDebriefing( %game, %client )
 
 	// Player scores:
 	%count = $TeamRank[0, count];
-	messageClient( %client, 'MsgDebriefAddLine', "", '<spush><color:00dc00><font:univers condensed:18>PLAYER<lmargin%%:60>BEST<lmargin%%:80>GATES<spop>' );
+	if( %game.timeTrial ) {
+		messageClient( %client, 'MsgDebriefAddLine', "", '<spush><color:00dc00><font:univers condensed:18>PLAYER<lmargin%%:60>BEST<spop>' );
+	}
+	else {
+		messageClient( %client, 'MsgDebriefAddLine', "", '<spush><color:00dc00><font:univers condensed:18>PLAYER<lmargin%%:60>BEST<lmargin%%:80>GATES<spop>' );
+	}
 	for ( %i = 0; %i < %count; %i++ ) {
 		%cl = $TeamRank[0, %i];
-		if ( %cl.score $= "" )
-			%score = "0.0";
-		else if( mFloor(%cl.score) == %cl.score )
-			%score = %cl.score @ ".0";
-		else
-			%score = %cl.score;
+		if( %game.timeTrial ) {
+			if( %cl.bestTime == %game.trialDefaultTime )
+				%bestTime = %game.trialDefaultTime @ ".000";
+			else
+				%bestTime = %cl.bestTime;
 
-		if( %cl.maxGates $= "" )
-			%gates = 0;
-		else
-			%gates = %cl.maxGates;
+			messageClient( %client, 'MsgDebriefAddLine', "", '<lmargin:0><clip%%:60> %1</clip><lmargin%%:60><clip%%:20> %2</clip>', %cl.name, %bestTime );
+		}
+		else {
+			if ( %cl.score $= "" )
+				%score = "0.0";
+			else if( mFloor(%cl.score) == %cl.score )
+				%score = %cl.score @ ".0";
+			else
+				%score = %cl.score;
 
-		messageClient( %client, 'MsgDebriefAddLine', "", '<lmargin:0><clip%%:60> %1</clip><lmargin%%:60><clip%%:20> %2</clip><lmargin%%:80><clip%%:20> %3', %cl.name, %score, %gates );
+			if( %cl.maxGates $= "" )
+				%gates = 0;
+			else
+				%gates = %cl.maxGates;
+
+			messageClient( %client, 'MsgDebriefAddLine', "", '<lmargin:0><clip%%:60> %1</clip><lmargin%%:60><clip%%:20> %2</clip><lmargin%%:80><clip%%:20> %3', %cl.name, %score, %gates );
+		}
 	}
 
 
