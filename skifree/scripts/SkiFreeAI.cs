@@ -4,11 +4,15 @@
 // level 1 - the bot will just be handled by the game
 // level 2 - ski down hills, everything else the same (skiing doesn't work very well because bots are too afraid of fall damage)
 // level 3 - don't be afraid of fall damage, ski down hills, jet up/over hills
-// level 4 - probably not happening ever
+// level 4 - don't ski down hills that are sloped to the side (to avoid going way off-course)
 
 // TODO fix bots committing to going alone before the mission starts
 
-//
+function SkiFreeGame::addNamedBot(%game, %name) {
+	// why did i do this lol
+	aiConnect(%name, 1, 1.00);
+}
+
 function SkiFreeGame::addBots(%game) {
 	// please don't call this more than once
 	for( %i = 0; %i < ClientGroup.getCount(); %i++ ) {
@@ -17,21 +21,29 @@ function SkiFreeGame::addBots(%game) {
 	}
 	
 	// note: there's something fucky with this code so it should be BELOW the skill level seen in AIHasJoined method
-	aiConnect("Level 3", 1, 1.00, true);
-	aiConnect("Level 2", 1, 0.60, true);
-	aiConnect("Level 1", 1, 0.30, true);
+	aiConnect("Level 4", 1, 1.00);
+	aiConnect("Level 3", 1, 0.70);
+	aiConnect("Level 2", 1, 0.45);
+	aiConnect("Level 1", 1, 0.20);
 }
 
 function SkiFreeGame::AIHasJoined(%game, %client) {
 	%skill = %client.getSkillLevel();
-	if( %skill <= 0.33 ) {
+	if( %skill <= 0.25 ) {
 		%client.AI_skiFreeBotLevel = 1;
 	}
-	else if( %skill <= 0.66 ) {
+	else if( %skill <= 0.50 ) {
 		%client.AI_skiFreeBotLevel = 2;
 	}
-	else {
+	else if( %skill <= 0.75 ) {
 		%client.AI_skiFreeBotLevel = 3;
+	}
+	else {
+		%client.AI_skiFreeBotLevel = 4;
+	}
+	
+	if( %client.bestTime $= "" ) {
+		%client.bestTime = %game.trialDefaultTime;
 	}
 }
 
@@ -89,6 +101,11 @@ function SkiFreeGame::AI_heartbeat(%game, %client, %player) {
 		// - sometimes it misses the downhill directly and lands on the next uphill
 		// - sometimes it overshoots the gate because it's going too fast
 		%game.AI_playGameLevel3(%client, %player);
+		%heartbeat = 20;
+	}
+	else if( %client.AI_skiFreeBotLevel == 4 ) {
+		// level 4 is level 3, except it doesn't ski off slopes that'll send the bot way off-course
+		%game.AI_playGameLevel4(%client, %player);
 		%heartbeat = 20;
 	}
 	
@@ -183,21 +200,37 @@ function SkiFreeGame::AI_resetPosition(%game, %client, %player) {
 	schedule(100, 0, AIPlay3DSound, %client, "wrn.watchit");
 }
 
+function SkiFreeGame::getAverageBotTime(%game) {
+	%time = 0;
+	%count = 0;
+	for(%i = 0; %i < ClientGroup.getCount(); %i ++) {
+		%client = ClientGroup.getObject(%i);
+		if( %client.isAIControlled() ) {
+			if( %client.lastTime !$= "" ) {
+				%time += %client.lastTime;
+				%count++;
+			}
+		}
+	}
+	
+	echo(%time / %count);
+}
+
 function SkiFreeGame::AI_playGameLevel2(%game, %client, %player) {
 	// return if we haven't launched yet - just do standard bot things up to that point
 	if( %player.launchTime $= "" ) return;
 	
 	// this is little more than "is the target point downhill? hold ski" bot
-	%dir = VectorSub(%player.position, nameToID("GatePoint" @ %player.gate).position);
-	%dir = VectorNormalize(getWords(%dir, 0, 1) SPC "0");
-	%dir = VectorScale(%dir, 2);
+	%objDir = VectorSub(%player.position, nameToID("GatePoint" @ %player.gate).position);
+	%objDir = VectorNormalize(getWords(%objDir, 0, 1) SPC "0");
+	%objDir = VectorScale(%objDir, 2);
 	%x = getWord(%player.position, 0);
 	%y = getWord(%player.position, 1);
 	
 	%terrainHeight = %game.findHeight(%x SPC %y);
 	
-	%xslope = %x + getWord(%dir, 0);
-	%yslope = %y + getWord(%dir, 1);
+	%xslope = %x + getWord(%objDir, 0);
+	%yslope = %y + getWord(%objDir, 1);
 	%hslope = %game.findHeight(%xslope SPC %yslope);
 	%slope = %terrainHeight - %hslope;
 
@@ -235,10 +268,10 @@ function SkiFreeGame::AI_playGameLevel3(%game, %client, %player) {
 		// i have no idea how to do this shit
 	//}
 
-	//%dir = VectorNormalize(getWords(%vel,0,1) SPC "0");
-	%dir = VectorSub(%player.position, nameToID("GatePoint" @ %player.gate).position);
-	%dir = VectorNormalize(getWords(%dir, 0, 1) SPC "0");
-	%dir = VectorScale(%dir, 2);
+	//%objDir = VectorNormalize(getWords(%vel,0,1) SPC "0");
+	%objDir = VectorSub(%player.position, nameToID("GatePoint" @ %player.gate).position);
+	%objDir = VectorNormalize(getWords(%objDir, 0, 1) SPC "0");
+	//%objDir = VectorScale(%objDir, 2); // why are we doing this?
 	%x = getWord(%player.position, 0);
 	%y = getWord(%player.position, 1);
 	%terrainHeight = %game.findHeight(%x SPC %y);
@@ -250,8 +283,8 @@ function SkiFreeGame::AI_playGameLevel3(%game, %client, %player) {
 	// TODO also use parabolas
 	
 	if( !%aiHandled ) {
-		%xslope = %x + getWord(%dir, 0);
-		%yslope = %y + getWord(%dir, 1);
+		%xslope = %x + getWord(%objDir, 0);
+		%yslope = %y + getWord(%objDir, 1);
 		%hslope = %game.findHeight(%xslope SPC %yslope);
 		%slope = %terrainHeight - %hslope;
 		
@@ -269,7 +302,95 @@ function SkiFreeGame::AI_playGameLevel3(%game, %client, %player) {
 				%aiHandled = true;
 			}
 			else {
-				%hit = ContainerRayCast(%player.position, VectorScale(%dir, 50) SPC getWord(%player.position,2) - 25, $TypeMasks::TerrainObjectType);
+				%hit = ContainerRayCast(%player.position, VectorScale(%objDir, 50) SPC getWord(%player.position,2) - 25, $TypeMasks::TerrainObjectType);
+				if( VectorDist(%player.position, getWords(%hit, 1, 3)) < 25 ) {
+					%fireJets = true;
+					%aiHandled = true;
+				}
+			}
+		}
+	}
+	
+	if( %fireJets ) {
+		%client.pressjump();
+		%client.pressjet();
+	}
+	else {
+		%player.storedEnergy = %player.getEnergyLevel();
+		%player.setEnergyLevel(0);
+	}
+}
+
+function SkiFreeGame::AI_playGameLevel4(%game, %client, %player) {
+	// return if we haven't launched yet - just do standard bot things up to that point
+	if( %player.launchTime $= "" ) return;
+	
+	// disable the bot's jets when i don't tell you to use them
+	// TODO this doesn't actually work correctly - bots just seem to completely refill their energy when this is called
+	if( %player.storedEnergy > 0 ) {
+		%player.setEnergyLevel(%player.getEnergyLevel() + %player.storedEnergy);
+		%player.storedEnergy = 0;
+	}
+	%fireJets = false;
+	
+	%aiHandled = false;
+	
+	// PRIORITY 1. check distance to gate - if we're very close, return from method (use default bot behavior)
+	// TODO check distance to gate - if we're going fast, check trajectory. if we're off, return from method (use default bot behavior)
+	%dist = VectorDist(%player.position, nameToID("GatePoint" @ %player.gate));
+	%vel = %player.getVelocity();
+	// TODO remove this shit and make it good
+	if( %dist < 100 ) {
+		return;
+	}
+	//%speed = VectorLen(%vel);
+	//if( %speed >= 70 ) {
+		// i have no idea how to do this shit
+	//}
+
+	//%objDir = VectorNormalize(getWords(%vel,0,1) SPC "0");
+	%objDir = VectorSub(%player.position, nameToID("GatePoint" @ %player.gate).position);
+	%objDir = VectorNormalize(getWords(%objDir, 0, 1) SPC "0");
+	//%objDir = VectorScale(%objDir, 2); // why are we doing this?
+	%x = getWord(%player.position, 0);
+	%y = getWord(%player.position, 1);
+	%terrainHeight = %game.findHeight(%x SPC %y);
+	
+	// PRIORITY 2. check slope
+	// going down slope - hold jump
+	// going up slope - hit the jets, unless too high (if there's a mountain in front of you, there's no such thing as too high)
+	// TODO use parabolas
+	
+	if( !%aiHandled ) {
+		%xslope = %x + getWord(%objDir, 0);
+		%yslope = %y + getWord(%objDir, 1);
+		%hslope = %game.findHeight(%xslope SPC %yslope);
+		%slope = %terrainHeight - %hslope;
+		
+		// check perpendicular slope to make sure we're going to send ourselves off-course
+		%xhor1 = %x - getWord(%objDir, 1);
+		%yhor1 = %y + getWord(%objDir, 0);
+		%hor1slope = %game.findHeight(%xhor1 SPC %yhor1);
+		%xhor2 = %x + getWord(%objDir, 1);
+		%yhor2 = %y - getWord(%objDir, 0);
+		%hor2slope = %game.findHeight(%xhor2 SPC %yhor2);
+		%horislope = mAbs(%hor1slope - %hor2slope);
+		
+		if( %horislope < 0.5 && %slope < 0.02 ) {
+			// going down
+			%client.pressjump();
+			%aiHandled = true;
+		}
+		else { 
+			// going up
+			// make sure we aren't too high off the ground - 10m is plenty
+			// TODO we need to do a distance check
+			if( getWord(%player.position,2) - %terrainHeight < 10 ) {
+				%fireJets = true;
+				%aiHandled = true;
+			}
+			else {
+				%hit = ContainerRayCast(%player.position, VectorScale(%objDir, 50) SPC getWord(%player.position,2) - 25, $TypeMasks::TerrainObjectType);
 				if( VectorDist(%player.position, getWords(%hit, 1, 3)) < 25 ) {
 					%fireJets = true;
 					%aiHandled = true;
