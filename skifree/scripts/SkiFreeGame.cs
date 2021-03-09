@@ -76,8 +76,8 @@ function SkiFreeGame::sendGameVoteMenu( %game, %client, %key ) {
 		);
 		messageClient( %client, 'MsgVoteItem', "", %key, 'VoteChangeScoringSystem', "", 
 			$Host::SkiRaceTimeTrialScoringSystem
-			? 'SkiFree: Scoring by DISTANCE (next map)'
-			: 'SkiFree: Scoring by TIME TRIAL (next map)'
+			? 'SkiFree: Change to SURVIVAL scoring (next map)'
+			: 'SkiFree: Change to TIME TRIAL scoring (next map)'
 		);
 		
 	}
