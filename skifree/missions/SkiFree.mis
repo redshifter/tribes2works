@@ -7,8 +7,8 @@
 //--- MISSION QUOTE END ---
 
 //--- MISSION STRING BEGIN ---
-//Generates a random level
-//You'll never see the same one twice
+//Chooses a random terrain
+//Sets up a random spawn point
 //--- MISSION STRING END ---
 
 //--- OBJECT WRITE BEGIN ---
@@ -52,7 +52,7 @@ new SimGroup(MissionGroup) {
 		fogVolumeColor2 = "128.000000 128.000000 128.000000 0.000000";
 		fogVolumeColor3 = "128.000000 128.000000 128.000000 0.000000";
 		high_visibleDistance = "-1";
-		high_fogDistance = "300";
+		high_fogDistance = "-1";
 		high_fogVolume1 = "-1 3344 6.27351e-39";
 		high_fogVolume2 = "-1 3.51342e-39 2.46878e+27";
 		high_fogVolume3 = "-1 5.3766e+08 -3.21499e+06";
