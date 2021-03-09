@@ -1,36 +1,51 @@
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
 import java.text.SimpleDateFormat;
 import java.util.LinkedList;
 import java.util.List;
 
 public class SkiFreeCreator {
-	// yes i hardcoded file locations, fuck you
-	static File csv = new File("D:/Libraries/Documents/terrain list.csv");
+	private static File inputFile;
+	private static File outputFile;
+	
+	private static List<String> outputText = new LinkedList<>();
 	
 	public static void main(String[] args) throws IOException {
-		System.out.println("// SkiFree Terrain List");
-		System.out.println("// Generation Date: " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(csv.lastModified()));
-		System.out.println();
-		System.out.println("// A good terrain has the following qualities:");
-		System.out.println("// - doesn't have a bunch of flat ground, even if it's right outside the mission bounds (high octane)"); 
-		System.out.println("// - is not fucking gigantic (stripmine, a bunch of other TR2 terrains)");
-		System.out.println("// - doesn't have a bunch of steep plateaus");
-		System.out.println("// - is not Magnum (a map where the fastest route is to discjump off a bunch of flat ridges)");
-		System.out.println("// use $TerrainTest to test a terrain locally");
-		System.out.println();
-		System.out.println("%i = -1; // %i++ is pre-increment for some reason; it's -1 so it can start at 0");
-		System.out.println();
+		if( args.length != 2 ) {
+			System.out.println("Usage: [input.csv] [output.cs]");
+			return;
+		}
+		inputFile = new File(args[0]);
+		if( !inputFile.exists() ) {
+			System.out.println("Input file doesn't exist.");
+		}
+		outputFile = new File(args[1]);
 		
-		List<String> fileLines = Files.readAllLines(csv.toPath());
+		println("// SkiFree Terrain List");
+		println("// Generation Date: " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(inputFile.lastModified()));
+		println();
+		println("// A good terrain has the following qualities:");
+		println("// - doesn't have a bunch of flat ground, even if it's right outside the mission bounds (high octane)"); 
+		println("// - is not fucking gigantic (stripmine, a bunch of other TR2 terrains)");
+		println("// - doesn't have a bunch of steep plateaus");
+		println("// - is not Magnum (a map where the fastest route is to discjump off a bunch of flat ridges)");
+		println("// use $TerrainTest to test a terrain locally");
+		println();
+		println("%i = -1; // %i++ is pre-increment for some reason; it's -1 so it can start at 0");
+		println();
+		
+		List<String> fileLines = Files.readAllLines(inputFile.toPath());
 		List<Terrain> terrainList = new LinkedList<>();
 		
 		for( String line : fileLines ) {
 			String[] split = line.split(",");
 			if( split.length == 0 ) continue;
 			if( !split[0].endsWith(".ter") ) continue;
-			terrainList.add(new Terrain(split));
+			
+			Terrain ter = new Terrain(split);
+			if( !ter.hasErrors ) terrainList.add(ter);
 		}
 		
 		// if you don't want me at my new String[][] {}, you don't deserve me at my ______________
@@ -52,28 +67,67 @@ public class SkiFreeCreator {
 				}
 			}
 			
-			System.out.println("// " + listName + " (" + count + ")");
+			println("// " + listName + " (" + count + ")");
 			for( Terrain ter : terrainList ) {
 				if( rejectReason.equals(ter.rejectReason) ) {
-					System.out.println(ter);
+					println(ter.toString());
 				}
 			}
 			
-			System.out.println();
+			println();
 		}
-		System.out.println("$SkiFreeTerrainListMAX = %i;");
+
+		writeFile();
+
+		System.out.println("Task failed successfully");
 	}
 	
+	private static void writeFile() throws IOException {
+		Files.write(outputFile.toPath(), outputText, StandardOpenOption.CREATE);
+	}
+
+	private static void println() {
+		println("");
+	}
+
+	private static void println(String line) {
+		outputText.add(line);
+	}
+
 	static class Terrain {
 		String terrainName;
 		String result;
 		String rejectReason;
 		String comment;
+		boolean hasErrors = false;
 		
 		public Terrain(String[] split) {
 			terrainName = split[0];
 			result = split[4];
 			
+			// validation
+			switch( result ) {
+			case "Accept":
+				if( "Yes".equals(split[1]) || "Yes".equals(split[2]) || "Yes".equals(split[3]) ) {
+					System.err.println(terrainName + " is Accept but has a rejection reason!");
+					hasErrors = true;
+				}
+				break;
+			case "Reject":
+				if( !"Yes".equals(split[1]) && !"Yes".equals(split[2]) && !"Yes".equals(split[3]) ) {
+					System.err.println(terrainName + " is Reject but has no rejection reason!");
+					hasErrors = true;
+				}
+				break;
+			case "Duplicate":
+				break;
+			case "":
+			default:
+				System.err.println(terrainName + " has unknown result " + result);
+				hasErrors = true;
+				break;
+			}
+
 			if( "Yes".equals(split[1]) ) {
 				rejectReason = "DEADSTOP";
 			}

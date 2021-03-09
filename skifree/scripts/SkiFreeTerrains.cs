@@ -1,5 +1,5 @@
 // SkiFree Terrain List
-// Generation Date: 2021-03-07 03:12:16
+// Generation Date: 2021-03-09 12:34:25
 
 // A good terrain has the following qualities:
 // - doesn't have a bunch of flat ground, even if it's right outside the mission bounds (high octane)
@@ -10,7 +10,7 @@
 
 %i = -1; // %i++ is pre-increment for some reason; it's -1 so it can start at 0
 
-// ACCEPTED TERRAINS (86)
+// ACCEPTED TERRAINS (85)
 $SkiFreeTerrainList[%i++] = "Alcatraz.ter"; // yeah. seems fine
 $SkiFreeTerrainList[%i++] = "Attrition.ter";
 $SkiFreeTerrainList[%i++] = "BastardForge.ter";
@@ -20,7 +20,6 @@ $SkiFreeTerrainList[%i++] = "Cardiac.ter";
 $SkiFreeTerrainList[%i++] = "CCD.ter";
 $SkiFreeTerrainList[%i++] = "CeleritySE.ter"; // I was on the fence on this one
 $SkiFreeTerrainList[%i++] = "Cinerarium.ter";
-$SkiFreeTerrainList[%i++] = "CompUSA_Melee.ter"; // this terrain is kinda boring but why not
 $SkiFreeTerrainList[%i++] = "Coppera.ter"; // this seems fine. just gotta keep jumping over the mesas? plateaus? fjordr? Whatever
 $SkiFreeTerrainList[%i++] = "DangerousCrossing_nef.ter"; // this level is fine
 $SkiFreeTerrainList[%i++] = "DeathBirdsFly.ter";
@@ -164,10 +163,11 @@ $SkiFreeTerrainList[%i++] = "Xtra_VanDamned.ter";
 //$SkiFreeTerrainList[%i++] = "Xtra_Stripmine.ter";
 //$SkiFreeTerrainList[%i++] = "Xtra_ziggurat.ter";
 
-// REJECTED FOR BEING UNSKIIABLE (58)
+// REJECTED FOR BEING UNSKIIABLE (59)
 //$SkiFreeTerrainList[%i++] = "Archipelago.ter";
 //$SkiFreeTerrainList[%i++] = "Bunkered.ter";
 //$SkiFreeTerrainList[%i++] = "cloak.ter"; // the terrain is just too big for a fun race
+//$SkiFreeTerrainList[%i++] = "CompUSA_Melee.ter"; // the hill is just causing too much grief
 //$SkiFreeTerrainList[%i++] = "Confusco.ter"; // WAY too big.
 //$SkiFreeTerrainList[%i++] = "Crater71.ter"; // this almost always generates something very unfun
 //$SkiFreeTerrainList[%i++] = "EB_Hades.ter"; // not only is it extreme but you kinda have trouble reading the terrain too

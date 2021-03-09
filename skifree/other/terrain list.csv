@@ -18,7 +18,7 @@ CeleritySE.ter,Trace,No,,Accept,I was on the fence on this one
 Chasmaclysmic.ter,Trace,Kinda,Yes,Reject,this level is really kinda boring if it spawns right (which it can not do)
 Cinerarium.ter,Trace,No,,Accept,
 cloak.ter,No,Yes,,Reject,the terrain is just too big for a fun race
-CompUSA_Melee.ter,No,No,,Accept,this terrain is kinda boring but why not
+CompUSA_Melee.ter,No,Yes,,Reject,the hill is just causing too much grief
 Confusco.ter,No,Yes,,Reject,WAY too big.
 Coppera.ter,No,No,,Accept,this seems fine. just gotta keep jumping over the mesas? plateaus? fjordr? Whatever
 Crater71.ter,No,Yes,,Reject,this almost always generates something very unfun
@@ -234,13 +234,3 @@ Xtra_VanDamned.ter,No,No,,Accept,
 Xtra_Voodoo.ter,No,Yes,,Reject,
 Xtra_Xerxes.ter,Likely,Yes,,Reject,
 Xtra_ziggurat.ter,Yes,,,Reject,
-,,,,,
-,,,,,
-Accepted:,86,,,,
-Rejected:,135,,,,
-Deadstops,64,,,,
-Variance (big mountains),69,,,,
-Override,14,,,,
-Duplicates:,14,,,,
-Remaining to Test:,0,,,,
-Total:,235,,,,
