@@ -10,33 +10,40 @@
 // thanks to:
 // - DarkTiger for the phase through players code
 
+
 // mapping instructions:
-// - your terrainblock should be called Terrain. this is normally done in a T2 mission already.
-//   (one would be created if you didn't have one, but the SkiFree map already does that - no reason to make another)
 //
-// - spawn platform will be auto-generated somewhere from -1024/-1024 to 1024/1024, unless you've included one
-//   it you include a spawn platform, it should be named "SpawnPlatform", and be bwall4.dif at scale 3 3 3
-//   everything a spawn platform needs (triggers, spawnpoints, observer cameras, etc) will be auto-generated. no need to include any of this
+// step 1. make sure you add a terrainblock and it is named Terrain. this is how dynamix already did things...
+// (one would be created if you didn't have one, but the SkiFree map already does that. no reason to make another)
 //
-// - the game will be ignoring buildings when it generates gates, so don't put too many of the building
+// step 2. if you want to define where the spawnplatform is, grab it under shapes -> SkiFree Objects -> SkiFreeSpawnPlatform
+// this generates the interior you need. don't rotate or resize it!
+// (you'll need to restart the map for it to work)
 //
-// - if you want to define gates, too bad. i didn't get that far.
-//   TODO make it possible to define gates
-//   gates will continue being generated even after your final gate (in SkiFree). so if you're making an indoor map, be sure to have an exit to the outdoors and a good terrain for skiing
-//
-// - bots have no idea how to play indoor games so you probably shouldn't bother with a navgraph
-// - though it's usually a good idea to include a two-team spawngraph even if it's not being used
+// step 3. if you want to set up custom gate locations, grab it under shapes -> SkiFree Objects -> SkiFreeCustomGate
+// place it on the ground where you want the gate to spawn - moving the waypoint into the air, etc is automatically handled
+// there's a few properties you will want to define, and you need the underscore:
+// - gateNum__ will be the gate number
+// - isFinish__ will be the Finish Gate if the server is using Time Trial scoring. remember that it'll keep generating gates in Survival mode!
 
-// TODO organize the shit out of the methods and put them into extra CS files, i mean holy shit this is super disorganized
-// there should be files for:
-// - datablocks
-// - map generation
-// - ai
-// - SkiFreeGame package code
 
-// TODO put waypoints on the next two relevant gates (wasn't working when i tried it)
 
-// TODO vaporware racing mode (will probably be SkiRace instead of SkiFree, which means i need to unify this code when i get there)
+// TODO LIST:
+// - add two Single Player Training maps called:
+//   SkiFree Challenge (always makes a random terrain each time)
+//   SkiFree Daily (makes a different terrain each day
+//
+// it's offline so it'll use the terraformer, making a COMPLETELY RANDOM MAP
+//
+// - Easy:   fBm Fractal
+// - Medium: sinus
+// - Hard:   rigid multifractal 6 hill, with some turbulence for good measure. you wanted to play hard mode, you fucking got it
+
+// - organize the shit out of the methods and put them into a logical order
+
+// - put waypoints on the next two relevant gates (wasn't working when i tried it)
+
+// - vaporware racing mode (will probably be SkiRace instead of SkiFree, which means i need to unify this code when i get there)
 // starts out as SkiFree without scoring, but game turns into a race when 2+ players join the game. should allow player joins up until 5 seconds after race starts
 // normal races will have minimum of 4 gates, and increase by 1 for every 2 extra players, up to a maximum of 8 gates at 8+ players
 // elimination races (minimum 4 players) will have 1 gate per player up to the maximum of 8 gates. the last person to not have crossed each gate dies (if someone dies between gates, count that as the gate kill)
@@ -189,7 +196,7 @@ function SkiFreeGame::initGameVars(%game) {
 	if( %game.timeTrial ) {
 		// scoring by time trial
 		%game.trialGates = 8;
-		%game.trialDefaultTime = 60 * 5;
+		%game.trialDefaultTime = 5 * 60;
 	}
 	else {
 		// scoring by distance
@@ -250,7 +257,7 @@ function SkiFreeGame::setUpTeams(%game) {
 	}
 
 	// set the number of sensor groups (including team0) that are processed
-	setSensorGroupCount(16);
+	setSensorGroupCount(10);
 	%game.numTeams = 1;
 
 	// allow teams 1->31 to listen to each other (team 0 can only listen to self)
@@ -434,8 +441,25 @@ function SkiFreeGame::calculateTimeTrialScore(%game, %client, %player) {
 	
 	%playerName = stripChars( getTaggedString( %client.name ), "\cp\co\c6\c7\c8\c9" );
 	
-	// TODO message for times
+	// TODO what kind of sounds do we want for times
 	messageClient(%client, 0, '~wfx/misc/MA1.wav');
+	
+	if( %client.bestTime != %game.trialDefaultTime ) {
+		if( %client.bestTime < %time ) {
+			%formatL = "(\c5+";
+			%compare = %time - %client.bestTime;
+		}
+		else if( %client.bestTime > %time ) {
+			%formatL = "(\c3-";
+			%compare = %client.bestTime - %time;
+		}
+		else {
+			%formatL = "(+";
+			%compare = "0.000";
+		}
+		
+		%timeCompare = " " @ %formatL @ %compare @ "\c2)";
+	}
 	
 	// recalculate score so we know who the best player is
 	if( %client.bestTime > %time ) {
@@ -470,14 +494,14 @@ function SkiFreeGame::calculateTimeTrialScore(%game, %client, %player) {
 				%rankOthers = " " SPC %gender SPC "is now in" SPC %game.getWordForRank(%rankNumber) SPC "place.";
 			}
 		}
-		else {
+		else if( %timeCompare !$= "" ) {
 			%rankPersonal = " New personal best!";
 		}
 	}
 
 	
 	messageAllExcept(%client, -1, 0, '%1 finished the course %3in %2 seconds.%4', %playerName, %time, %handicap, %rankOthers);
-	messageClient(%client, 0, '\c2You finished the course %3in %2 seconds.%4', %playerName, %time, %handicap, %rankPersonal);
+	messageClient(%client, 0, '\c2You finished the course %3in %2 seconds%5.%4', %playerName, %time, %handicap, %rankPersonal, %timeCompare);
 }
 
 function SkiFreeGame::calculateSurvivalScore(%game, %client, %player, %damageType) {
@@ -526,6 +550,25 @@ function SkiFreeGame::calculateSurvivalScore(%game, %client, %player, %damageTyp
 			}
 		}
 		
+		if( %client.score != 0 ) {
+			if( %client.score < %score ) {
+				%formatL = "(\c3+";
+				%compare = %score - %client.score;
+			}
+			else if( %client.score > %score ) {
+				%formatL = "(\c5-";
+				%compare = %client.score - %score;
+			}
+			else {
+				%formatL = "(+";
+				%compare = "0.0";
+			}
+			%compare = mFloor(%compare * 10) / 10;
+			if( strpos(%compare, ".") == -1 ) %compare = %compare @ ".0";
+			
+			%scoreCompare = %formatL @ %compare @ "\c2) ";
+		}
+		
 		// recalculate score so we know who the best player is
 		if( %client.score < %score ) {
 			%client.score = %score;
@@ -558,13 +601,13 @@ function SkiFreeGame::calculateSurvivalScore(%game, %client, %player, %damageTyp
 					%rankOthers = " " SPC %gender SPC "is now in" SPC %game.getWordForRank(%rankNumber) SPC "place.";
 				}
 			}
-			else {
+			else if( %scoreCompare !$= "" ) {
 				%rankPersonal = " New personal best!";
 			}
 		}
 		
 		messageAllExcept(%client, -1, 0, '%1 did a %2m %5run (%3 gates).%4', %playerName, %score, %player.gate - 1, %rankOthers, %handicap);
-		messageClient(%client, 0, '\c2That %5run went %2m (%3 gates).%4', %playerName, %score, %player.gate - 1, %rankPersonal, %handicap);
+		messageClient(%client, 0, '\c2That %5run went %2m %6(%3 gates).%4', %playerName, %score, %player.gate - 1, %rankPersonal, %handicap, %scoreCompare);
 	}
 }
 
@@ -662,7 +705,7 @@ function SkiFreeGame::updateScoreHud(%game, %client, %tag)
 				? %cl.score @ ".0"
 				: %cl.score;
 				
-			%scoreAddendum = " (" @ %cl.maxGates @ " gates";
+			%scoreAddendum = " (" @ %cl.maxGates @ " gates)";
 		}
 			
 		if( %cl.AI_skiFreeBotLevel !$= "" ) {
@@ -734,26 +777,23 @@ function SkiFreeGame::missionLoadDone(%game) {
 	// change gate colors
 	%game.setSensorWaypointColors();
 	
+	// see if phasing should be on or not
 	%game.phaseThroughPlayers($Host::SkiRacePhaseThroughPlayers);
 }
 
 function SkiFreeGame::setSensorWaypointColors(%game) {
-	setSensorGroupColor(1, 1 << 2, "255 0 0 255");
-	setSensorGroupColor(1, 1 << 3, "255 128 0 255");
-	setSensorGroupColor(1, 1 << 4, "255 255 0 255");
-	setSensorGroupColor(1, 1 << 5, "0 255 0 255");
-	setSensorGroupColor(1, 1 << 6, "0 0 255 255");
-	setSensorGroupColor(1, 1 << 7, "128 0 255 255");
-	setSensorGroupColor(1, 1 << 8, "255 0 255 255");
-	setSensorGroupColor(1, 1 << 9, "255 255 255 255");
-	// getting to these gates is really, really hard so there isn't much reason to worry about how they look
-	setSensorGroupColor(1, 1 << 10, "204 204 204 255");
-	setSensorGroupColor(1, 1 << 11, "153 153 153 255");
-	setSensorGroupColor(1, 1 << 12, "102 102 102 255");
-	setSensorGroupColor(1, 1 << 13, "51 51 0 255");
-	setSensorGroupColor(1, 1 << 14, "0 0 0 255");
-	setSensorGroupColor(1, 1 << 15, "0 0 0 128");
-	setSensorGroupColor(1, 1 << 16, "0 0 0 64");
+	for( %i = 0; %i <= 1; %i++ ) {
+		setSensorGroupColor(%i, 1 << 1, "0 255 0 255"); // team1 should be green and be perceived as green
+		// the rest are for waypoints
+		setSensorGroupColor(%i, 1 << 2, "255 0 0 255");
+		setSensorGroupColor(%i, 1 << 3, "255 128 0 255");
+		setSensorGroupColor(%i, 1 << 4, "255 255 0 255");
+		setSensorGroupColor(%i, 1 << 5, "0 255 0 255"); // yes we used this color twice. it'd be way too much work to not do that
+		setSensorGroupColor(%i, 1 << 6, "0 0 255 255");
+		setSensorGroupColor(%i, 1 << 7, "128 0 255 255");
+		setSensorGroupColor(%i, 1 << 8, "255 0 255 255");
+		setSensorGroupColor(%i, 1 << 9, "255 255 255 255");
+	}
 }
 
 function SkiFreeGame::applyConcussion(%game, %player) {}
@@ -878,8 +918,8 @@ function SkiFreeGame::addGate(%game, %gate, %position) {
 			getWords(nameToID("GatePoint" @ (%gate - 1)).position, 0, 1) SPC "0"
 		);
 
-	%gateColor = %gate + 1;
-	if( %gateColor > 16 ) %gateColor = 15;
+	// give out a number 2-9 (just repeat the gate colors)
+	%gateColor = ((%gate - 1) % 8) + 2;
 	
 	if( %game.timeTrial && %gate == %game.trialGates ) {
 		%gateName = "Finish Gate";
@@ -1198,8 +1238,16 @@ function SkiFreeGame::generateLevel(%game) {
 	%game.generateSpawnPlatform();
 
 	// add the first 2 gates
-	%game.generateGate(1);
-	%game.generateGate(2);
+	if( %game.timeTrial ) {
+		for( %i = 1; %i <= %game.trialGates || isObject( %game.iterateCustomGate(MissionGroup, %i) ); %i++ ) {
+			%game.generateGate(%i);
+		}
+	}
+	else {
+		for( %i = 1; %i <= 2 || isObject( %game.iterateCustomGate(MissionGroup, %i) ); %i++ ) {
+			%game.generateGate(%i);
+		}
+	}
 }
 
 function SkiFreeGame::generateSpawnPlatform(%game) {
@@ -1261,17 +1309,37 @@ function SkiFreeGame::generateGate(%game, %gate) {
 		return;
 	}
 
-	// TODO add some mapping mechanism for defining where each gate will be generated
-	if( %gate == 1 ) {
+	// mapping mechanism for defining where each gate will be generated
+	%gateMarker = %game.iterateCustomGate(MissionGroup, %gate);
+	if( isObject(%gateMarker) ) {
+		%gateMarker.hide(true);
+		%position = %gateMarker.position;
+		
+		if( %game.timeTrial ) {
+			if( %gateMarker.isFinish__ ) {
+				%game.trialGates = %gate;
+			}
+			else if( %gateMarker.gateNum__ == %game.trialGates ) {
+				%game.trialGates++;
+			}
+		}
+	}
+	else if( %gate == 1 ) {
 		// angle should just be anywhere
 		%pivot = nameToID("GatePoint0").position;
 		%angle = getRandom(2 * 3.1415927 * 100000) / 100000;
 		%dist = getRandom(%game.firstGateMin, %game.firstGateMax);
+		
+		%x = getWord(%pivot, 0) + (mCos(%angle) * %dist);
+		%y = getWord(%pivot, 1) + (mSin(%angle) * %dist);
+		%z = %game.findHeight(%x SPC %y);
+		
+		%position = %x SPC %y SPC %z;
 	}
 	else {
 		%origin = nameToID("GatePoint" @ (%gate - 2)).position;
 		%pivot = nameToID("GatePoint" @ (%gate - 1)).position;
-		%angle = mAtan( 
+		%angle = mAtan(
 			getWord(%pivot, 1) - getWord(%origin, 1), 
 			getWord(%pivot, 0) - getWord(%origin, 0) 
 		);
@@ -1281,17 +1349,35 @@ function SkiFreeGame::generateGate(%game, %gate) {
 		
 		%angle += (getRandom(-%modAngle * 100000, %modAngle * 100000) / 100000);
 		%dist = getRandom(%game.extraGateMin, %game.extraGateMax);
+		
+		%x = getWord(%pivot, 0) + (mCos(%angle) * %dist);
+		%y = getWord(%pivot, 1) + (mSin(%angle) * %dist);
+		%z = %game.findHeight(%x SPC %y);		
+		
+		%position = %x SPC %y SPC %z;
 	}
 	//%viewableAngle = (%angle / (3.1415927/180));
 	//while( %viewableAngle < 0 ) %viewableAngle += 360;
 	//echo("Gate" SPC %gate SPC "at" SPC %viewableAngle SPC "degrees");
 	
-	%x = getWord(%pivot, 0) + (mCos(%angle) * %dist);
-	%y = getWord(%pivot, 1) + (mSin(%angle) * %dist);
-	%z = %game.findHeight(%x SPC %y);
-	
-	%game.addGate(%gate, %x SPC %y SPC %z);
+	%game.addGate(%gate, %position);
 	%game.gate = %gate;
+}
+
+function SkiFreeGame::iterateCustomGate(%game, %simgroup, %gate) {
+	for( %i = 0; %i < %simgroup.getCount(); %i++ ) {
+		%obj = %simgroup.getObject(%i);
+		
+		if( %obj.getClassName() $= "SimGroup" && %obj != nameToId(MissionCleanup) ) {
+			%gateMarker = %game.iterateCustomGate(%obj, %gate);
+			if( isObject(%gateMarker) ) return %gateMarker;
+		}
+		else if( %obj.dataBlock $= "SkiFreeCustomGate" && %obj.gateNum__ == %gate ) {
+			return %obj;
+		}
+	}
+	
+	return 0;
 }
 
 function SkiFreeGame::generateTerrain(%game) {
@@ -1492,4 +1578,28 @@ function SkiFreeGame::phaseThroughPlayers(%game, %active) {
 	memPatch("83FBF4", %patch1);
 	memPatch("79B40C", %patch2);
 	memPatch("83FBF8", %patch3);
+}
+
+function SkiFreeGame::runEditorTasks(%game) {
+	%game.iterateRevealHiddenGates(MissionGroup);
+	// do we even have anything else to do?
+}
+
+function SkiFreeGame::iterateRevealHiddenGates(%game) {
+	for( %i = 0; %i < %simgroup.getCount(); %i++ ) {
+		%obj = %simgroup.getObject(%i);
+		
+		if( %obj.getClassName() $= "SimGroup" && %obj != nameToId(MissionCleanup) ) {
+			%game.iterateRevealHiddenGates(%obj);
+		}
+		else if( %obj.dataBlock $= "SkiFreeCustomGate" ) {
+			%obj.hide(false);
+		}
+	}
+}
+
+function SkiFreeGame::getDailySeed(%game) {
+	return formatTimeString("dd") + 
+		(formatTimeString("mm") * 32) + 
+		(formatTimeString("yy") * 420);
 }

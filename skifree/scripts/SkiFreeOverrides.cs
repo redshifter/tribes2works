@@ -242,4 +242,9 @@ function lobbyDisconnect() {
 	Parent::lobbyDisconnect();
 }
 
+function toggleEditor(%make) {
+	if( %make ) Game.runEditorTasks();
+	Parent::toggleEditor(%make);
+}
+
 };
