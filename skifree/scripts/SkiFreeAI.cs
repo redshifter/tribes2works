@@ -11,6 +11,7 @@
 function SkiFreeGame::addNamedBot(%game, %name) {
 	// why did i do this lol
 	aiConnect(%name, 1, 1.00);
+	// TODO figure out how to disconnect bots
 }
 
 function SkiFreeGame::addBots(%game) {
@@ -57,13 +58,14 @@ function SkiFreeGame::onAIRespawn(%game, %client) {
 	%player = %client.player;
 	%game.schedule(1000, AI_heartbeat, %client, %player);
 
-	// give a vgcg (but don't make every bot do it, to avoid spam)
-	if( getSimTime() - 500 >= %game.AI_lastGoodGame ) {
+	// give a vgcg (but reduce the amount of spam that comes out)
+	if( getSimTime() - 1000 >= %game.AI_lastGoodGame ) {
+		// TODO add more messages here so each bot isn't saying good game over and over
 		schedule(100, 0, AIPlay3DSound, %client, "gbl.goodgame");
 		%game.AI_lastGoodGame = getSimTime();
 	}
 	
-	// have you ever heard 16 bots all with disc launchers out? not a fun experience
+	// have you ever heard 16 bots all with disc launchers out? it's LOUD
 	%player.schedule(0, use, TargetingLaser);
 }
 
@@ -72,11 +74,15 @@ function SkiFreeGame::AI_heartbeat(%game, %client, %player) {
 	if( %player.getState() $= "Dead" ) return;
 	
 	// check what our current task is
-	if( %player.getControllingClient() != %player.client ) {
+	if( !$missionRunning || !$MatchStarted ) {
+		// no task yet - check back later
+		%heartbeat = 1000;
+	}
+	else if( %player.getControllingClient() != %player.client ) {
 		// we're possessed (probably for debugging purposes) - don't do anything weird
 		%heartbeat = 1000;
 	}
-	if( !%player.AI_meantToLaunch ) {
+	else if( !%player.AI_meantToLaunch ) {
 		%game.AI_mingle(%client, %player);
 		%heartbeat = 1000;
 	}

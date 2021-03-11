@@ -35,8 +35,8 @@
 //
 // it's offline so it'll use the terraformer, making a COMPLETELY RANDOM MAP
 //
-// - Easy:   fBm Fractal
-// - Medium: sinus
+// - Easy:   5 hill fBm Fractal
+// - Medium: 8 hill fBM Fractal
 // - Hard:   rigid multifractal 6 hill, with some turbulence for good measure. you wanted to play hard mode, you fucking got it
 
 // - organize the shit out of the methods and put them into a logical order
@@ -191,8 +191,15 @@ function SkiFreeGame::initGameVars(%game) {
 	
 	// player variables
 	%game.followTime = 5 * 1000; // if someone follows you off the spawn platform in this amount of time, give a message
-	
-	%game.timeTrial = $Host::SkiRaceTimeTrialScoringSystem;
+
+	// always time trial for single player, otherwise use host setting
+	if( %game.isSinglePlayer() ) {
+		%game.timeTrial = 1;
+	}
+	else {
+		%game.timeTrial = $Host::SkiRaceTimeTrialScoringSystem;
+	}
+
 	if( %game.timeTrial ) {
 		// scoring by time trial
 		%game.trialGates = 8;
@@ -1218,6 +1225,8 @@ function SkiFreeGame::enterGateTrigger(%game, %trigger, %player) {
 	else if( %trigger.gate > %player.gate ) {
 		messageClient(%player.client, 0, '\c2GATE SKIP DETECTED!~wfx/misc/red_alert_short.wav');
 		%player.scriptKill($DamageType::ForceFieldPowerup);
+		%player.setVelocity("0 0 0");
+		%player.blowup();
 	}
 }
 
@@ -1229,6 +1238,13 @@ function SkiFreeGame::warningMessage(%game, %player) {
 }
 
 function SkiFreeGame::generateLevel(%game) {
+	// randomizer hack
+	if( $SkiFreeRandomSeed !$= "" ) {
+		%oldseed = getRandomSeed();
+		setRandomSeed($SkiFreeRandomSeed);
+		for( %i = 0; %i < 420; %i++ ) getRandom(); // advance the seed
+	}
+	
 	// choose a terrain
 	if( !isObject(Terrain) ) {
 		%game.generateTerrain();
@@ -1237,16 +1253,22 @@ function SkiFreeGame::generateLevel(%game) {
 	// generate a spawn platform
 	%game.generateSpawnPlatform();
 
-	// add the first 2 gates
+	// add the first gates
 	if( %game.timeTrial ) {
 		for( %i = 1; %i <= %game.trialGates || isObject( %game.iterateCustomGate(MissionGroup, %i) ); %i++ ) {
 			%game.generateGate(%i);
 		}
 	}
 	else {
+		// normally we would need to make more gates so we use the proper seeds, but the daily randomizer is enforced time trial anyway
 		for( %i = 1; %i <= 2 || isObject( %game.iterateCustomGate(MissionGroup, %i) ); %i++ ) {
 			%game.generateGate(%i);
 		}
+	}
+	
+	if( %oldseed !$= "" ) {
+		setRandomSeed(%oldseed);
+		$SkiFreeRandomSeed = "";
 	}
 }
 
@@ -1432,8 +1454,6 @@ function SkiFreeGame::generateTerrain(%game) {
 		detailTexture = "details/lushdet1";
 		terrainFile = %terrain;
 		squareSize = "8";
-
-		position = "-1024 -1024 0";
 	};
 	MissionCleanup.add(%terrainObj);
 	
@@ -1566,6 +1586,10 @@ function SkiFreeGame::sendDebriefing( %game, %client )
 function SkiFreeGame::phaseThroughPlayers(%game, %active) {
 	// don't run unneeded mempatches!
 	if( !%active && !%game.phaseActive ) return;
+	
+	// don't do this in single player
+	if( %game.isSinglePlayer() ) return;
+	
 	%game.phaseActive = %active;
 	
 	// this code adds/removes the player mask from player collisions
@@ -1602,4 +1626,93 @@ function SkiFreeGame::getDailySeed(%game) {
 	return formatTimeString("dd") + 
 		(formatTimeString("mm") * 32) + 
 		(formatTimeString("yy") * 420);
+}
+
+function SkiFreeGame::breakOutTerraformer(%game, %skill, %definedSeed) {
+	%seed = (%definedSeed $= "") 
+		? (getRandom() * 1999998) - 999999
+		: %definedSeed;
+	
+	if(!isObject("terraformer")) new Terraformer("terraformer");
+	
+	// stop putting me under the terrain goddamnit
+	%player = ClientGroup.getObject(0).player;
+	if( isObject(%player) ) {
+		%transform = %player.getTransform();
+		%player.schedule(0, setTransform, %transform);
+	}
+	
+	%minHeight = 25;
+	%heightRange = 150;
+	
+	if( isObject(Terrain) ) {
+		Terrain.delete();
+	}
+	
+	// change the terrain based on day of the week, so nobody gets confused when they're a day off (like being in Guam)
+	%dow = formatTimeString("D");
+	if( %definedSeed !$= "" ) {
+		if( %dow $= "Sun" ) %terrain = "Gauntlet.ter";
+		if( %dow $= "Mon" ) %terrain = "DangerousCrossing_nef.ter";
+		if( %dow $= "Tue" ) %terrain = "Snowblind_nef.ter";
+		if( %dow $= "Wed" ) %terrain = "DangerousCrossing_nef.ter";
+		if( %dow $= "Thu" ) %terrain = "Gauntlet.ter";
+		if( %dow $= "Fri" ) %terrain = "Snowblind_nef.ter";
+		if( %dow $= "Sat" ) %terrain = "DangerousCrossing_nef.ter";
+	}
+	else {
+		if( %dow $= "Sun" ) %terrain = "DangerousCrossing_nef.ter";
+		if( %dow $= "Mon" ) %terrain = "Snowblind_nef.ter";
+		if( %dow $= "Tue" ) %terrain = "Gauntlet.ter";
+		if( %dow $= "Wed" ) %terrain = "Snowblind_nef.ter";
+		if( %dow $= "Thu" ) %terrain = "DangerousCrossing_nef.ter";
+		if( %dow $= "Fri" ) %terrain = "Gauntlet.ter";
+		if( %dow $= "Sat" ) %terrain = "Snowblind_nef.ter";
+	}
+
+	if( %skill == 1 ) {
+		%terrainObj = new TerrainBlock(Terrain) {
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			detailTexture = "details/lushdet1";
+			terrainFile = %terrain;
+			squareSize = "8";
+		};
+		terraformer.setTerrainInfo( 256, 8, %minHeight, %heightRange, 0.0 );
+		terraformer.fBm( 0, 5, 0.5, 0.5, %seed );
+		terraformer.setTerrain(0);
+		Game.terrain = "Easy";
+	}
+	else if( %skill == 2 ) {
+		%terrainObj = new TerrainBlock(Terrain) {
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			detailTexture = "details/lushdet1";
+			terrainFile = %terrain;
+			squareSize = "8";
+		};
+		terraformer.setTerrainInfo( 256, 8, %minHeight, %heightRange, 0.0 );
+		terraformer.fBm( 0, 8, 0.5, 0.5, %seed );
+		terraformer.setTerrain(0);
+		Game.terrain = "Medium";
+	}
+	else if( %skill == 3 ) {
+		%terrainObj = new TerrainBlock(Terrain) {
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			detailTexture = "details/lushdet1";
+			terrainFile = "Minotaur.ter";
+			squareSize = "8";
+		};
+		terraformer.setTerrainInfo( 256, 8, %minHeight, %heightRange, 0.0 );
+		terraformer.rigidMultiFractal( 0, 8, 0.5, 0.8, %seed );
+		terraformer.turbulence( 0, 1, 0.8, 10 );
+		terraformer.setTerrain(0);
+		Game.terrain = "Hard";
+	}
+}
+
+function SkiFreeGame::isSinglePlayer(%game) { 
+	return $CurrentMission $= "SkiFree_Daily"
+		|| $CurrentMission $= "SkiFree_Randomizer";
 }
