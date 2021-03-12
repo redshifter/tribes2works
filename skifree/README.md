@@ -44,6 +44,19 @@ You can add bots to the SkiFree map. They suck, but I did make them to the point
 
 They come in multiple difficulty levels and don't use any cheats (other than the classic mod energy buff that all bots get for some reason). I'm sure cheating bots would be more fun to play against, but kinda against the point...
 
+# MAPPING SUPPORT
+You can create your own custom maps. Why you would do that, I have no idea.
+
+The first step is defining the terrain. A Terrain should have the name Terrain, like most missions should already have. (If you don't define the terrain, it chooses one at random. You may note that this is what SkiFree.mis already does. Therefore there's no point to releasing a map without the terrain.)
+
+The next step is defining the Spawn Platform. You can add it by adding it from under shapes -> SkiFree Objects. You can only have one spawn platform. (If you skip this step, it'll throw the spawn platform somewhere on the terrain.)
+
+After that, if you want to set down gates, use the **SkiFreeCustomGate** object, making sure it's ON THE GROUND. It has the following properties:
+- **gateNo__:**: The gate number being created.
+- **isFinish__**: Whether this should be the last gate of a Time Trial. Remember, Survival mode will ignore this and keep generating gates on the terrain!
+
+This stuff is mostly untested, so make sure to let me know if it doesn't work.
+
 # CREDITS
 - Red Shifter: made gametype and a bunch of other crap
 - DarkTiger: made the mempatch needed to phase through players.
