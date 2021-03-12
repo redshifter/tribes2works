@@ -51,8 +51,8 @@ The first step is defining the terrain. A Terrain should have the name Terrain, 
 
 The next step is defining the Spawn Platform. You can add it by adding it from under shapes -> SkiFree Objects. You can only have one spawn platform. (If you skip this step, it'll throw the spawn platform somewhere on the terrain.)
 
-After that, if you want to set down gates, use the **SkiFreeCustomGate** object, making sure it's ON THE GROUND. It has the following properties:
-- **gateNo__:**: The gate number being created.
+After that, if you want to set down gates, use the **SkiFreeCustomGate** object, making sure it's ON THE GROUND. It has the following properties (underscores are required):
+- **gateNum__:**: The gate number being created.
 - **isFinish__**: Whether this should be the last gate of a Time Trial. Remember, Survival mode will ignore this and keep generating gates on the terrain!
 
 This stuff is mostly untested, so make sure to let me know if it doesn't work.
