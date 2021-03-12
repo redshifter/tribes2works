@@ -506,15 +506,22 @@ function SkiFreeGame::AI_Yeti(%game, %client, %player) {
 		return 20;
 	}
 	else {
+		// get just a little faster every few seconds - you can't run forever!
 		if( %client.anger $= "" ) {
 			%client.anger = 4.3;
 		}
-		// get just a little faster every few seconds - you can't run forever!
 		%client.angerTicks++;
 		if( %client.angerTicks == 5000 / 20 ) {
 			%client.angerTicks = 0;
 			%client.anger += 0.1;
 		}
+
+		// workaround if we get deadstopped on the terrain
+		if( %player.lastPosition == %player.position ) {
+			%jetUp = 1;
+		}
+
+		// TODO decide if i should bother with a workaround if the player camps the spawn platform (the yeti should throw it into the air, and spawning should be blocked until it lands)
 		
 		// accelerate towards the player at like 500kph
 		%objDir = VectorSub(%client.stalkPlayer.position, %player.position);
@@ -533,8 +540,11 @@ function SkiFreeGame::AI_Yeti(%game, %client, %player) {
 		if( %scale > 800 ) %scale = 800; // speed limit to keep the yeti from crashing t2
 			
 		%objDir = VectorScale(%objDir, %scale);
-		
+		if( %jetUp ) {
+			%objDir = getWords(%objDir, 0, 1) SPC (getWord(%objDir, 2) + 10);
+		}
 		%player.setVelocity(%objDir);
+		%player.lastPosition = %player.position;
 		
 		return 20;
 	}
