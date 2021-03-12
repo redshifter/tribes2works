@@ -7,13 +7,36 @@ function Armor::damageObject(%data, %targetObject, %sourceObject, %position, %am
 	//error("Armor::damageObject( "@%data@", "@%targetObject@", "@%sourceObject@", "@%position@", "@%amount@", "@%damageType@", "@%momVec@" )");
 	%oldVector = %targetObject.getVelocity();
 	%sourceClient = isObject(%sourceObject) ? %sourceObject.getOwnerClient() : 0; // don't hurt others
+
+	if( isObject(%targetObject.client) && %targetObject.client == $SkiFreeYeti ) {
+		if( %damageType $= $DamageType::Disc ) {
+			// stun the yeti
+			$SkiFreeYeti.stunned = 1;
+			%amount = 0;
+		}
+		else if( %damageType != 0 ) {
+			// yeti don't take damage except from scriptkill
+			return;
+		}
+	}
+
+	// absolutely devasate someone hit by teh yeti
+	if( %damageType == $DamageType::Shocklance ) {
+		%amount = 100;
+		%sourceClient.yetiTaunt = 1;
+
+		%targetObject.blowup();
+		%targetObject.setVelocity("0 0 0");
+
+		%yetiKill = 1;
+	}
 	
 	// why did i even write this shite
 	if( %damageType == $DamageType::Ground ) {
 		Game.schedule(0, checkDeadstop, %targetObject, %oldVector);
 	}
 	
-	if( !%sourceClient || %targetObject == %sourceObject ) {
+	if( !%sourceClient || %targetObject == %sourceObject || %yetiKill ) {
 		// copy/pasta from classix 1.5.2, with modifications
 				
 		   if(%targetObject.invincible || %targetObject.getState() $= "Dead")
@@ -214,6 +237,7 @@ function EnergyPack::onCollision(%data, %obj, %col) {}
 function Disc::onCollision(%data, %obj, %col) {}
 function DiscAmmo::onCollision(%data, %obj, %col) {}
 function RepairKit::onCollision(%data, %obj, %col) {}
+function ShockLance::onCollision(%data, %obj, %col) {}
 
 // no looting either
 function Armor::onCollision(%this,%obj,%col,%forceVehicleNode) {}
@@ -242,9 +266,23 @@ function lobbyDisconnect() {
 	Parent::lobbyDisconnect();
 }
 
+// show the things
 function toggleEditor(%make) {
 	if( %make ) Game.runEditorTasks();
 	Parent::toggleEditor(%make);
+}
+
+// surpress yeti's quit message ($SkiFreeYeti will be 0 outside single player)
+function GameConnection::onDrop(%client, %reason) {
+	if( %client == $SkiFreeYeti ) {
+		%lastMissionType = $currentMissionType;
+		$currentMissionType = "SinglePlayer";
+		Parent::onDrop(%client, %reason);
+		$currentMissionType = %lastMissionType;
+	}
+	else {
+		Parent::onDrop(%client, %reason);
+	}
 }
 
 };
