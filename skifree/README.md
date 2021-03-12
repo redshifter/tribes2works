@@ -34,10 +34,10 @@ Admins can set options on the server:
 
 # HANDICAPS
 If you leave the spawn platform after handicapping yourself, the game will acknowledge the challenge you've given yourself.
-- Hard Mode: Go without your Energy Pack.
-- Discless: Go without your Spinfusor, without discjumping from the spawn platform.
+- Hard Mode: Throw away your Energy Pack.
+- Discless: Throw away your Spinfusor, without discjumping from the spawn platform.
 - Single Discjump: Throw away your Spinfusor as you discjump from the spawn platform.
-- Glass: Reduce your health to a sliver before going (if you toss away your Repair Kit, it'll put you into this mode without having to hurt yourself). You cannot get any health back. You MUST finish the course without taking damage!
+- Glass: Throw away your Repair Kit, or reduce your health to a sliver with the spinfusor. You will have a sliver of health and cannot get any health back. You MUST finish the course without taking damage!
 
 # ARTIFICAL INTELLIGENCE
 You can add bots to the SkiFree map. They suck, but I did make them to the point that they kinda understand how to play...
