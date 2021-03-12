@@ -52,10 +52,6 @@
 // - gates should give you extra repair so you can discjump more
 // - enemies you MA have their momentum cut in half
 //
-// if making a map with predefined gates, the missiongroup will have some variables for this
-// SkiRace_EndAtFinal - the race will finish at your final gate (if not defined, all gates must be crossed and then it will generate additional gates if needed to get up to 8)
-// SkiRace_TimeLimit - lets you define a time limit, in seconds (if not defined, will be 20 x gate count)
-//
 // ambient crowd noise:
 // - gets louder if the first 2/3 players are close to each other
 // - collective gasp if first place loses more than 40% of speed inside a second (from a deadstop, flubbing the route, or getting MA'ed)
@@ -184,7 +180,6 @@ function SkiFreeGame::checkDeadstop(%game, %targetObject, %oldVector) {
 	}
 }
 
-
 function SkiFreeGame::initGameVars(%game) {
 	// running tallies
 	%game.gate = 0;
@@ -204,6 +199,7 @@ function SkiFreeGame::initGameVars(%game) {
 		// scoring by time trial
 		%game.trialGates = 8;
 		%game.trialDefaultTime = 5 * 60;
+		%game.yetiSpawnTime = 200; // you're not done yet? get fucking going already
 	}
 	else {
 		// scoring by distance
@@ -268,7 +264,7 @@ function SkiFreeGame::setUpTeams(%game) {
 	%game.numTeams = 1;
 
 	// allow teams 1->31 to listen to each other (team 0 can only listen to self)
-	for(%i = 1; %i < 16; %i++)
+	for(%i = 1; %i < 10; %i++)
 		setSensorGroupListenMask(%i, 0xfffffffe);
 }
 
@@ -348,16 +344,20 @@ function SkiFreeGame::clientJoinTeam( %game, %client, %team, %respawn )
 function SkiFreeGame::assignClientTeam(%game, %client)
 {
 	// let's not even do the stupid DM thing
-	// everyone drops to team 1
-	// (if i suddenly decide i need that again we'll just do it)
-	%client.team = 1;
+	// everyone drops to team 1 (except the yeti)
+	if( !$SkiFreeYetiSpawning ) {
+		%client.team = 1;
+		
+		// set player's skin pref here
+		setTargetSkin(%client.target, %client.skin);
 
-	// set player's skin pref here
-	setTargetSkin(%client.target, %client.skin);
-
-	// Let everybody know you are no longer an observer:
-	messageAll( 'MsgClientJoinTeam', '\c1%1 has joined the race.', %client.name, "", %client, 1 );
-	updateCanListenState( %client );
+		// Let everybody know you are no longer an observer:
+		messageAll( 'MsgClientJoinTeam', '\c1%1 has joined the race.', %client.name, "", %client, 1 );
+		updateCanListenState( %client );
+	}
+	else {
+		%client.team = 0;
+	}
 }
 
 function SkiFreeGame::clientMissionDropReady(%game, %client) {
@@ -744,6 +744,7 @@ function SkiFreeGame::updateScoreHud(%game, %client, %tag)
 	for (%i = 0; %i < ClientGroup.getCount(); %i++)
 	{
 		%cl = ClientGroup.getObject(%i);
+		if( %cl == $SkiFreeYeti ) continue; // it's a secret to everybody
 		if (%cl.team == 0)
 			%observerCount++;
 	}
@@ -757,6 +758,7 @@ function SkiFreeGame::updateScoreHud(%game, %client, %tag)
 		for (%i = 0; %i < ClientGroup.getCount(); %i++)
 		{
 			%cl = ClientGroup.getObject(%i);
+			if( %cl == $SkiFreeYeti ) continue; // it's a secret to everybody
 			//if this is an observer
 			if (%cl.team == 0)
 			{
@@ -777,10 +779,6 @@ function SkiFreeGame::missionLoadDone(%game) {
 	Parent::missionLoadDone(%game);
 	%game.generateLevel();
 	
-	// all players are team1 - let them watch each other
-	setTargetAlwaysVisMask(1, 1 << 1);
-	setTargetFriendlyMask(1, 1 << 1);
-
 	// change gate colors
 	%game.setSensorWaypointColors();
 	
@@ -789,18 +787,46 @@ function SkiFreeGame::missionLoadDone(%game) {
 }
 
 function SkiFreeGame::setSensorWaypointColors(%game) {
-	for( %i = 0; %i <= 1; %i++ ) {
-		setSensorGroupColor(%i, 1 << 1, "0 255 0 255"); // team1 should be green and be perceived as green
-		// the rest are for waypoints
-		setSensorGroupColor(%i, 1 << 2, "255 0 0 255");
-		setSensorGroupColor(%i, 1 << 3, "255 128 0 255");
-		setSensorGroupColor(%i, 1 << 4, "255 255 0 255");
-		setSensorGroupColor(%i, 1 << 5, "0 255 0 255"); // yes we used this color twice. it'd be way too much work to not do that
-		setSensorGroupColor(%i, 1 << 6, "0 0 255 255");
-		setSensorGroupColor(%i, 1 << 7, "128 0 255 255");
-		setSensorGroupColor(%i, 1 << 8, "255 0 255 255");
-		setSensorGroupColor(%i, 1 << 9, "255 255 255 255");
+	for( %group = 0; %group <= 1; %group++ ) {
+		setSensorGroupColor(%group, 1 << 1, "0 255 0 255"); // team1 should be green and be perceived as green
+		// the rest are for waypoint colors
+		setSensorGroupColor(%group, 1 << 2, "255 0 0 255");
+		setSensorGroupColor(%group, 1 << 3, "255 128 0 255");
+		setSensorGroupColor(%group, 1 << 4, "255 255 0 255");
+		setSensorGroupColor(%group, 1 << 5, "0 255 0 255"); // yes we used this color twice. it'd be way too much work to not do that
+		setSensorGroupColor(%group, 1 << 6, "0 0 255 255");
+		setSensorGroupColor(%group, 1 << 7, "128 0 255 255");
+		setSensorGroupColor(%group, 1 << 8, "255 0 255 255");
+		setSensorGroupColor(%group, 1 << 9, "255 255 255 255");
 	}
+	
+	// focus assist
+	for( %group = 2; %group <= 9; %group++ ) {
+		setSensorGroupColor(%group, 1 << 1, "0 255 0 255"); // team1 should be green and be perceived as green
+		
+		for( %target = 2; %target <= 9; %target++ ) {
+			if( %group == %target ) {
+				// next gate always shows up green
+				setSensorGroupColor(%group, 1 << %target, "0 255 0 255");
+			}
+			else if( %group == %target - 1 ) {
+				// gate after next always shows up red
+				setSensorGroupColor(%group, 1 << %target, "255 0 0 255");
+			}
+			else {
+				// other gates should just not show up
+				setSensorGroupColor(%group, 1 << %target, "0 0 0 0");
+			}
+		}
+	}
+
+	// let team1 see each other (?)
+	setTargetAlwaysVisMask(1, 1 << 1);
+	setTargetFriendlyMask(1, 1 << 1);
+	
+	// make team1 show up to everyone (needed for focus assist)
+	setSensorGroupAlwaysVisMask(1, 0xffffffff);
+	setSensorGroupFriendlyMask(1, 0xffffffff);
 }
 
 function SkiFreeGame::applyConcussion(%game, %player) {}
@@ -1054,9 +1080,20 @@ function SkiFreeGame::leaveSpawnTrigger(%game, %player) {
  	%client = %player.client;
 	
 	if( %game.timeTrial ) {
-		// TODO
 		%objective = "Ski through the gates in order until you get to the Finish Gate.";
-		%player.schedule(Game.trialDefaultTime * 1000, scriptKill, $DamageType::NexusCamping);
+		
+		if( !Game.isSinglePlayer() ) {
+			%player.schedule(Game.trialDefaultTime * 1000, scriptKill, $DamageType::NexusCamping);
+		}
+		else {
+			if( %player.getInventory(FlareGrenade) == 0 ) {
+				// taunted the yeti
+				Game.createYetiFor(%player, nameToID("GatePoint" @ Game.trialGates).getTransform());
+			}
+			else {
+				Game.schedule(Game.yetiSpawnTime * 1000, createYetiFor, %player, nameToID("GatePoint" @ Game.trialGates).getTransform());
+			}
+		}
 	}
 	else {
 		%objective = "You have" SPC (Game.survivalLifeTime / 1000) SPC "seconds to go as far as you can.";
@@ -1067,7 +1104,7 @@ function SkiFreeGame::leaveSpawnTrigger(%game, %player) {
 	messageClient(%client, 0, '\c2Your %1run has begun. %2~wfx/misc/target_waypoint.wav', %mod, %objective);
 	%player.launchTime = getSimTime();
 	Game.lastLaunchTime = getSimTime();
-	%player.gate = 1;
+	Game.setPlayerGate(%player, 1);
 	
 	// remove invincibility
 	%player.setInvincibleMode(0 ,0.00);
@@ -1075,6 +1112,15 @@ function SkiFreeGame::leaveSpawnTrigger(%game, %player) {
 	
 	Game.checkFollowingPlayers(%player);
 	Game.schedule(Game.followTime, listFollowingPlayers, %player);
+}
+
+function SkiFreeGame::setPlayerGate(%game, %player, %gate) {
+	%player.gate = %gate;
+	if( isObject(%player.client) ) {
+		%team = %gate + 1;
+		if( %team > 9 ) %team = 1;
+		%player.client.setSensorGroup(%team);
+	}
 }
 
 function SkiFreeGame::enterSpawnTrigger(%game, %player) {
@@ -1170,14 +1216,20 @@ function SkiFreeGame::GlassModeAntiCheat(%game, %player) {
 function SkiFreeGame::enterGateTrigger(%game, %trigger, %player) {
 	if( !isObject(%player.client) ) return;
 	if( %player.getState() $= "Dead" ) return;
+	if( %player.client == $SkiFreeYeti ) return;
 	
 	if( %trigger.gate == %player.gate ) {
-		%player.gate++;
+		Game.setPlayerGate(%player, %player.gate + 1);
 			
 		if( %game.timeTrial && %trigger.gate == %game.trialGates ) {
 			// finish the game
 			%game.calculateTimeTrialScore(%player.client, %player);
-			%player.schedule(3000, scriptKill, %player, 0);
+			if( !%game.isSinglePlayer() ) {
+				%player.schedule(3000, scriptKill, %player, 0);
+			}
+			else {
+				%game.createYetiFor(%player);
+			}
 		}
 		else {
 			// ready the next gate
@@ -1334,7 +1386,9 @@ function SkiFreeGame::generateGate(%game, %gate) {
 	// mapping mechanism for defining where each gate will be generated
 	%gateMarker = %game.iterateCustomGate(MissionGroup, %gate);
 	if( isObject(%gateMarker) ) {
-		%gateMarker.hide(true);
+		// don't hide the marker if editor is open
+		if( !$TestCheats ) %gateMarker.hide(true);
+		
 		%position = %gateMarker.position;
 		
 		if( %game.timeTrial ) {
