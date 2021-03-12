@@ -59,14 +59,14 @@ function SkiFreeGame::onAIRespawn(%game, %client) {
 	%game.schedule(1000, AI_heartbeat, %client, %player);
 
 	// give a vgcg (but reduce the amount of spam that comes out)
-	if( getSimTime() - 1000 >= %game.AI_lastGoodGame ) {
-		// TODO add more messages here so each bot isn't saying good game over and over
-		schedule(100, 0, AIPlay3DSound, %client, "gbl.goodgame");
-		%game.AI_lastGoodGame = getSimTime();
+	if( !$SkiFreeYetiSpawning && getSimTime() - 1000 >= %game.AI_lastGoodGame ) {
+		if( getRandom(0, ClientGroup.getCount()) < 3 ) {
+			schedule(100, 0, AIPlay3DSound, %client, "gbl.goodgame");
+			%game.AI_lastGoodGame = getSimTime();
+		}
 	}
-	
-	// have you ever heard 16 bots all with disc launchers out? it's LOUD
-	%player.schedule(0, use, TargetingLaser);
+
+	%player.schedule(0, use, TargetingLaser); // have you ever heard 16 bots all with disc launchers out? it's LOUD
 }
 
 function SkiFreeGame::AI_heartbeat(%game, %client, %player) {
@@ -74,7 +74,10 @@ function SkiFreeGame::AI_heartbeat(%game, %client, %player) {
 	if( %player.getState() $= "Dead" ) return;
 	
 	// check what our current task is
-	if( !$missionRunning || !$MatchStarted ) {
+	if( %client == $SkiFreeYeti ) {
+		%heartbeat = %game.AI_Yeti(%client, %player);
+	}
+	else if( !$missionRunning || !$MatchStarted ) {
 		// no task yet - check back later
 		%heartbeat = 1000;
 	}
@@ -116,7 +119,9 @@ function SkiFreeGame::AI_heartbeat(%game, %client, %player) {
 	}
 	
 	// continue calling heartbeat to see what we should be doing
-	%game.schedule(%heartbeat, AI_heartbeat, %client, %player);
+	if( %heartbeat > 0 ) {
+		%game.schedule(%heartbeat, AI_heartbeat, %client, %player);
+	}
 }
 
 function SkiFreeGame::AI_mingle(%game, %client, %player) {
@@ -414,3 +419,120 @@ function SkiFreeGame::AI_playGameLevel4(%game, %client, %player) {
 		%player.setEnergyLevel(0);
 	}
 }
+
+// spawns the yeti (SINGLE PLAYER ONLY)
+function SkiFreeGame::createYetiFor(%game, %player, %spawnPosition) {
+	if( !isObject(%player) ) return;
+	if( !isObject(%player.client) ) return;
+	if( %player.getState() $= "Dead" ) return;
+	if( isObject($SkiFreeYeti) ) return;
+
+	%voice = "Derm"@getRandom(1,2); // do humans taste like chicken or fish?
+	%voicePitch = 1 - ((getRandom(20) - 10)/100);
+
+	// it doesn't get the client id until it's too late for certain things, so we need to hack around it
+	$SkiFreeYetiSpawning = 1;
+	%lastMissionType = $currentMissionType;
+	$currentMissionType = "SinglePlayer"; // surpress yeti's join message
+	$SkiFreeYeti = aiConnect("Yeti", 0, 1.00, true, %voice, %voicePitch);
+	$SkiFreeYetiSpawning = "";
+	$currentMissionType = %lastMissionType;
+	
+	$SkiFreeYeti.stalkClient = %player.client;
+	$SkiFreeYeti.stalkPlayer = %player;
+	$SkiFreeYeti.race = "Bioderm";
+	$SkiFreeYeti.player.setArmor("Heavy");
+	
+	if( %spawnPosition !$= "" ) {
+		$SkiFreeYeti.player.schedule(0, setTransform, %spawnPosition);
+	}
+}
+
+function SkiFreeGame::AI_Yeti(%game, %client, %player) {
+	if( %player.AI_meantToLaunch == 0 ) {
+		// yeti only has one thing on his mind
+		%player.setInventory(ShockLance,1);
+		%player.setInventory(Disc, 0);
+		%player.schedule(0, use, Shocklance);
+		%player.AI_meantToLaunch = 1;
+		
+		// help get the proper facing - we won't be using this directly
+		%client.clientDetected($SkiFreeYeti.stalkClient);
+		%client.stepEngage($SkiFreeYeti.stalkClient);
+
+		return 20;
+	}
+	else if(
+		%client.stalkClient.player != 0
+		&& %client.stalkClient.player != %client.stalkPlayer
+	) {
+		// player respawned - yeti drops
+		%player.setCloaked(true);
+		%client.drop();
+		
+		return 0;
+	}
+	else if( %client.yetiDone ) {
+		// we're done, fuck it
+		return 100;
+	}
+	else if( %client.yetiTaunt ) {
+		// stop in place and taunt
+		%player.setVelocity("0 0 0");
+		%client.yetiTaunt = 0;
+		%client.yetiDone = 0;
+		%client.stepMove(%client.stalkPlayer.position, 1);
+		schedule(1000, 0, AIPlay3DSound, %client, "gbl.obnoxious");
+		return 100;
+	}
+	else if( !isObject(%client.stalkPlayer) || %client.stalkPlayer.getState() $= "Dead" ) {
+		// player is dead, fuck it
+		%player.setVelocity("0 0 0");
+		%client.yetiDone = 1;
+		%client.stepMove(%client.stalkPlayer.position, 1);
+		return 100;
+	}
+	else if( %client.stunned ) {
+		%client.stunned = 0;
+		%client.stunRecover += 200;
+		return 20;
+	}
+	else if( %client.stunRecover > 0 ) {
+		%client.stunRecover--;
+		return 20;
+	}
+	else {
+		if( %client.anger $= "" ) {
+			%client.anger = 4.3;
+		}
+		// get just a little faster every few seconds - you can't run forever!
+		%client.angerTicks++;
+		if( %client.angerTicks == 5000 / 20 ) {
+			%client.angerTicks = 0;
+			%client.anger += 0.1;
+		}
+		
+		// accelerate towards the player at like 500kph
+		%objDir = VectorSub(%client.stalkPlayer.position, %player.position);
+		%dist = VectorDist(%player.position, %client.stalkPlayer.position);
+		%objDir = VectorNormalize(%objDir);
+
+		if( %dist > 300 ) {
+			// cheat to get the yeti within your range
+			%scale = %dist * 8.0;
+		}
+		else {
+			// set scale based on how far away the player is
+			%scale = %dist * %client.anger;
+		}
+
+		if( %scale > 800 ) %scale = 800; // speed limit to keep the yeti from crashing t2
+			
+		%objDir = VectorScale(%objDir, %scale);
+		
+		%player.setVelocity(%objDir);
+		
+		return 20;
+	}
+}
+
