@@ -422,6 +422,10 @@ function SkiFreeGame::AI_playGameLevel4(%game, %client, %player) {
 
 // spawns the yeti (SINGLE PLAYER ONLY)
 function SkiFreeGame::createYetiFor(%game, %player, %spawnPosition) {
+	if( !%game.isSinglePlayer() ) {
+		error("wtf you trying to pull? yeti doesn't spawn online!");
+		return;
+	}
 	if( !isObject(%player) ) return;
 	if( !isObject(%player.client) ) return;
 	if( %player.getState() $= "Dead" ) return;
