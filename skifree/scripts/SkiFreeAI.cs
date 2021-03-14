@@ -74,12 +74,13 @@ function SkiFreeGame::AI_heartbeat(%game, %client, %player) {
 	if( %player.getState() $= "Dead" ) return;
 	
 	// check what our current task is
-	if( %client == $SkiFreeYeti ) {
-		%heartbeat = %game.AI_Yeti(%client, %player);
-	}
-	else if( !$missionRunning || !$MatchStarted ) {
+	if( !$missionRunning || !$MatchStarted ) {
 		// no task yet - check back later
 		%heartbeat = 1000;
+	}
+	else if( %client == $SkiFreeYeti ) {
+		// this is the yeti - do yeti things
+		%heartbeat = %game.AI_Yeti(%client, %player);
 	}
 	else if( %player.getControllingClient() != %player.client ) {
 		// we're possessed (probably for debugging purposes) - don't do anything weird
@@ -92,7 +93,7 @@ function SkiFreeGame::AI_heartbeat(%game, %client, %player) {
 	else if( %client.AI_skiFreeBotLevel <= 1 ) {
 		// level 1 is just "turn off the heartbeat and use the standard bot behavior"
 		// it already knows where it needs to go, t2 can handle that much
-		return;
+		%heartbeat = -1;
 	}
 	else if( %client.AI_skiFreeBotLevel == 2 ) {
 		// level 2 is "ski down hills, otherwise let t2 handle it"
@@ -119,8 +120,13 @@ function SkiFreeGame::AI_heartbeat(%game, %client, %player) {
 	}
 	
 	// continue calling heartbeat to see what we should be doing
-	if( %heartbeat > 0 ) {
+	if( %heartbeat <= 1000 && %heartbeat > 0 ) {
 		%game.schedule(%heartbeat, AI_heartbeat, %client, %player);
+	}
+	else if( %heartbeat > 1000 || %heartbeat == 0 ) {
+		// heartbeat isn't set correctly - throw an error
+		messageAll(0, 'AI heartbeat error. See console for details.~wfx/powered/station_denied.wav');
+		error("Heartbeat error for cl=" @ %client @ " pl=" %player @ " heartbeat=" @ %heartbeat);
 	}
 }
 
@@ -257,7 +263,6 @@ function SkiFreeGame::AI_playGameLevel3(%game, %client, %player) {
 	if( %player.launchTime $= "" ) return;
 	
 	// disable the bot's jets when i don't tell you to use them
-	// TODO this doesn't actually work correctly - bots just seem to completely refill their energy when this is called
 	if( %player.storedEnergy > 0 ) {
 		%player.setEnergyLevel(%player.getEnergyLevel() + %player.storedEnergy);
 		%player.storedEnergy = 0;
@@ -337,7 +342,6 @@ function SkiFreeGame::AI_playGameLevel4(%game, %client, %player) {
 	if( %player.launchTime $= "" ) return;
 	
 	// disable the bot's jets when i don't tell you to use them
-	// TODO this doesn't actually work correctly - bots just seem to completely refill their energy when this is called
 	if( %player.storedEnergy > 0 ) {
 		%player.setEnergyLevel(%player.getEnergyLevel() + %player.storedEnergy);
 		%player.storedEnergy = 0;
@@ -460,9 +464,9 @@ function SkiFreeGame::AI_Yeti(%game, %client, %player) {
 		%player.schedule(0, use, Shocklance);
 		%player.AI_meantToLaunch = 1;
 		
-		// help get the proper facing - we won't be using this directly
-		%client.clientDetected($SkiFreeYeti.stalkClient);
-		%client.stepEngage($SkiFreeYeti.stalkClient);
+		// remove this shit and make the yeti fuck people up directly by doing a direct velocity check
+		//%client.clientDetected($SkiFreeYeti.stalkClient);
+		//%client.stepEngage($SkiFreeYeti.stalkClient);
 
 		return 20;
 	}
@@ -474,18 +478,18 @@ function SkiFreeGame::AI_Yeti(%game, %client, %player) {
 		%player.setCloaked(true);
 		%client.drop();
 		
-		return 0;
+		return -1;
 	}
 	else if( %client.yetiDone ) {
-		// we're done, fuck it
+		// we're done, only task left is to despawn the yeti
 		return 100;
 	}
 	else if( %client.yetiTaunt ) {
-		// stop in place and taunt
+		// walk towards the corpse and taunt
 		%player.setVelocity("0 0 0");
 		%client.yetiTaunt = 0;
 		%client.yetiDone = 0;
-		%client.stepMove(%client.stalkPlayer.position, 1);
+		%client.stepMove(%client.stalkPlayer.position, 5);
 		schedule(1000, 0, AIPlay3DSound, %client, "gbl.obnoxious");
 		return 100;
 	}
@@ -493,29 +497,21 @@ function SkiFreeGame::AI_Yeti(%game, %client, %player) {
 		// player is dead, fuck it
 		%player.setVelocity("0 0 0");
 		%client.yetiDone = 1;
-		%client.stepMove(%client.stalkPlayer.position, 1);
+		%client.stepMove(%client.stalkPlayer.position, 5);
 		return 100;
 	}
 	else if( %client.stunned ) {
+		// yeti has been stunned, stun them for a few seconds
 		%client.stunned = 0;
-		%client.stunRecover += 200;
+		%client.stunRecover += (3000 / 20);
 		return 20;
 	}
 	else if( %client.stunRecover > 0 ) {
+		// wait out the stun time
 		%client.stunRecover--;
 		return 20;
 	}
 	else {
-		// get just a little faster every few seconds - you can't run forever!
-		if( %client.anger $= "" ) {
-			%client.anger = 4.3;
-		}
-		%client.angerTicks++;
-		if( %client.angerTicks == 5000 / 20 ) {
-			%client.angerTicks = 0;
-			%client.anger += 0.1;
-		}
-
 		// workaround if we get deadstopped on the terrain
 		if( %player.lastPosition == %player.position ) {
 			%jetUp = 1;
@@ -523,7 +519,7 @@ function SkiFreeGame::AI_Yeti(%game, %client, %player) {
 
 		// TODO decide if i should bother with a workaround if the player camps the spawn platform (the yeti should throw it into the air, and spawning should be blocked until it lands)
 		
-		// accelerate towards the player at like 500kph
+		// accelerate towards the player at like 3000kph
 		%objDir = VectorSub(%client.stalkPlayer.position, %player.position);
 		%dist = VectorDist(%player.position, %client.stalkPlayer.position);
 		%objDir = VectorNormalize(%objDir);
@@ -533,8 +529,8 @@ function SkiFreeGame::AI_Yeti(%game, %client, %player) {
 			%scale = %dist * 8.0;
 		}
 		else {
-			// set scale based on how far away the player is
-			%scale = %dist * %client.anger;
+			// set scale based on how far away the player is (yeti gets closer but never actually reaches you)
+			%scale = %dist * 5;
 		}
 
 		if( %scale > 800 ) %scale = 800; // speed limit to keep the yeti from crashing t2
@@ -545,6 +541,63 @@ function SkiFreeGame::AI_Yeti(%game, %client, %player) {
 		}
 		%player.setVelocity(%objDir);
 		%player.lastPosition = %player.position;
+		
+		// change the bot's facing to be directly at the player so they can shoot them
+		%client.aimAt(%client.stalkPlayer.getWorldBoxCenter());
+		
+		// increase the yeti's anger each second (if player is going less kph than yeti's anger, lance will hit)
+		if( %client.anger $= "" ) {
+			%client.anger = 190;
+		}
+		%client.angerTicks++;
+		if( %client.angerTicks >= 1000 / 20 ) {
+			%client.angerTicks = 0;
+			%client.anger++;
+		}
+		
+		// too close to the yeti - check if the player dies
+		if( %dist < 15 && getSimTime() - %client.zapTime >= 2500 ) {
+			// yeti uses his shocklance
+			%client.zapTime = getSimTime();
+			%playerVelocity = VectorLen(%client.stalkPlayer.getVelocity()) * 3.6;
+
+			if( %playerVelocity < %client.anger ) {
+				// yeti actually uses his shocklance (this can still miss for some reason)
+				%client.pressFire();
+				
+				%client.fireAttempts++;
+				if( %client.fireAttempts == 3 ) {
+					// on yeti's third attempt, he automatically hits you - not going to leave this up to the AI
+					%player.playAudio(0, ShockLanceHitSound);
+
+					%p = new ShockLanceProjectile() {
+						dataBlock        = BasicShocker;
+						initialDirection = %player.getMuzzleVector($WeaponSlot);
+						initialPosition  = %player.getMuzzlePoint($WeaponSlot);
+						sourceObject     = %player;
+						sourceSlot       = $WeaponSlot;
+						targetId         = %client.stalkPlayer;
+					};
+					MissionCleanup.add(%p);
+
+					%client.stalkPlayer.getDataBlock().damageObject(%client.stalkPlayer, %p.sourceObject, %client.stalkPlayer.getWorldBoxCenter(), 100, $DamageType::ShockLance);
+				}
+			}
+			else {
+				// you're outside the yeti's speed range, so the attack misses. simulate a swing and a miss
+				%player.playAudio($WeaponSlot, ShockLanceDryFireSound);
+				%player.schedule(500, playAudio, 0, ShockLanceMissSound);
+
+				%p = new ShockLanceProjectile() {
+					dataBlock        = BasicShocker;
+					initialDirection = %player.getMuzzleVector($WeaponSlot);
+					initialPosition  = %player.getMuzzlePoint($WeaponSlot);
+					sourceObject     = %player;
+					sourceSlot       = $WeaponSlot;
+				};
+				MissionCleanup.add(%p);
+			}
+		}
 		
 		return 20;
 	}
