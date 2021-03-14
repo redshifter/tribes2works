@@ -78,6 +78,8 @@ public class SkiFreeCreator {
 			
 			println();
 		}
+		
+		println("$SkiFreeTerrainListMAX = %i;");
 
 		writeFile();
 
@@ -86,7 +88,7 @@ public class SkiFreeCreator {
 	
 	private static void writeFile() throws IOException {
 		if( outputFile != null) {
-			Files.write(outputFile.toPath(), outputText, StandardOpenOption.CREATE);
+			Files.write(outputFile.toPath(), outputText, StandardOpenOption.TRUNCATE_EXISTING);
 		}
 		else {
 			for( String line : outputText ) {
