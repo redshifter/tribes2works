@@ -57,7 +57,8 @@ After that, if you want to set down gates, use the **SkiFreeCustomGate** object,
 
 This stuff is mostly untested, so make sure to let me know if it doesn't work.
 
-# CREDITS
-- Red Shifter: made gametype and a bunch of other crap
+# SPECIAL THANKS
 - DarkTiger: made the mempatch needed to phase through players.
 - Rooster128: provided a cameo (until he finds out about it and makes me remove it)
+
+This gametype is dedicated to the memory of Zengato, who was always there to read about my shitty gametype ideas, no matter how stupid they were.

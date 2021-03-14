@@ -9,7 +9,9 @@
 // created by Red Shifter
 // thanks to:
 // - DarkTiger for the phase through players code
+// - Rooster128 for saying such stupid shit on stream
 
+// skifree is dedicated to the memory of Zengato, who was always there to read any shitty gametype idea I had, regardless of how stupid it was
 
 // mapping instructions:
 //
