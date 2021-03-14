@@ -1,5 +1,6 @@
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.text.SimpleDateFormat;
@@ -13,7 +14,7 @@ public class SkiFreeCreator {
 	private static List<String> outputText = new LinkedList<>();
 	
 	public static void main(String[] args) throws IOException {
-		if( args.length != 2 ) {
+		if( args.length == 0 || args.length > 2 ) {
 			System.out.println("Usage: [input.csv] [output.cs]");
 			return;
 		}
@@ -21,7 +22,8 @@ public class SkiFreeCreator {
 		if( !inputFile.exists() ) {
 			System.out.println("Input file doesn't exist.");
 		}
-		outputFile = new File(args[1]);
+		
+		if( args.length > 1 ) outputFile = new File(args[1]);
 		
 		println("// SkiFree Terrain List");
 		println("// Generation Date: " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(inputFile.lastModified()));
@@ -36,7 +38,7 @@ public class SkiFreeCreator {
 		println("%i = -1; // %i++ is pre-increment for some reason; it's -1 so it can start at 0");
 		println();
 		
-		List<String> fileLines = Files.readAllLines(inputFile.toPath());
+		List<String> fileLines = Files.readAllLines(inputFile.toPath(), Charset.forName("UTF-8"));
 		List<Terrain> terrainList = new LinkedList<>();
 		
 		for( String line : fileLines ) {
@@ -83,7 +85,14 @@ public class SkiFreeCreator {
 	}
 	
 	private static void writeFile() throws IOException {
-		Files.write(outputFile.toPath(), outputText, StandardOpenOption.CREATE);
+		if( outputFile != null) {
+			Files.write(outputFile.toPath(), outputText, StandardOpenOption.CREATE);
+		}
+		else {
+			for( String line : outputText ) {
+				System.out.println(line);
+			}
+		}
 	}
 
 	private static void println() {
