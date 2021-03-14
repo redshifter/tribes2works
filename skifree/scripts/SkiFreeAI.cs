@@ -126,7 +126,7 @@ function SkiFreeGame::AI_heartbeat(%game, %client, %player) {
 	else if( %heartbeat > 1000 || %heartbeat == 0 ) {
 		// heartbeat isn't set correctly - throw an error
 		messageAll(0, 'AI heartbeat error. See console for details.~wfx/powered/station_denied.wav');
-		error("Heartbeat error for cl=" @ %client @ " pl=" %player @ " heartbeat=" @ %heartbeat);
+		error("Heartbeat error for cl=" @ %client @ " pl=" @ %player @ " heartbeat=" @ %heartbeat);
 	}
 }
 
