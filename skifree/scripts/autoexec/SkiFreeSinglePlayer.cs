@@ -1,5 +1,6 @@
 package SkiFreeSinglePlayerShit {
 
+// special loading for skifree maps
 function TrainingGui::startTraining( %this ) {
 	%file = getField( TrainingMissionList.getValue(), 1 );
 	
@@ -13,7 +14,7 @@ function TrainingGui::startTraining( %this ) {
 		else
 			$ServerName = "SkiFree - Randomizer";
 			
-		// TODO make sure setting $Host::GameType to single player keeps it off of the master server listing
+		// setting $HostGameType to single player here keeps it off of the master server listing
 		$HostGameType = "SinglePlayer";
 		CreateServer( %file, "SkiFree" );
 		
@@ -30,6 +31,7 @@ function TrainingGui::startTraining( %this ) {
 	}
 }
 
+// change the skifree challenge menu into the standard single player dialog
 function escapeFromGame()
 {
 	if( $CurrentMission $= "SkiFree_Daily" || $CurrentMission $= "SkiFree_Randomizer" ) {
@@ -49,11 +51,6 @@ function SinglePlayerEscapeDlg::leaveGame( %this )
 		%client = ClientGroup.getObject(0);
 		if( %client.bestTime != Game.trialDefaultTime ) {
 			%line = %line @ ".\n\nDaily: " @ Game.terrain;
-			//if( $pref::trainingDifficulty == 1 ) %line = %line @ "Easy";
-			//if( $pref::trainingDifficulty == 2 ) %line = %line @ "Medium";
-			//if( $pref::trainingDifficulty == 3 ) %line = %line @ "Hard";
-			
-			//%line = %line SPC formatTimeString("yy-mm-dd")
 			%line = %line @ "\nTime: " @ %client.bestTime;
 			
 			if( %client.bestHandicap !$= "" ) {

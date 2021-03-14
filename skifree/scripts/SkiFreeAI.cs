@@ -6,12 +6,12 @@
 // level 3 - don't be afraid of fall damage, ski down hills, jet up/over hills
 // level 4 - don't ski down hills that are sloped to the side (to avoid going way off-course)
 
-// TODO fix bots committing to going alone before the mission starts
+// yeti - just wrecks your shit if you're not going fast enough
 
 function SkiFreeGame::addNamedBot(%game, %name) {
 	// why did i do this lol
 	aiConnect(%name, 1, 1.00);
-	// TODO figure out how to disconnect bots
+	// TODO make more methods for rooster's stupid marbles parody
 }
 
 function SkiFreeGame::addBots(%game) {
@@ -272,22 +272,14 @@ function SkiFreeGame::AI_playGameLevel3(%game, %client, %player) {
 	%aiHandled = false;
 	
 	// PRIORITY 1. check distance to gate - if we're very close, return from method (use default bot behavior)
-	// TODO check distance to gate - if we're going fast, check trajectory. if we're off, return from method (use default bot behavior)
 	%dist = VectorDist(%player.position, nameToID("GatePoint" @ %player.gate));
 	%vel = %player.getVelocity();
-	// TODO remove this shit and make it good
 	if( %dist < 100 ) {
 		return;
 	}
-	//%speed = VectorLen(%vel);
-	//if( %speed >= 70 ) {
-		// i have no idea how to do this shit
-	//}
 
-	//%objDir = VectorNormalize(getWords(%vel,0,1) SPC "0");
 	%objDir = VectorSub(%player.position, nameToID("GatePoint" @ %player.gate).position);
 	%objDir = VectorNormalize(getWords(%objDir, 0, 1) SPC "0");
-	//%objDir = VectorScale(%objDir, 2); // why are we doing this?
 	%x = getWord(%player.position, 0);
 	%y = getWord(%player.position, 1);
 	%terrainHeight = %game.findHeight(%x SPC %y);
@@ -295,9 +287,6 @@ function SkiFreeGame::AI_playGameLevel3(%game, %client, %player) {
 	// PRIORITY 2. check slope
 	// going down slope - hold jump
 	// going up slope - hit the jets, unless too high (if there's a mountain in front of you, there's no such thing as too high)
-	// TODO this is too naive - need slope to left and right to know if we're getting pushed off-course
-	// TODO also use parabolas
-	
 	if( !%aiHandled ) {
 		%xslope = %x + getWord(%objDir, 0);
 		%yslope = %y + getWord(%objDir, 1);
@@ -312,7 +301,6 @@ function SkiFreeGame::AI_playGameLevel3(%game, %client, %player) {
 		else { 
 			// going up
 			// make sure we aren't too high off the ground - 10m is plenty
-			// TODO we need to do a distance check
 			if( getWord(%player.position,2) - %terrainHeight < 10 ) {
 				%fireJets = true;
 				%aiHandled = true;

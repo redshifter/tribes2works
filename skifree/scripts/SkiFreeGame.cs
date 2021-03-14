@@ -31,19 +31,7 @@
 
 
 // TODO LIST:
-// - add two Single Player Training maps called:
-//   SkiFree Challenge (always makes a random terrain each time)
-//   SkiFree Daily (makes a different terrain each day
-//
-// it's offline so it'll use the terraformer, making a COMPLETELY RANDOM MAP
-//
-// - Easy:   5 hill fBm Fractal
-// - Medium: 8 hill fBM Fractal
-// - Hard:   rigid multifractal 6 hill, with some turbulence for good measure. you wanted to play hard mode, you fucking got it
-
 // - organize the shit out of the methods and put them into a logical order
-
-// - put waypoints on the next two relevant gates (wasn't working when i tried it)
 
 // - vaporware racing mode (will probably be SkiRace instead of SkiFree, which means i need to unify this code when i get there)
 // starts out as SkiFree without scoring, but game turns into a race when 2+ players join the game. should allow player joins up until 5 seconds after race starts
@@ -209,9 +197,6 @@ function SkiFreeGame::initGameVars(%game) {
 		%game.survivalWarningTime = 10 * 1000; // amount of time remaining until warning
 	}
 	
-
-	//%game.heartbeatTime         = 1 * 1000; // would be used for giving waypoints if it worked
-
 	// auto-generation variables
 	%game.firstGateMin   =  800;
 	%game.firstGateMax   = 1100;
@@ -320,22 +305,6 @@ function SkiFreeGame::pickPlayerSpawn(%game, %client, %respawn) {
 	
 	return "0 0 300";
 }
-
-//function SkiFreeGame::heartbeat(%game, %player) {
-//	if( !isObject(%player.client) ) return;
-//	if( %player.getState() $= "Dead" ) return;
-//
-//	%client = %player.client;
-//	
-//	%gate = %player.gate $= "" ? 1 : %player.gate;
-//	
-	// couldn't get this to work - dunno why. does it not accept waypoint as a target?
-	//%client.setTargetId(nameToID("GatePoint" @ %gate).target);
-	//commandToClient(%client, 'TaskInfo', %client, -1, false, "> > > > > > [Gate " @ %gate @ "] < < < < < <");
-	//%client.sendTargetTo(%client, false);
-	
-//	%game.schedule(%game.heartbeatTime, heartbeat, %player);
-//}
 
 function SkiFreeGame::clientJoinTeam( %game, %client, %team, %respawn )
 {
@@ -450,8 +419,23 @@ function SkiFreeGame::calculateTimeTrialScore(%game, %client, %player) {
 	
 	%playerName = stripChars( getTaggedString( %client.name ), "\cp\co\c6\c7\c8\c9" );
 	
-	// TODO what kind of sounds do we want for times
-	messageClient(%client, 0, '~wfx/misc/MA1.wav');
+	// play a sound on the client based on how well they did
+	if( %time <= 88 ) {
+		// 11 seconds per gate (10 is really, really hard...)
+		messageClient(%client, 0, '~wfx/misc/MA2.wav');
+	}
+	else if( %time <= 120 ) {
+		// 15 seconds per gate
+		messageClient(%client, 0, '~wfx/misc/MA1.wav');
+	}
+	else if( %time <= 160 ) {
+		// 20 seconds per gate
+		messageClient(%client, 0, '~wfx/misc/slapshot.wav');
+	}
+	else {
+		// llama lol
+		messageClient(%client, 0, '~wfx/bonuses/Nouns/llama.wav');
+	}
 	
 	if( %client.bestTime != %game.trialDefaultTime ) {
 		if( %client.bestTime < %time ) {
@@ -656,7 +640,6 @@ function SkiFreeGame::checkScoreLimit(%game) {
 	// no score limit
 }
 
-// TODO change score display at end of map to display distance travelled in addition to score?
 function SkiFreeGame::gameOver(%game) {
 	//call the default
 	DefaultGame::gameOver(%game);
@@ -668,7 +651,6 @@ function SkiFreeGame::gameOver(%game) {
 	for(%i = 0; %i < ClientGroup.getCount(); %i ++) {
 		%client = ClientGroup.getObject(%i);
 		%game.resetScore(%client);
-	//	cancel(%client.waypointSchedule); // no need to cancel something that doesn't exist
 	}
 	
 	// turn off phasing in case we're moving to a new gametype
@@ -909,7 +891,6 @@ function SkiFreeGame::addSpawnPlatform(%game, %position) {
 	%y = getWord(%position, 1);
 	%game.spawnPosition[0] = %x SPC %y;
 	
-	// TODO randomize each list somehow?
 	%i = 1;
 	%i = %game.createMoreSpawns(%x, %y, %i,  7.0);
 	%i = %game.createMoreSpawns(%x, %y, %i, 14.0);
@@ -1012,7 +993,6 @@ function SkiFreeGame::addGate(%game, %gate, %position) {
 	};
 
 	MissionCleanup.add(%waypointObj);
-	//%waypointObj.target = allocTarget("", "", "", "", 0, "", ""); // TODO target can't be attached to a waypoint? how else can we set a temp waypoint?
 	
 	MissionCleanup.add(%gateObj);
 	%gateObj.open();
@@ -1045,8 +1025,6 @@ function SkiFreeGame::leaveSpawnTrigger(%game, %player) {
 		return;
 	}
 	
-	// TODO check if time is about to expire and inform the player that they can't actually finish another run
-
 	// start the run for this player
 	%mod = "";
 	
@@ -1567,7 +1545,6 @@ function SkiFreeGame::getWordForRank(%game, %rank) {
 
 function SkiFreeGame::sendDebriefing( %game, %client )
 {
-	// TODO fix the results screen to work for time trial
 	// Mission result:
 	%winner = $TeamRank[0, 0];
 	if ( %winner.score > 0 )
