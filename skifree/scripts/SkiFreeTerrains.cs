@@ -255,7 +255,4 @@ $SkiFreeTerrainList[%i++] = "Xtra_VanDamned.ter";
 //$SkiFreeTerrainList[%i++] = "SubZero.ter";
 //$SkiFreeTerrainList[%i++] = "TWL-BlueMoon.ter";
 
-TWL-BlueMoon.ter";
-
- = "TWL-BlueMoon.ter";
-
+$SkiFreeTerrainListMAX = %i;
