@@ -420,8 +420,8 @@ function SkiFreeGame::calculateTimeTrialScore(%game, %client, %player) {
 	%playerName = stripChars( getTaggedString( %client.name ), "\cp\co\c6\c7\c8\c9" );
 	
 	// play a sound on the client based on how well they did
-	if( %time <= 88 ) {
-		// 11 seconds per gate (10 is really, really hard...)
+	if( %time <= 80 ) {
+		// 10 seconds per gate
 		messageClient(%client, 0, '~wfx/misc/MA2.wav');
 	}
 	else if( %time <= 120 ) {
@@ -486,9 +486,6 @@ function SkiFreeGame::calculateTimeTrialScore(%game, %client, %player) {
 				%gender = (%client.sex $= "Male" ? "He" : "She");
 				%rankOthers = " " SPC %gender SPC "is now in" SPC %game.getWordForRank(%rankNumber) SPC "place.";
 			}
-		}
-		else if( %timeCompare !$= "" ) {
-			%rankPersonal = " New personal best!";
 		}
 	}
 
@@ -593,9 +590,6 @@ function SkiFreeGame::calculateSurvivalScore(%game, %client, %player, %damageTyp
 					%gender = (%client.sex $= "Male" ? "He" : "She");
 					%rankOthers = " " SPC %gender SPC "is now in" SPC %game.getWordForRank(%rankNumber) SPC "place.";
 				}
-			}
-			else if( %scoreCompare !$= "" ) {
-				%rankPersonal = " New personal best!";
 			}
 		}
 		
