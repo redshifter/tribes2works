@@ -1,5 +1,5 @@
 // SkiFree Terrain List
-// Generation Date: 2021-03-09 12:34:25
+// Generation Date: 2021-03-13 23:54:52
 
 // A good terrain has the following qualities:
 // - doesn't have a bunch of flat ground, even if it's right outside the mission bounds (high octane)
@@ -10,7 +10,7 @@
 
 %i = -1; // %i++ is pre-increment for some reason; it's -1 so it can start at 0
 
-// ACCEPTED TERRAINS (85)
+// ACCEPTED TERRAINS (83)
 $SkiFreeTerrainList[%i++] = "Alcatraz.ter"; // yeah. seems fine
 $SkiFreeTerrainList[%i++] = "Attrition.ter";
 $SkiFreeTerrainList[%i++] = "BastardForge.ter";
@@ -28,7 +28,6 @@ $SkiFreeTerrainList[%i++] = "Embers.ter";
 $SkiFreeTerrainList[%i++] = "Euro4_Bleed.ter";
 $SkiFreeTerrainList[%i++] = "Euro4_Dissention.ter";
 $SkiFreeTerrainList[%i++] = "Euro4_FrozenHope.ter"; // seems fine?
-$SkiFreeTerrainList[%i++] = "Geothermal.ter"; // spawn is usually on the plateau. It can generate good starts and bad starts but it's usually a good run
 $SkiFreeTerrainList[%i++] = "Gorgon.ter";
 $SkiFreeTerrainList[%i++] = "Hildebrand.ter";
 $SkiFreeTerrainList[%i++] = "icedagger.ter";
@@ -88,7 +87,6 @@ $SkiFreeTerrainList[%i++] = "TWL-WilderZone.ter";
 $SkiFreeTerrainList[%i++] = "TWL-WoodyMyrk.ter";
 $SkiFreeTerrainList[%i++] = "TWL2_Crevice.ter";
 $SkiFreeTerrainList[%i++] = "TWL2_Frozenglory.ter";
-$SkiFreeTerrainList[%i++] = "TWL2_Ruined.ter";
 $SkiFreeTerrainList[%i++] = "Wasteland.ter"; // whatever sure
 $SkiFreeTerrainList[%i++] = "WoodyMyrkSE.ter";
 $SkiFreeTerrainList[%i++] = "Xtra_AshenPowder.ter"; // massive flat area is in a place the player would want to discjump over anyway
@@ -97,7 +95,7 @@ $SkiFreeTerrainList[%i++] = "Xtra_SoupLadle.ter";
 $SkiFreeTerrainList[%i++] = "Xtra_ThunderGiant.ter"; // this map is garbage but it's fun to try to ski on it
 $SkiFreeTerrainList[%i++] = "Xtra_VanDamned.ter";
 
-// REJECTED FOR DEADSTOPS (64)
+// REJECTED FOR DEADSTOPS (65)
 //$SkiFreeTerrainList[%i++] = "Abominable.ter";
 //$SkiFreeTerrainList[%i++] = "AcidRain.ter";
 //$SkiFreeTerrainList[%i++] = "AgentsOfFortune.ter";
@@ -158,12 +156,13 @@ $SkiFreeTerrainList[%i++] = "Xtra_VanDamned.ter";
 //$SkiFreeTerrainList[%i++] = "TWL-Neve.ter"; // it's trace amounts but they're in places you would probably do routes
 //$SkiFreeTerrainList[%i++] = "TWL-NoShelter.ter";
 //$SkiFreeTerrainList[%i++] = "TWL-Slapdash.ter"; // crapdash
+//$SkiFreeTerrainList[%i++] = "TWL2_Ruined.ter"; // looks like a decent terrain but isn’t
 //$SkiFreeTerrainList[%i++] = "Tyre.ter";
 //$SkiFreeTerrainList[%i++] = "Xtra_StarFall_T1.ter";
 //$SkiFreeTerrainList[%i++] = "Xtra_Stripmine.ter";
 //$SkiFreeTerrainList[%i++] = "Xtra_ziggurat.ter";
 
-// REJECTED FOR BEING UNSKIIABLE (59)
+// REJECTED FOR BEING UNSKIIABLE (60)
 //$SkiFreeTerrainList[%i++] = "Archipelago.ter";
 //$SkiFreeTerrainList[%i++] = "Bunkered.ter";
 //$SkiFreeTerrainList[%i++] = "cloak.ter"; // the terrain is just too big for a fun race
@@ -174,6 +173,7 @@ $SkiFreeTerrainList[%i++] = "Xtra_VanDamned.ter";
 //$SkiFreeTerrainList[%i++] = "Escalade.ter";
 //$SkiFreeTerrainList[%i++] = "Euro_Drifts_SE.ter";
 //$SkiFreeTerrainList[%i++] = "FrozenFury.ter"; // even the parts inside mission bounds are unskiiable garbage
+//$SkiFreeTerrainList[%i++] = "Geothermal.ter"; // spawn is usually on the plateau. It can generate good starts and bad starts but it's usually a mess
 //$SkiFreeTerrainList[%i++] = "GodsRift.ter";
 //$SkiFreeTerrainList[%i++] = "HillKing.ter";
 //$SkiFreeTerrainList[%i++] = "Hoth.ter"; // why would you name a terrain hoth if it isn't snowy
@@ -228,7 +228,7 @@ $SkiFreeTerrainList[%i++] = "Xtra_VanDamned.ter";
 //$SkiFreeTerrainList[%i++] = "Chasmaclysmic.ter"; // this level is really kinda boring if it spawns right (which it can not do)
 //$SkiFreeTerrainList[%i++] = "DMP_Pantheon.ter"; // there isn't enough value to this map to risk deadstopping
 //$SkiFreeTerrainList[%i++] = "Lakefront.ter"; // just kinda hate this map tbh
-//$SkiFreeTerrainList[%i++] = "Moonwalk.ter"; // override – magnum-like terrains are quite flat
+//$SkiFreeTerrainList[%i++] = "Moonwalk.ter"; // magnum-like terrain
 //$SkiFreeTerrainList[%i++] = "MyrkWood.ter"; // we don't need this when we have woodymyrk
 //$SkiFreeTerrainList[%i++] = "Paranoia.ter"; // this map is basically flat garbage with a few hills to get in your way
 //$SkiFreeTerrainList[%i++] = "Ramparts.ter"; // biased against copyright violation map
@@ -255,4 +255,7 @@ $SkiFreeTerrainList[%i++] = "Xtra_VanDamned.ter";
 //$SkiFreeTerrainList[%i++] = "SubZero.ter";
 //$SkiFreeTerrainList[%i++] = "TWL-BlueMoon.ter";
 
-$SkiFreeTerrainListMAX = %i;
+TWL-BlueMoon.ter";
+
+ = "TWL-BlueMoon.ter";
+

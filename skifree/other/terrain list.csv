@@ -48,7 +48,7 @@ Fracas.ter,Yes,,,Reject,
 FrozenFury.ter,No,Yes,,Reject,even the parts inside mission bounds are unskiiable garbage
 Gauntlet.ter,Yes,No,,Reject,
 Gehenna.ter,Yes,,,Reject,
-Geothermal.ter,Trace,No,,Accept,spawn is usually on the plateau. It can generate good starts and bad starts but it's usually a good run
+Geothermal.ter,Trace,Yes,,Reject,spawn is usually on the plateau. It can generate good starts and bad starts but it's usually a mess
 GodsRift.ter,No,Yes,,Reject,
 Gorgon.ter,No,No,,Accept,
 Haven.ter,Yes,Kinda,,Reject,
@@ -78,7 +78,7 @@ Masada.ter,Yes,,,Reject,tiny dicked map
 Minotaur.ter,No,Yes,,Reject,
 mmd.ter,Yes,,,Reject,
 MoonDance2.ter,Yes,No,,Reject,too many deadstop splotches
-Moonwalk.ter,No,No,Yes,Reject,override – magnum-like terrains are quite flat
+Moonwalk.ter,No,No,Yes,Reject,magnum-like terrain
 mountking.ter,No,Yes,,Reject,
 MyrkWood.ter,No,No,Yes,Reject,we don't need this when we have woodymyrk
 norty.ter,No,Yes,,Reject,too extreme
@@ -212,7 +212,7 @@ TWL-WilderZone.ter,Trace,No,,Accept,
 TWL-WoodyMyrk.ter,No,No,,Accept,
 TWL2_Crevice.ter,No,No,,Accept,
 TWL2_Frozenglory.ter,No,No,,Accept,
-TWL2_Ruined.ter,Trace,No,,Accept,
+TWL2_Ruined.ter,Yes,No,,Reject,looks like a decent terrain but isn’t
 Tyre.ter,Yes,Yes,,Reject,
 UltimaThule.ter,,Yes,,Reject,
 Underhill.ter,Trace,Yes,,Reject,
