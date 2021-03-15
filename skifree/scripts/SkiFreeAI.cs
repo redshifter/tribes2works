@@ -10,7 +10,7 @@
 
 function SkiFreeGame::addNamedBot(%game, %name) {
 	// why did i do this lol
-	aiConnect(%name, 1, 1.00);
+	return aiConnect(%name, 1, 1.00);
 	// TODO make more methods for rooster's stupid marbles parody
 }
 
@@ -474,7 +474,7 @@ function SkiFreeGame::AI_Yeti(%game, %client, %player) {
 		return -1;
 	}
 	else if( %client.throwTime > 300 ) {
-		// you've made your point
+		// you've made your point, now go eat the idiot
 		%client.throwTime = 0;
 		return 20;
 	}

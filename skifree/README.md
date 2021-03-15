@@ -1,5 +1,5 @@
 # Tribes 2: SkiFree
-Free to ski. **This is a beta.**
+Free to ski.
 
 Your goal is to ski through a bunch of gates, in order. The terrain, the gates, the spawn platform - everything is random. It's up to you to go for it and get through the eight gates as quickly as you can. Take discjumps and ski the terrain properly, turning where you can. Compete for the best run on the server!
 
@@ -60,5 +60,6 @@ This stuff is mostly untested, so make sure to let me know if it doesn't work.
 # SPECIAL THANKS
 - DarkTiger: made the mempatch needed to phase through players.
 - Rooster128: provided a cameo (until he finds out about it and makes me remove it)
+- Others on T2 Discord: testing
 
 This gametype is dedicated to the memory of Zengato, who was always there to read about my shitty gametype ideas, no matter how stupid they were.

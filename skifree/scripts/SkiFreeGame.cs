@@ -1,17 +1,22 @@
 // DisplayName = SkiFree
 
 //--- GAME RULES BEGIN ---
-//Ski through the gates in order
-//Go as far as you can in one minute
+//Ski through all the gates in order
+//Use discjumps when needed
+//Compete for the best time
 //Happy 20th Anniversary to Tribes 2
 //--- GAME RULES END ---
 
-// created by Red Shifter
-// thanks to:
-// - DarkTiger for the phase through players code
-// - Rooster128 for saying such stupid shit on stream
+// version 1.00 (2021-03-14)
+// - eat some pi
 
-// skifree is dedicated to the memory of Zengato, who was always there to read any shitty gametype idea I had, regardless of how stupid it was
+// Created by Red Shifter
+// Thanks to:
+// - DarkTiger for the phase through players code
+// - Rooster128 for testing and saying stupid shit on stream
+// - A bunch of people on T2 Discord: testing
+// SkiFree is dedicated to the memory of Zengato, who was always there to read any shitty gametype idea I had, regardless of how stupid it was.
+// Happy 20th Anniversary to Tribes 2. One more year until this game is old enough to drink.
 
 // mapping instructions:
 //
@@ -28,9 +33,9 @@
 // - gateNum__ will be the gate number
 // - isFinish__ will be the Finish Gate if the server is using Time Trial scoring. remember that it'll keep generating gates in Survival mode!
 
-
-
 // TODO LIST:
+// - make a client-side support pack that enables the phasing through players functionality without being glitchy, and also allows for random terrain generation online (though that would be a required map pack...)
+
 // - organize the shit out of the methods and put them into a logical order
 
 // - vaporware racing mode (will probably be SkiRace instead of SkiFree, which means i need to unify this code when i get there)
@@ -41,7 +46,6 @@
 // - exploding deadstop does not kill you
 // - gates should give you extra repair so you can discjump more
 // - enemies you MA have their momentum cut in half
-//
 // ambient crowd noise:
 // - gets louder if the first 2/3 players are close to each other
 // - collective gasp if first place loses more than 40% of speed inside a second (from a deadstop, flubbing the route, or getting MA'ed)
@@ -57,6 +61,7 @@ if( $Host::SkiRaceTimeTrialScoringSystem $= "" ) {
 exec("scripts/SkiFreeDatablock.cs");
 exec("scripts/SkiFreeOverrides.cs");
 exec("scripts/SkiFreeAI.cs");
+compile("scripts/SkiFreeTerrains.cs"); // compile for consistency's sake, not needed until it's time
 
 function SkiFreeGame::sendGameVoteMenu( %game, %client, %key ) {
 	DefaultGame::sendGameVoteMenu(%game, %client, %key);
@@ -271,7 +276,7 @@ function SkiFreeGame::equip(%game, %player) {
 
 	%player.setDamageLevel(0);
 	%player.setEnergyLevel(60);
-	%player.setInventory(FlareGrenade,30);
+	%player.setInventory(FlareGrenade,5);
 	%player.setInventory(Disc,1);
 	%player.setInventory(DiscAmmo, 15);
 	%player.setInventory(RepairKit,1);
