@@ -445,6 +445,11 @@ function SkiFreeGame::createYetiFor(%game, %player, %spawnPosition) {
 }
 
 function SkiFreeGame::AI_Yeti(%game, %client, %player) {
+	// always face the stalked player (if they still exist)
+	if( isObject(%client.stalkPlayer) ) {
+		%client.aimAt(%client.stalkPlayer.getWorldBoxCenter());
+	}
+
 	if( %player.AI_meantToLaunch == 0 ) {
 		// yeti only has one thing on his mind
 		%player.setInventory(ShockLance,1);
@@ -467,6 +472,38 @@ function SkiFreeGame::AI_Yeti(%game, %client, %player) {
 		%client.drop();
 		
 		return -1;
+	}
+	else if( %client.throwTime > 300 ) {
+		// you've made your point
+		%client.throwTime = 0;
+		return 20;
+	}
+	else if( %client.throwTime > 0 ) {
+		// throwing platform into the air
+		%x = getWord(SpawnPlatform.position, 0);
+		%y = getWord(SpawnPlatform.originalTransform, 1) + (%client.throwTime * %client.throwDir);
+		
+		// put the spawn platform in the air
+		%z = getWord(SpawnPlatform.originalTransform, 2);
+		
+		// make an arc
+		%arc = (-0.01 * mPow(%client.throwTime, 2)) + (2 * %client.throwTime);
+		%z += %arc;
+	
+		%spin = %client.throwTime < 180 ? %client.throwTime : 179;
+		
+		SpawnPlatform.position = %x SPC %y SPC %z;
+		SpawnPlatform.rotation = %client.throwDir SPC "0 0" SPC %spin;
+		SpawnPlatform.setTransform(SpawnPlatform.getTransform());
+		%client.throwTime++;
+		return 20;
+	}
+	else if( %client.throwPlatform == 1 ) {
+		// fuck this platform
+		%client.throwDir = (getRandom(0, 100) % 2 == 0) ? 1 : -1;
+		%client.throwTime = 1;
+		%client.throwPlatform = 2;
+		return 20;
 	}
 	else if( %client.yetiDone ) {
 		// we're done, only task left is to despawn the yeti
@@ -505,8 +542,6 @@ function SkiFreeGame::AI_Yeti(%game, %client, %player) {
 			%jetUp = 1;
 		}
 
-		// TODO decide if i should bother with a workaround if the player camps the spawn platform (the yeti should throw it into the air, and spawning should be blocked until it lands)
-		
 		// accelerate towards the player at like 3000kph
 		%objDir = VectorSub(%client.stalkPlayer.position, %player.position);
 		%dist = VectorDist(%player.position, %client.stalkPlayer.position);
@@ -529,9 +564,6 @@ function SkiFreeGame::AI_Yeti(%game, %client, %player) {
 		}
 		%player.setVelocity(%objDir);
 		%player.lastPosition = %player.position;
-		
-		// change the bot's facing to be directly at the player so they can shoot them
-		%client.aimAt(%client.stalkPlayer.getWorldBoxCenter());
 		
 		// increase the yeti's anger each second (if player is going less kph than yeti's anger, lance will hit)
 		if( %client.anger $= "" ) {
@@ -584,6 +616,25 @@ function SkiFreeGame::AI_Yeti(%game, %client, %player) {
 					sourceSlot       = $WeaponSlot;
 				};
 				MissionCleanup.add(%p);
+			}
+		}
+		
+		// check to see if the client is camping behind the spawn platform
+		if( %client.throwPlatform == 0 ) {
+			%distSpawn = VectorDist(%player.position, SpawnPlatform.position);
+			if( %distSpawn < 100 ) {
+				%client.rage++;
+				if( %client.rage >= 5000 / 20 ) {
+					// fuck this spawn platform, yeti is angry
+					if( SpawnPlatform.originalTransform $= "" ) {
+						SpawnPlatform.originalTransform = SpawnPlatform.getTransform();
+					}
+					messageAll(0, '~wfx/vehicles/tank_mortar_fire.wav');
+					%client.throwPlatform = 1;
+				}
+			}
+			else {
+				%client.rage = 0;
 			}
 		}
 		

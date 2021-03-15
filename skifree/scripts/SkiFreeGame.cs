@@ -281,6 +281,11 @@ function SkiFreeGame::equip(%game, %player) {
 
 function SkiFreeGame::pickPlayerSpawn(%game, %client, %respawn) {
 	if( isObject(SpawnPlatform) ) {
+		// hackaround if yeti fucked some shit up
+		if( SpawnPlatform.originalTransform !$= "" ) {
+			SpawnPlatform.setTransform(SpawnPlatform.originalTransform);
+		}
+		
 		%z = getWord(SpawnPlatform.position, 2) + 63.02;
 		
 		for( %i = 0; %i < 420; %i++ ) {
