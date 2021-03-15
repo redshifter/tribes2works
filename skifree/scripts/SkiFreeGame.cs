@@ -5,7 +5,14 @@
 //Use discjumps when needed
 //Compete for the best time
 //Happy 20th Anniversary to Tribes 2
+//<spush><color:6060FF>Version 1.01 (2021-03-15)<spop>
 //--- GAME RULES END ---
+
+// version 1.01 (2021-03-15)
+// - added version number to the game rules
+// - fixed observer displaying score instead of time at the end of map
+// - added a sound for <= 60 seconds (and yes, i also added one for 69 seconds)
+// - removed ctrl+k messages
 
 // version 1.00 (2021-03-14)
 // - eat some pi
@@ -34,22 +41,31 @@
 // - isFinish__ will be the Finish Gate if the server is using Time Trial scoring. remember that it'll keep generating gates in Survival mode!
 
 // TODO LIST:
-// - make a client-side support pack that enables the phasing through players functionality without being glitchy, and also allows for random terrain generation online (though that would be a required map pack...)
+// align the spawn platform toward the first gate so you aren't doing a precise corner discjump
+// - also need to move the spawn points around based on the new rotation
+// - also need to check the variance of the turned spawn platform instead of using the old formula
+// - also need to watch the yeti yeet a turned platform and make sure it looks fine (it won't but it's the thought that counts...)
 
-// - organize the shit out of the methods and put them into a logical order
+// add host flag switch for turning off boosting each other with discs
 
-// - vaporware racing mode (will probably be SkiRace instead of SkiFree, which means i need to unify this code when i get there)
-// starts out as SkiFree without scoring, but game turns into a race when 2+ players join the game. should allow player joins up until 5 seconds after race starts
-// normal races will have minimum of 4 gates, and increase by 1 for every 2 extra players, up to a maximum of 8 gates at 8+ players
-// elimination races (minimum 4 players) will have 1 gate per player up to the maximum of 8 gates. the last person to not have crossed each gate dies (if someone dies between gates, count that as the gate kill)
+// fix following to uncount people that killed themselves less than 5 seconds into the run
+
+// make a client-side support pack that enables the phasing through players functionality without being glitchy, and also allows for random terrain generation online (though that would be a required map pack...)
+
+// organize the shit out of the methods and put them into a logical order
+
+// vaporware racing mode (will probably be SkiRace instead of SkiFree, which means i need to unify this code when i get there)
+// - starts out as SkiFree without scoring, but game turns into a race when 2+ players join the game. should allow player joins up until 5 seconds after race starts
+// - normal races will have minimum of 4 gates, and increase by 1 for every 2 extra players, up to a maximum of 8 gates at 8+ players
+// - elimination races (minimum 4 players) will have 1 gate per player up to the maximum of 8 gates. the last person to not have crossed each gate dies (if someone dies between gates, count that as the gate kill)
 // - race timer will be gate x 20 seconds (with a 30 second timer to explode a player that fails to cross a gate every 30 seconds)
 // - exploding deadstop does not kill you
 // - gates should give you extra repair so you can discjump more
 // - enemies you MA have their momentum cut in half
-// ambient crowd noise:
-// - gets louder if the first 2/3 players are close to each other
-// - collective gasp if first place loses more than 40% of speed inside a second (from a deadstop, flubbing the route, or getting MA'ed)
-// - cheering at the end
+// - ambient crowd noise should exist
+// --- gets louder if the first 2/3 players are close to each other
+// --- collective gasp if first place loses more than 40% of speed inside a second (from a deadstop, flubbing the route, or getting MA'ed)
+// --- cheering at the end
 
 if( $Host::SkiRacePhaseThroughPlayers $= "" ) {
 	$Host::SkiRacePhaseThroughPlayers = 0;
@@ -286,7 +302,7 @@ function SkiFreeGame::equip(%game, %player) {
 
 function SkiFreeGame::pickPlayerSpawn(%game, %client, %respawn) {
 	if( isObject(SpawnPlatform) ) {
-		// hackaround if yeti fucked some shit up
+		// hackaround if yeti yeeted the platform
 		if( SpawnPlatform.originalTransform !$= "" ) {
 			SpawnPlatform.setTransform(SpawnPlatform.originalTransform);
 		}
@@ -430,7 +446,16 @@ function SkiFreeGame::calculateTimeTrialScore(%game, %client, %player) {
 	%playerName = stripChars( getTaggedString( %client.name ), "\cp\co\c6\c7\c8\c9" );
 	
 	// play a sound on the client based on how well they did
-	if( %time <= 80 ) {
+	if( %time <= 60 ) {
+		// are you fucking kidding (7.5 seconds per gate)
+		// also make it louder for effect (and echo-y?)
+		for( %i = 0; %i < 2; %i++ ) messageClient(%client, 0, '~wfx/misc/gamestart.wav');
+	}	
+	else if( %time >= 69 && %time < 70 ) {
+		// 69 seconds (nice)
+		messageClient(%client, 0, '~wfx/Bonuses/horz_straipass2_heist.wav');
+	}
+	else if( %time <= 80 ) {
 		// 10 seconds per gate
 		messageClient(%client, 0, '~wfx/misc/MA2.wav');
 	}
@@ -714,7 +739,6 @@ function SkiFreeGame::updateScoreHud(%game, %client, %tag)
 		}
 
 		//if the client is not an observer, send the message
-
 		if (%client.team != 0)
 		{
 			// why am i using word wrap lol
@@ -1530,10 +1554,14 @@ function SkiFreeGame::displayDeathMessages(%game, %clVictim, %clKiller, %damageT
 		// no message needed for a full run completed
 		logEcho(%clVictim.nameBase@" (pl "@%clVictim.player@"/cl "@%clVictim@") killed by End of Run");
 	}
-
 	else if( %damageType == $DamageType::Ground && %clVictim.player.modGlass ) {
 	      messageAll('msgSelfKill', '%1 shattered into a million pieces.', %victimName, %victimGender, %victimPoss, %killerName, %killerGender, %killerPoss, %damageType, $DamageTypeText[%damageType]);
       logEcho(%clVictim.nameBase@" (pl "@%clVictim.player@"/cl "@%clVictim@") killed self ("@getTaggedString($DamageTypeText[%damageType])@")");
+	}
+	else if( %damageType == $DamageType::Suicide ) {
+		// remove death message
+		//messageAll('msgSuicide', '', %victimName, %victimGender, %victimPoss, %killerName, %killerGender, %killerPoss, %damageType, $DamageTypeText[%damageType]);
+		logEcho(%clVictim.nameBase@" (pl "@%clVictim.player@"/cl "@%clVictim@") committed suicide (CTRL-K)");
 	}
 	else {
 		Parent::displayDeathMessages(%game, %clVictim, %clKiller, %damageType, %implement);
@@ -1604,18 +1632,33 @@ function SkiFreeGame::sendDebriefing( %game, %client )
          if (!%printedHeader)
          {
             %printedHeader = true;
-            messageClient(%client, 'MsgDebriefAddLine', "", '\n<lmargin:0><spush><color:00dc00><font:univers condensed:18>OBSERVERS<lmargin%%:60>SCORE<spop>');
+			if( %game.timeTrial ) {
+				messageClient(%client, 'MsgDebriefAddLine', "", '\n<lmargin:0><spush><color:00dc00><font:univers condensed:18>OBSERVERS<lmargin%%:60>BEST<spop>');
+			}
+			else {
+				messageClient(%client, 'MsgDebriefAddLine', "", '\n<lmargin:0><spush><color:00dc00><font:univers condensed:18>OBSERVERS<lmargin%%:60>SCORE<spop>');
+			}
          }
 
-         //print out the client
-         if ( %cl.score $= "" )
-            %score = "0.0";
-         else if( mFloor(%cl.score) == %cl.score )
-            %score = %cl.score @ ".0";
-         else
-            %score = %cl.score;
+		 if( %game.timeTrial ) {
+			if( %cl.bestTime == %game.trialDefaultTime )
+				%bestTime = %game.trialDefaultTime @ ".000";
+			else
+				%bestTime = %cl.bestTime;
 
-         messageClient( %client, 'MsgDebriefAddLine', "", '<lmargin:0><clip%%:60> %1</clip><lmargin%%:60><clip%%:40> %2</clip>', %cl.name, %score);
+			messageClient( %client, 'MsgDebriefAddLine', "", '<lmargin:0><clip%%:60> %1</clip><lmargin%%:60><clip%%:40> %2</clip>', %cl.name, %bestTime);
+		 }
+		 else {
+			 //print out the client
+			 if ( %cl.score $= "" )
+				%score = "0.0";
+			 else if( mFloor(%cl.score) == %cl.score )
+				%score = %cl.score @ ".0";
+			 else
+				%score = %cl.score;
+
+			messageClient( %client, 'MsgDebriefAddLine', "", '<lmargin:0><clip%%:60> %1</clip><lmargin%%:60><clip%%:40> %2</clip>', %cl.name, %score);
+		 }
       }
    }
 }
