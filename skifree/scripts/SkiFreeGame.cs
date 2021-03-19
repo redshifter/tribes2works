@@ -41,19 +41,25 @@
 // - isFinish__ will be the Finish Gate if the server is using Time Trial scoring. remember that it'll keep generating gates in Survival mode!
 
 // TODO LIST:
+// remove discs used against non-AI players that reduce their momentum and call it interference
+//
+// check player velocity to decide if they did a discjump to start, rather than just making a check "did player hit self with disc"
+//
+// check if daily/randomizer is messing with serverprefs (it shouldn't be, but it doesn't matter much for server play)
+//
 // align the spawn platform toward the first gate so you aren't doing a precise corner discjump
 // - also need to move the spawn points around based on the new rotation
 // - also need to check the variance of the turned spawn platform instead of using the old formula
 // - also need to watch the yeti yeet a turned platform and make sure it looks fine (it won't but it's the thought that counts...)
-
+//
 // add host flag switch for turning off boosting each other with discs
-
+//
 // fix following to uncount people that killed themselves less than 5 seconds into the run
-
+//
 // make a client-side support pack that enables the phasing through players functionality without being glitchy, and also allows for random terrain generation online (though that would be a required map pack...)
-
+//
 // organize the shit out of the methods and put them into a logical order
-
+//
 // vaporware racing mode (will probably be SkiRace instead of SkiFree, which means i need to unify this code when i get there)
 // - starts out as SkiFree without scoring, but game turns into a race when 2+ players join the game. should allow player joins up until 5 seconds after race starts
 // - normal races will have minimum of 4 gates, and increase by 1 for every 2 extra players, up to a maximum of 8 gates at 8+ players
