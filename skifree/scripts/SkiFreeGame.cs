@@ -5,8 +5,13 @@
 //Use discjumps when needed
 //Compete for the best time
 //Happy 20th Anniversary to Tribes 2
-//<spush><color:6060FF>Version 1.01 (2021-03-15)<spop>
+//<spush><color:FFFF80>Version 1.02 (2021-03-22)<spop>
 //--- GAME RULES END ---
+
+// version 1.02 (2021-03-22)
+// - show time instead of score in server query (escape menu is still wrong but i'm not fixing that shit)
+// - added interference (discs that slow down players do not do anything)
+// - added player-to-player discing toggle (turning it off makes it so discs do nothing to other players)
 
 // version 1.01 (2021-03-15)
 // - added version number to the game rules
@@ -61,6 +66,9 @@ if( $Host::SkiRacePhaseThroughPlayers $= "" ) {
 if( $Host::SkiRaceTimeTrialScoringSystem $= "" ) {
 	$Host::SkiRaceTimeTrialScoringSystem = 1;
 }
+if( $Host::SkiRaceAllowPvPDiscBoosting $= "" ) {
+	$Host::SkiRaceAllowPvPDiscBoosting = 1;
+}
 
 exec("scripts/SkiFreeDatablock.cs");
 exec("scripts/SkiFreeOverrides.cs");
@@ -81,7 +89,11 @@ function SkiFreeGame::sendGameVoteMenu( %game, %client, %key ) {
 			? 'SkiFree: Change to SURVIVAL scoring (next map)'
 			: 'SkiFree: Change to TIME TRIAL scoring (next map)'
 		);
-		
+		messageClient( %client, 'MsgVoteItem', "", %key, 'VoteAllowPlayerDiscing', "", 
+			$Host::SkiRaceAllowPvPDiscBoosting
+			? 'SkiFree: Turn Player-to-Player Disc Boosting OFF'
+			: 'SkiFree: Turn Player-to-Player Disc Boosting ON'
+		);
 	}
 }
 
@@ -106,6 +118,16 @@ function SkiFreeGame::checkSkiFreeVote(%game, %client, %typeName) {
 		}
 		else {
 			messageAll('MsgAdminForce', '\c0%1 switched to SURVIVAL scoring (next map).', %client.name);
+		}
+	}
+	else if( %typeName $= "VoteAllowPlayerDiscing" ) {
+		$Host::SkiRaceAllowPvPDiscBoosting = !$Host::SkiRaceAllowPvPDiscBoosting;
+		
+		if( $Host::SkiRaceAllowPvPDiscBoosting ) {
+			messageAll('MsgAdminForce', '\c0%1 turned ON player-to-player Disc Boosting.', %client.name);
+		}
+		else {
+			messageAll('MsgAdminForce', '\c0%1 turned OFF player-to-player Disc Boosting.', %client.name);
 		}
 	}
 }
@@ -1783,4 +1805,69 @@ function SkiFreeGame::breakOutTerraformer(%game, %skill, %definedSeed) {
 function SkiFreeGame::isSinglePlayer(%game) { 
 	return $CurrentMission $= "SkiFree_Daily"
 		|| $CurrentMission $= "SkiFree_Randomizer";
+}
+
+function SkiFreeGame::getServerStatusString(%game)
+{
+	if( %game.timeTrial ) {
+		// server status modifcation for time trial (show time instead of score)
+		%status = %game.numTeams;
+		for ( %team = 1; %team - 1 < %game.numTeams; %team++ ) {
+			%score = isObject( $teamScore[%team] ) ? $teamScore[%team] : 0;
+			%teamStr = getTaggedString( %game.getTeamName(%team) ) TAB %score;
+			%status = %status NL %teamStr;
+		}
+
+		%status = %status NL ClientGroup.getCount();
+		for ( %i = 0; %i < ClientGroup.getCount(); %i++ ) {
+			%cl = ClientGroup.getObject( %i );
+			%time = %cl.bestTime $= "" ? %game.trialDefaultTime : %cl.bestTime;
+			%playerStr = getTaggedString( %cl.name ) TAB getTaggedString( %game.getTeamName(%cl.team) ) TAB %time;
+			%status = %status NL %playerStr;
+		}
+		return( %status );
+	}
+	else {
+		Parent::getServerStatusString(%game);
+	}
+}
+
+function SkiFreeGame::checkInterference(%game, %targetObject, %sourceObject, %oldVector) {
+	// a player hit someone else with a disc
+	%illegalHit = 0;
+	
+	// if boosting is off, illegal hit. otherwise...
+	if( !$Host::SkiRaceAllowPvPDiscBoosting ) {
+		%illegalHit = 1;
+		
+		if( !%sourceObject.interfered && isObject(%sourceObject.client) ) {
+			messageClient(%sourceObject.client, 0, '\c2Disc Boosting is disabled. You cannot affect enemy momentum!~wfx/misc/red_alert_short.wav');
+			%sourceObject.interfered = 1;
+		}
+		else {
+			messageClient(%sourceObject.client, 0, '~wfx/misc/red_alert_short.wav');
+		}
+	}
+	else {
+		// check for intereference
+		%oldSpeed = VectorLen(%oldVector);
+		%curSpeed = VectorLen(%targetObject.getVelocity());
+		if( %curSpeed < %oldSpeed ) {
+			// interference detected!
+			if( !%sourceObject.interfered && isObject(%sourceObject.client) ) {
+				messageClient(%sourceObject.client, 0, '\c2INTERFERENCE! Tried to reduce enemy velocity - enemy momentum not affected!~wfx/misc/whistle.wav');
+				%sourceObject.interfered = 1;
+			}
+			else {
+				messageClient(%sourceObject.client, 0, '~wfx/misc/red_alert_short.wav');
+			}
+				
+
+			%illegalHit = 1;
+		}
+	}
+	
+	if( %illegalHit ) {
+		%targetObject.schedule(0, setVelocity, %oldVector);
+	}
 }

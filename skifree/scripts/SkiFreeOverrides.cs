@@ -36,6 +36,12 @@ function Armor::damageObject(%data, %targetObject, %sourceObject, %position, %am
 		Game.schedule(0, checkDeadstop, %targetObject, %oldVector);
 	}
 	
+	// check interference
+	if( %damageType == $DamageType::Disc && %targetObject != %sourceObject ) {
+		Game.schedule(0, checkInterference, %targetObject, %sourceObject, %oldVector);
+	}
+	
+	// players cannot damage each other (except the yeti who can destroy everything in its path)
 	if( !%sourceClient || %targetObject == %sourceObject || %yetiKill ) {
 		// copy/pasta from classix 1.5.2, with modifications
 				
