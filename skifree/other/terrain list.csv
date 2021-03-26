@@ -18,13 +18,13 @@ CeleritySE.ter,Trace,No,,Accept,I was on the fence on this one
 Chasmaclysmic.ter,Trace,Kinda,Yes,Reject,this level is really kinda boring if it spawns right (which it can not do)
 Cinerarium.ter,Trace,No,,Accept,
 cloak.ter,No,Yes,,Reject,the terrain is just too big for a fun race
-CompUSA_Melee.ter,No,Yes,,Reject,the hill is just causing too much grief
-Confusco.ter,No,Yes,,Reject,WAY too big.
+CompUSA_Melee.ter,No,Yes,,Reject,the hill is causing too much grief and the rest of the map doesn’t have enough value to justify it
+Confusco.ter,No,Yes,,Superhard,WAY too big.
 Coppera.ter,No,No,,Accept,this seems fine. just gotta keep jumping over the mesas? plateaus? fjordr? Whatever
 Crater71.ter,No,Yes,,Reject,this almost always generates something very unfun
 Damnation.ter,Duplicate,Duplicate,,Duplicate,
 DangerousCrossing_nef.ter,No,No,,Accept,this level is fine
-DBS_Smoothed.ter,Yes,Yes,,Reject,
+DBS_Smoothed.ter,Trace,Yes,,Reject,
 DeathBirdsFly.ter,Trace,No,,Accept,
 DesertofDeath_nef.ter,No,No,,Accept,
 Desiccator.ter,Duplicate,Duplicate,,Duplicate,Things clearly seem to be at 4 plateaus of height. which doesn't make for good skiing.
@@ -45,7 +45,7 @@ Extra_Badlands1.ter,Yes,Likely,,Reject,
 Firestorm.ter,Yes,,,Reject,
 Flashpoint.ter,Yes,,,Reject,
 Fracas.ter,Yes,,,Reject,
-FrozenFury.ter,No,Yes,,Reject,even the parts inside mission bounds are unskiiable garbage
+FrozenFury.ter,No,Yes,,Superhard,even the parts inside mission bounds are unskiiable garbage
 Gauntlet.ter,Yes,No,,Reject,
 Gehenna.ter,Yes,,,Reject,
 Geothermal.ter,Trace,Yes,,Reject,spawn is usually on the plateau. It can generate good starts and bad starts but it's usually a mess
@@ -54,7 +54,7 @@ Gorgon.ter,No,No,,Accept,
 Haven.ter,Yes,Kinda,,Reject,
 Hildebrand.ter,No,No,,Accept,
 HillKing.ter,No,Yes,,Reject,
-Hillside.ter,Yes,Yes,,Reject,
+Hillside.ter,Yes,Yes,,Superhard,accepted into april fools set (though it really shouldn’t be – too many deadstops)
 HO_Badlands.ter,Yes,,,Reject,
 HO_Desert.ter,Yes,,,Reject,
 HO_Ice.ter,Yes,,,Reject,
@@ -123,7 +123,7 @@ rst_dermcity.ter,No,No,Yes,Reject,whatever the fuck this is doesn't seem good fo
 rst_FaceCrossing.ter,No,No,,Accept,
 rst_isledebatalla.ter,Yes,,,Reject,
 Rst_ScorchedEarth.ter,Trace,No,,Accept,it's fine
-rst_SimpleFlagArena.ter,No,Yes,,Reject,
+rst_SimpleFlagArena.ter,No,Yes,,Reject,literally squares
 rst_spit.ter,No,No,,Accept,i got to gate 5 on a discless discjump launch run
 Rush.ter,No,No,,Accept,
 S5_Centaur.ter,No,No,,Accept,
@@ -160,18 +160,18 @@ SolsDescent.ter,Yes,,,Reject,
 SpinCycle.ter,No,No,,Accept,this was borderline rejected
 StarFallCTF2.ter,Trace,No,,Accept,
 Starfallen.ter,Trace,No,,Accept,
-Stonehenge_nef.ter,No,Yes,,Reject,kryand tried to tell me this was a skiiable terrain. so I put the flags in different places. He no longer believes it's a skiiable terrain
+Stonehenge_nef.ter,No,Yes,,Reject,kryand tried to tell me this was a skiiable terrain. so I put the flags in different places. he no longer believes it's a skiiable terrain
 SubZero.ter,Duplicate,Duplicate,,Duplicate,
 SunDried.ter,Yes,,,Reject,
 Surreal.ter,Trace,Yes,,Reject,
 Talus.ter,Trace,Yes,,Reject,
 ThinIce.ter,Yes,,,Reject,
-Titan.ter,Trace,Yes,,Reject,why did I even open this
+Titan.ter,Trace,Yes,,Reject,why did I even open this. probably not stupid enough as a terrain choice for april fools
 TL_Drorck.ter,No,No,,Accept,
 TL_Magnum.ter,No,No,Yes,Reject,the best route is “discjump and keep landing on the flat parts at the top” – this is not compelling gameplay
 TL_MuddySwamp.ter,Yes,,,Reject,
 TL_RoughLand.ter,No,No,,Accept,this is kinda a finicky terrain but it works
-TL_Skylight.ter,Trace,Yes,,Reject,
+TL_Skylight.ter,Trace,Yes,,Superhard,
 Tombstone.ter,No,No,,Accept,
 Training1.ter,Yes,,,Reject,
 Training2.ter,Yes,,,Reject,
@@ -191,7 +191,7 @@ TWL-Cinereous.ter,Trace,No,,Accept,
 TWL-Clusterfuct.ter,No,Yes,,Reject,
 TWL-Curtilage.ter,Yes,,,Reject,
 TWL-Damnation.ter,Trace,No,,Accept,
-TWL-DeadlyBirdsSong.ter,Trace,Yes,,Reject,
+TWL-DeadlyBirdsSong.ter,Duplicate,Duplicate,,Duplicate,DBS_Smoothed.ter
 TWL-Deserted.ter,Trace,No,,Accept,
 TWL-Desiccator.ter,No,Yes,,Reject,
 TWL-Drifts.ter,Trace,Likely,Yes,Reject,there's nothing really to this map outside the mission bounds
@@ -200,7 +200,7 @@ TWL-Frostclaw.ter,No,Yes,,Reject,
 TWL-Frozen.ter,No,No,,Accept,
 TWL-Harvester.ter,No,No,,Accept,why did I take this one
 TWL-Horde.ter,Yes,,,Reject,
-TWL-Katabatic.ter,Yes,Yes,,Reject,oob still bad
+TWL-Katabatic.ter,Yes,Yes,,Superhard,oob still bad. this was accepted into april fools because you always need a katabatic joke somewhere
 TWL-Neve.ter,Yes,,,Reject,it's trace amounts but they're in places you would probably do routes
 TWL-NoShelter.ter,Yes,,,Reject,
 TWL-Os_Iris.ter,Trace,No,,Accept,
@@ -214,7 +214,7 @@ TWL2_Crevice.ter,No,No,,Accept,
 TWL2_Frozenglory.ter,No,No,,Accept,
 TWL2_Ruined.ter,Yes,No,,Reject,looks like a decent terrain but isn’t
 Tyre.ter,Yes,Yes,,Reject,
-UltimaThule.ter,,Yes,,Reject,
+UltimaThule.ter,Trace,Yes,,Reject,
 Underhill.ter,Trace,Yes,,Reject,
 Wasteland.ter,No,No,,Accept,whatever sure
 WhiteDwarf.ter,Trace,Yes,,Reject,
@@ -228,7 +228,7 @@ Xtra_DesertedSE.ter,Trace,Yes,,Reject,This is a VERY jagged terrain.
 Xtra_Helion.ter,Likely,No,Yes,Reject,this is just a really boring terrain
 Xtra_SoupLadle.ter,No,No,,Accept,
 Xtra_StarFall_T1.ter,Yes,,,Reject,
-Xtra_Stripmine.ter,Yes,Yes,,Reject,
+Xtra_Stripmine.ter,Yes,Yes,,Superhard,
 Xtra_ThunderGiant.ter,Trace,No,,Accept,this map is garbage but it's fun to try to ski on it
 Xtra_VanDamned.ter,No,No,,Accept,
 Xtra_Voodoo.ter,No,Yes,,Reject,

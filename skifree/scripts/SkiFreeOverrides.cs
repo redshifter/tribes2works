@@ -14,7 +14,8 @@ function Armor::damageObject(%data, %targetObject, %sourceObject, %position, %am
 			$SkiFreeYeti.stunned = 1;
 			%amount = 0;
 		}
-		else if( %damageType != 0 ) {
+		
+		if( %damageType != 0 ) {
 			// yeti don't take damage except from scriptkill
 			return;
 		}

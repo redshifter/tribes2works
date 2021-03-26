@@ -152,9 +152,41 @@ new SimGroup(MissionGroup) {
 $SkiFreeRandomSeed = Game.getDailySeed();
 $SkiFreeRandomSeed *= $pref::trainingDifficulty;
 
-Game.breakOutTerraformer(
-	$pref::trainingDifficulty,
-	Game.getDailySeed()
-);
+if( !Game.isAprilFools() ) {
 
-Game.terrain = Game.terrain SPC formatTimeString("yy-mm-dd");
+	Game.breakOutTerraformer(
+		$pref::trainingDifficulty,
+		Game.getDailySeed()
+	);
+
+	Game.terrain = Game.terrain SPC formatTimeString("yy-mm-dd");
+}
+else {
+	// there is no april fools daily prior to 1.03, so don't put an X after it
+	Game.dailyPatch103 = 0;
+	
+	// TODO select the proper terrain
+	if( $pref::trainingDifficulty == 1 ) {
+		$TerrainTest = "FrozenFury";
+	}
+	else if( $pref::trainingDifficulty == 2 ) {
+		$TerrainTest = "Confusco";
+	}
+	else if( $pref::trainingDifficulty == 3 ) {
+		$TerrainTest = "TL_Skylight";
+	}
+	
+	Game.generateTerrain();
+	$TerrainTest = "";
+	
+	Game.terrain = "April Fools '" @ formatTimeString("y");
+	if( $pref::trainingDifficulty == 1 ) Game.terrain = Game.terrain SPC "Easy";
+	if( $pref::trainingDifficulty == 2 ) Game.terrain = Game.terrain SPC "Medium";
+	if( $pref::trainingDifficulty == 3 ) Game.terrain = Game.terrain SPC "Hard";
+}
+
+// the daily is different between versions if we hit certain code branches
+// (next letters should be Y, Z, W - hopefully we don't need more letters because V is absolutely not allowed to be used)
+if( Game.dailyPatch103 ) {
+	Game.terrain = Game.terrain SPC "X";
+}

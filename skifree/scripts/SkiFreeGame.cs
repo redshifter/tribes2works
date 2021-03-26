@@ -5,12 +5,21 @@
 //Use discjumps when needed
 //Compete for the best time
 //Happy 20th Anniversary to Tribes 2
-//<spush><color:FFFF80>Version 1.02 (2021-03-22)<spop>
+//<spush><color:FFFF80>Version 1.03 (2021-03-25)<spop>
 //--- GAME RULES END ---
+
+$SkiFreeVersionString = "1.03";
+
+// version 1.03 (2021-03-25)
+// - fixed issue where spawn platform was sometimes cutting into terrain (it was checked but it was just ignoring the result)
+// - spin spawn platform to match up to the first gate
+// - removed the SURVIVAL scoring system. game will always be TIME TRIAL
+// - yeti fixes for yeeting, intereference, correct skin
+// - added hilarious april fool joke modes
 
 // version 1.02 (2021-03-22)
 // - show time instead of score in server query (escape menu is still wrong but i'm not fixing that shit)
-// - added interference (discs that slow down players do not do anything)
+// - added interference detection (discs that slow down players do not do anything)
 // - added player-to-player discing toggle (turning it off makes it so discs do nothing to other players)
 
 // version 1.01 (2021-03-15)
@@ -26,7 +35,7 @@
 // Thanks to:
 // - DarkTiger for the phase through players code
 // - Rooster128 for testing and saying stupid shit on stream
-// - A bunch of people on T2 Discord: testing
+// - A bunch of people on T2 Discord for testing
 // SkiFree is dedicated to the memory of Zengato, who was always there to read any shitty gametype idea I had, regardless of how stupid it was.
 // Happy 20th Anniversary to Tribes 2. One more year until this game is old enough to drink.
 
@@ -69,6 +78,9 @@ if( $Host::SkiRaceTimeTrialScoringSystem $= "" ) {
 if( $Host::SkiRaceAllowPvPDiscBoosting $= "" ) {
 	$Host::SkiRaceAllowPvPDiscBoosting = 1;
 }
+if( $Host::SkiRaceAprilFoolsDisabledYear $= "" ) {
+	$Host::SkiRaceAprilFoolsDisabledYear = 2020;
+}
 
 exec("scripts/SkiFreeDatablock.cs");
 exec("scripts/SkiFreeOverrides.cs");
@@ -84,16 +96,32 @@ function SkiFreeGame::sendGameVoteMenu( %game, %client, %key ) {
 			? 'SkiFree: Turn Player Phasing OFF'
 			: 'SkiFree: Turn Player Phasing ON'
 		);
-		messageClient( %client, 'MsgVoteItem', "", %key, 'VoteChangeScoringSystem', "", 
-			$Host::SkiRaceTimeTrialScoringSystem
-			? 'SkiFree: Change to SURVIVAL scoring (next map)'
-			: 'SkiFree: Change to TIME TRIAL scoring (next map)'
-		);
+		
+		// removed for lack of interest
+		//messageClient( %client, 'MsgVoteItem', "", %key, 'VoteChangeScoringSystem', "", 
+		//	$Host::SkiRaceTimeTrialScoringSystem
+		//	? 'SkiFree: Change to SURVIVAL scoring (next map)'
+		//	: 'SkiFree: Change to TIME TRIAL scoring (next map)'
+		//);
+
+		// player-to-player disc 
 		messageClient( %client, 'MsgVoteItem', "", %key, 'VoteAllowPlayerDiscing', "", 
 			$Host::SkiRaceAllowPvPDiscBoosting
 			? 'SkiFree: Turn Player-to-Player Disc Boosting OFF'
 			: 'SkiFree: Turn Player-to-Player Disc Boosting ON'
 		);
+		
+		// april fools
+		if( %game.isAprilFools($Host::SkiRaceAprilFoolsDisabledYear) ) {
+			messageClient( %client, 'MsgVoteItem', "", %key, 'VoteToggleAprilFools', "", 
+				'SkiFree: Turn hilarious April Fools joke OFF (next map)'
+			);
+		}
+		else if( %game.isAprilFools() && $Host::SkiRaceAprilFoolsDisabledYear <= formatTimeString("yy") ) {
+			messageClient( %client, 'MsgVoteItem', "", %key, 'VoteToggleAprilFools', "", 
+				'SkiFree: Turn stupid April Fools joke ON (next map)'
+			);
+		}
 	}
 }
 
@@ -111,14 +139,16 @@ function SkiFreeGame::checkSkiFreeVote(%game, %client, %typeName) {
 		}
 	}
 	else if( %typeName $= "VoteChangeScoringSystem" ) {
-		$Host::SkiRaceTimeTrialScoringSystem = !$Host::SkiRaceTimeTrialScoringSystem;
-		
-		if( $Host::SkiRaceTimeTrialScoringSystem ) {
-			messageAll('MsgAdminForce', '\c0%1 switched to TIME TRIAL scoring (next map).', %client.name);
-		}
-		else {
-			messageAll('MsgAdminForce', '\c0%1 switched to SURVIVAL scoring (next map).', %client.name);
-		}
+		//$Host::SkiRaceTimeTrialScoringSystem = !$Host::SkiRaceTimeTrialScoringSystem;
+		//
+		//if( $Host::SkiRaceTimeTrialScoringSystem ) {
+		//	messageAll('MsgAdminForce', '\c0%1 switched to TIME TRIAL scoring (next map).', %client.name);
+		//}
+		//else {
+		//	messageAll('MsgAdminForce', '\c0%1 switched to SURVIVAL scoring (next map).', %client.name);
+		//}
+
+		messageClient( %client, 0, 'Removed for lack of interest.' );
 	}
 	else if( %typeName $= "VoteAllowPlayerDiscing" ) {
 		$Host::SkiRaceAllowPvPDiscBoosting = !$Host::SkiRaceAllowPvPDiscBoosting;
@@ -128,6 +158,22 @@ function SkiFreeGame::checkSkiFreeVote(%game, %client, %typeName) {
 		}
 		else {
 			messageAll('MsgAdminForce', '\c0%1 turned OFF player-to-player Disc Boosting.', %client.name);
+		}
+	}
+	else if( %typeName $= "VoteToggleAprilFools" ) {
+		if( %game.isAprilFools($Host::SkiRaceAprilFoolsDisabledYear) ) {
+			messageAll('MsgAdminForce', '\c0%1 turned OFF the hilarious April Fools joke (next map).', %client.name);
+			$Host::SkiRaceAprilFoolsDisabledYear = formatTimeString("yy");
+		}
+		else if( %game.isAprilFools() && $Host::SkiRaceAprilFoolsDisabledYear <= formatTimeString("yy") ) {
+			messageAll('MsgAdminForce', '\c0%1 turned ON the stupid April Fools joke (next map).', %client.name);
+			$Host::SkiRaceAprilFoolsDisabledYear = 0;
+		}
+		else if( !%game.isAprilFools() ) {
+			messageClient( %client, 0, 'The clock struck midnight, Cinderella.' );
+		}
+		else {
+			messageClient( %client, 0, 'A mysterious force blocked this command.' );
 		}
 	}
 }
@@ -177,7 +223,7 @@ function SkiFreeGame::checkDeadstop(%game, %targetObject, %oldVector) {
 		}
 		// check the terrain height - should be close to 0
 
-		error("deadstop detected at" SPC %targetObject.position SPC "- kill the run");
+		//error("deadstop detected at" SPC %targetObject.position SPC "- kill the run");
 		
 		// what if, instead of exploding, we just go back to playing? just kidding! unless...
 		// it is possible, though unlikely, to cut out like 50% of deadstops (the ones that do damage)
@@ -460,26 +506,32 @@ function SkiFreeGame::calculateTimeTrialScore(%game, %client, %player) {
 		// are you fucking kidding (7.5 seconds per gate)
 		// also make it louder for effect (and echo-y?)
 		for( %i = 0; %i < 2; %i++ ) messageClient(%client, 0, '~wfx/misc/gamestart.wav');
+		//%performance = "Are you fucking kidding me?!";
 	}	
 	else if( %time >= 69 && %time < 70 ) {
 		// 69 seconds (nice)
 		messageClient(%client, 0, '~wfx/Bonuses/horz_straipass2_heist.wav');
+		//%performance = "NICE";
 	}
 	else if( %time <= 80 ) {
 		// 10 seconds per gate
 		messageClient(%client, 0, '~wfx/misc/MA2.wav');
+		//%performance = "A very good performance!";
 	}
 	else if( %time <= 120 ) {
 		// 15 seconds per gate
 		messageClient(%client, 0, '~wfx/misc/MA1.wav');
+		//%performance = "A good performance.";
 	}
 	else if( %time <= 160 ) {
 		// 20 seconds per gate
 		messageClient(%client, 0, '~wfx/misc/slapshot.wav');
+		//%performance = "Try harder next time.";
 	}
 	else {
 		// llama lol
 		messageClient(%client, 0, '~wfx/bonuses/Nouns/llama.wav');
+		//%performance = "You're a llama.";
 	}
 	
 	if( %client.bestTime != %game.trialDefaultTime ) {
@@ -1336,6 +1388,8 @@ function SkiFreeGame::generateLevel(%game) {
 		}
 	}
 	
+	%game.spinSpawnPlatform();
+	
 	if( %oldseed !$= "" ) {
 		setRandomSeed(%oldseed);
 		$SkiFreeRandomSeed = "";
@@ -1384,9 +1438,10 @@ function SkiFreeGame::generateSpawnPlatform(%game) {
 			}
 			
 			// variance should be less than 50 - if it's more, reroll it. we don't want the terrain to intersect the spawn platform
+			//messageAll(0, "old variance=" @ (%maxZ - %z));
 			if( %maxZ - %z >= 50 ) {
-				//messageAll(0, "variance too high" SPC (%maxZ - %z));
-				break;
+				%game.dailyPatch103 = 1; // integrity of the daily is called into question if this code is hit (though i'm not sure it's possible)
+				continue;
 			}
 			
 			break;
@@ -1478,25 +1533,35 @@ function SkiFreeGame::generateTerrain(%game) {
 	// clear this shit out just in case
 	deleteVariables("$SkiFreeTerrainList*");
 
-	// pick a terrain from the list
-	exec("scripts/SkiFreeTerrains.cs");
-	
 	%error = "";
 	%valid = false;
-	if( $SkiFreeTerrainListMAX !$= "" ) {
-		%terrain = $SkiFreeTerrainList[getRandom($SkiFreeTerrainListMAX)];
-		if( isFile("terrains/" @ %terrain) ) {
-			%valid = true;
+	if( $TerrainTest $= "" ) {
+		// pick a terrain from the list
+		exec("scripts/SkiFreeTerrains.cs");
+		
+		if( $SkiFreeTerrainListMAX !$= "" ) {
+			if( !%game.isAprilFools($Host::SkiRaceAprilFoolsDisabledYear) ) {
+				%terrain = $SkiFreeTerrainList[getRandom($SkiFreeTerrainListMAX)];
+			}
+			else {
+				%terrain = $SkiFreeTerrainListSuperHard[getRandom($SkiFreeTerrainListSuperHardMAX)];
+			}
+				
+			if( isFile("terrains/" @ %terrain) ) {
+				%valid = true;
+			}
+			else {
+				%error = "Terrain file" SPC %terrain SPC "doesn't exist!";
+			}
 		}
 		else {
-			%error = "Terrain file" SPC %terrain SPC "doesn't exist!";
+			%error = "SkiFreeTerrains.cs does not exist or did not correctly compile!";
 		}
+		
+		// don't leave this shit laying around
+		deleteVariables("$SkiFreeTerrainList*");
 	}
 	else {
-		%error = "SkiFreeTerrains.cs does not exist or did not correctly compile!";
-	}
-	
-	if( $TerrainTest !$= "" ) {
 		%terrain = $TerrainTest;
 		if( strpos(%terrain, ".ter") == -1 ) %terrain = %terrain @ ".ter";
 
@@ -1517,9 +1582,6 @@ function SkiFreeGame::generateTerrain(%game) {
 		%terrain = "SunDried.ter";
 	}
 	
-	// don't leave this shit laying around
-	deleteVariables("$SkiFreeTerrainList*");
-	
 	%terrainObj = new TerrainBlock(Terrain) {
 		rotation = "1 0 0 0";
 		scale = "1 1 1";
@@ -1531,6 +1593,72 @@ function SkiFreeGame::generateTerrain(%game) {
 	
 	%game.terrain = getSubStr(%terrain, 0, strpos(%terrain, "."));
 	messageAll('msgBountyTargetIs', "", %game.terrain); // terrain
+}
+
+function SkiFreeGame::spinSpawnPlatform(%game) { 
+	%pi = 3.1415927; // why isn't this just a global
+	
+	// calculate spin ratio
+	%gate = nameToID("GatePoint1").position;
+	%spawn = nameToID("GatePoint0").position;
+	%angle = mAtan(
+		getWord(%spawn, 1) - getWord(%gate, 1), 
+		getWord(%spawn, 0) - getWord(%gate, 0) 
+	);
+	
+	// calculate variance points and make sure we didn't cut into terrain - if we did, just return from method and pretend it's a feature
+	%maxZ = -100;
+	%z = 500;
+	for( %x = -1; %x <= 1; %x++ ) {
+		for( %y = -1; %y <= 1; %y++ ) {
+			%tx = (getWord(SpawnPlatform.position, 0) + (%x * 15)) - getWord(SpawnPlatform.position, 0);
+			%ty = (getWord(SpawnPlatform.position, 1) + (%y * 15)) - getWord(SpawnPlatform.position, 1);
+			%ntx = (%tx * mCos(%angle)) - (%ty * mSin(%angle));
+			%nty = (%tx * mSin(%angle)) + (%ty * mCos(%angle));
+			%tx = %ntx + getWord(SpawnPlatform.position, 0);
+			%ty = %nty + getWord(SpawnPlatform.position, 1);
+			
+			%dayZ = %game.findHeight(%tx SPC %ty);
+			if( %z > %dayZ ) %z = %dayZ;
+			if( %maxZ < %dayZ ) %maxZ = %dayZ;
+		}
+	}
+	
+	// variance should be less than 60 - if it's more, return from method
+	//messageAll(0, "new variance=" @ (%maxZ - %z));
+	if( %maxZ - %z >= 60 ) {
+		return;
+	}
+	
+	// spin the platform
+	SpawnPlatform.setTransform(SpawnPlatform.position SPC "0 0 1" SPC -%angle); // reverse the angle and use radians because ????
+	
+	// spin the trigger
+	%tx = getWord(SpawnPlatform.position, 0);
+	%ty = getWord(SpawnPlatform.position, 1);
+	%diagonal = 21.2132034; // sqrt(15^2 + 15^2)
+	%tx += (mCos(%angle + (0.75 * %pi)) * %diagonal); // yes, this trigger is offset by 0.75 PI
+	%ty += (mSin(%angle + (0.75 * %pi)) * %diagonal); // yes, this trigger is offset by 0.75 PI
+	SpawnTrigger.setTransform(
+		%tx SPC %ty SPC getWord(SpawnTrigger.position, 2) SPC
+		"0 0 1" SPC -%angle
+	);
+
+	// spin the spawn points
+	for( %i = 0; %i < 420; %i++ ) {
+		if( %game.spawnPosition[%i] $= "" ) break;
+		%tx = getWord(%game.spawnPosition[%i], 0) - getWord(SpawnPlatform.position, 0);
+		%ty = getWord(%game.spawnPosition[%i], 1) - getWord(SpawnPlatform.position, 1);
+		
+		// what the fuck?
+		%ntx = (%tx * mCos(%angle)) - (%ty * mSin(%angle));
+		%nty = (%tx * mSin(%angle)) + (%ty * mCos(%angle));
+
+		%tx = %ntx + getWord(SpawnPlatform.position, 0);
+		%ty = %nty + getWord(SpawnPlatform.position, 1);
+		
+		%game.spawnPosition[%i] = %tx SPC %ty;
+	}
 }
 
 function SkiFreeGame::findHeight(%game, %location) {
@@ -1582,6 +1710,10 @@ function SkiFreeGame::getWordForRank(%game, %rank) {
 	if( %rank == 1 ) return "first";
 	else if( %rank == 2 ) return "second";
 	else if( %rank == 3 ) return "third";
+	else if( %rank <= 20 ) return %rank @ "th";
+	else if( %rank % 10 == 1 ) return %rank @ "st";
+	else if( %rank % 10 == 2 ) return %rank @ "nd";
+	else if( %rank % 10 == 3 ) return %rank @ "rd";
 	else return %rank @ "th"; // just type the number
 }
 
@@ -1699,7 +1831,7 @@ function SkiFreeGame::runEditorTasks(%game) {
 	// do we even have anything else to do?
 }
 
-function SkiFreeGame::iterateRevealHiddenGates(%game) {
+function SkiFreeGame::iterateRevealHiddenGates(%game, %simgroup) {
 	for( %i = 0; %i < %simgroup.getCount(); %i++ ) {
 		%obj = %simgroup.getObject(%i);
 		
@@ -1859,7 +1991,7 @@ function SkiFreeGame::checkInterference(%game, %targetObject, %sourceObject, %ol
 				%sourceObject.interfered = 1;
 			}
 			else {
-				messageClient(%sourceObject.client, 0, '~wfx/misc/red_alert_short.wav');
+				messageClient(%sourceObject.client, 0, '~wfx/misc/whistle.wav');
 			}
 				
 
@@ -1868,6 +2000,19 @@ function SkiFreeGame::checkInterference(%game, %targetObject, %sourceObject, %ol
 	}
 	
 	if( %illegalHit ) {
-		%targetObject.schedule(0, setVelocity, %oldVector);
+		%targetObject.setVelocity(%oldVector);
+		//%targetObject.schedule(0, setVelocity, %oldVector);
 	}
+}
+
+// is it april 1, and is it after the year passed in?
+function SkiFreeGame::isAprilFools(%game, %year) {
+	//if( $AprilFoolsTest ) return true;
+
+	if( formatTimeString("m") != 4 ) return false;
+	if( formatTimeString("d") != 1 ) return false;
+	
+	// it's april 1st - check the year qualifier
+	if( %year $= "" ) return true;
+	return (formatTimeString("yy") > %year);
 }

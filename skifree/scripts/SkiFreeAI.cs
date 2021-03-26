@@ -434,6 +434,9 @@ function SkiFreeGame::createYetiFor(%game, %player, %spawnPosition) {
 	$SkiFreeYetiSpawning = "";
 	$currentMissionType = %lastMissionType;
 	
+	$SkiFreeYeti.skin = getTaggedString("base");
+	setTargetSkin( $SkiFreeYeti.target, 'base' );
+	
 	$SkiFreeYeti.stalkClient = %player.client;
 	$SkiFreeYeti.stalkPlayer = %player;
 	$SkiFreeYeti.race = "Bioderm";
@@ -473,7 +476,7 @@ function SkiFreeGame::AI_Yeti(%game, %client, %player) {
 		
 		return -1;
 	}
-	else if( %client.throwTime > 300 ) {
+	else if( %client.throwTime > 600 ) {
 		// you've made your point, now go eat the idiot
 		%client.throwTime = 0;
 		return 20;
@@ -487,16 +490,16 @@ function SkiFreeGame::AI_Yeti(%game, %client, %player) {
 		%z = getWord(SpawnPlatform.originalTransform, 2);
 		
 		// make an arc
-		%arc = (-0.01 * mPow(%client.throwTime, 2)) + (2 * %client.throwTime);
+		%arc = (-0.003 * mPow(%client.throwTime, 2)) + (1.3 * %client.throwTime);
 		%z += %arc;
 	
-		%spin = %client.throwTime < 180 ? %client.throwTime : 179;
+		%spin = (%client.throwTime / 2) < 180 ? (%client.throwTime / 2) : 179;
 		
 		SpawnPlatform.position = %x SPC %y SPC %z;
 		SpawnPlatform.rotation = %client.throwDir SPC "0 0" SPC %spin;
 		SpawnPlatform.setTransform(SpawnPlatform.getTransform());
 		%client.throwTime++;
-		return 20;
+		return 10;
 	}
 	else if( %client.throwPlatform == 1 ) {
 		// fuck this platform
