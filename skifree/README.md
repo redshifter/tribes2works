@@ -25,12 +25,12 @@ There will be a different terrain for each difficulty. Easy and Normal use the f
 
 There's also a Randomizer mode that generates a randomly generated terrain, whenever you want, in case the Daily Challenge isn't enough for you...
 
-(Unfortunately, it's pretty much impossible to make this into a playable mode online.)
+(Unfortunately, it's pretty much impossible to make this into a playable mode online. At least, not without map pack support...)
 
 # OPTIONS
 Admins can set options on the server:
 - Phase Through Players: Run some magic and now players can go through each other. Good to keep people from running into each other doing a route.
-- Scoring Mode: In Time Trial (default mode), go through eight gates. In Survival, go as far as you can in 60 seconds!
+- Player-to-Player Disc Boosting: You can turn off the ability to disc other players.
 
 # HANDICAPS
 If you leave the spawn platform after handicapping yourself, the game will acknowledge the challenge you've given yourself.
