@@ -220,7 +220,7 @@ Wasteland.ter,No,No,,Accept,whatever sure
 WhiteDwarf.ter,Trace,Yes,,Reject,
 Whiteout.ter,No,Yes,,Reject,
 WoodyMyrkSE.ter,No,No,,Accept,
-Xtra_AshenPowder.ter,Trace,No,,Accept,massive flat area is in a place the player would want to discjump over anyway
+Xtra_AshenPowder.ter,Trace,No,Yes,Reject,can’t read that fucking terrain so i’m removing
 Xtra_Bastage.ter,Trace,No,,Accept,
 Xtra_Birthright.ter,No,Yes,,Reject,
 Xtra_Crown.ter,Trace,Yes,,Reject,

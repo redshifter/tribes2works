@@ -5,10 +5,17 @@
 //Use discjumps when needed
 //Compete for the best time
 //Happy 20th Anniversary to Tribes 2
-//<spush><color:FFFF80>Version 1.03 (2021-03-25)<spop>
+//<spush><color:FFFF80>Version 1.04 (2021-03-29)<spop>
 //--- GAME RULES END ---
 
-$SkiFreeVersionString = "1.03";
+$SkiFreeVersionString = "1.04";
+
+// version 1.04 (2021-03-29)
+// - fix issue with comparison numbers at the end of the run (floating point sucks)
+// - fix issue with daily seed always generating the same set of gates in medium/hard modes (floating point still sucks)
+// - add tourney 2021 map and add qualifier support
+// - removed beacons because you can't see them anyway
+// - removed Xtra_Ashen_Powder because i can't fucking read the terrain
 
 // version 1.03 (2021-03-25)
 // - fixed issue where spawn platform was sometimes cutting into terrain (it was checked but it was just ignoring the result)
@@ -344,7 +351,7 @@ function SkiFreeGame::equip(%game, %player) {
 
 	%player.setInventory(EnergyPack, 1);
 	%player.setInventory(TargetingLaser, 1);
-	%player.setInventory(Beacon, 3);
+//	%player.setInventory(Beacon, 3); // you can't see them anyway
 
 	%player.setDamageLevel(0);
 	%player.setEnergyLevel(60);
@@ -502,18 +509,23 @@ function SkiFreeGame::calculateTimeTrialScore(%game, %client, %player) {
 	%playerName = stripChars( getTaggedString( %client.name ), "\cp\co\c6\c7\c8\c9" );
 	
 	// play a sound on the client based on how well they did
-	if( %time <= 60 ) {
+	%qualified =
+		MissionGroup.SkiFree_qualifierTime $= ""
+			? 1
+			: %time < MissionGroup.SkiFree_qualifierTime;
+
+	if( %time <= 60 && %qualified ) {
 		// are you fucking kidding (7.5 seconds per gate)
 		// also make it louder for effect (and echo-y?)
 		for( %i = 0; %i < 2; %i++ ) messageClient(%client, 0, '~wfx/misc/gamestart.wav');
 		//%performance = "Are you fucking kidding me?!";
 	}	
-	else if( %time >= 69 && %time < 70 ) {
+	else if( %time >= 69 && %time < 70 && %qualified ) {
 		// 69 seconds (nice)
 		messageClient(%client, 0, '~wfx/Bonuses/horz_straipass2_heist.wav');
 		//%performance = "NICE";
 	}
-	else if( %time <= 80 ) {
+	else if( %time <= 80 && %qualified ) {
 		// 10 seconds per gate
 		messageClient(%client, 0, '~wfx/misc/MA2.wav');
 		//%performance = "A very good performance!";
@@ -537,11 +549,11 @@ function SkiFreeGame::calculateTimeTrialScore(%game, %client, %player) {
 	if( %client.bestTime != %game.trialDefaultTime ) {
 		if( %client.bestTime < %time ) {
 			%formatL = "(\c5+";
-			%compare = %time - %client.bestTime;
+			%compare = mFloor((%time - %client.bestTime) * 1000)/1000;
 		}
 		else if( %client.bestTime > %time ) {
 			%formatL = "(\c3-";
-			%compare = %client.bestTime - %time;
+			%compare = mFloor((%client.bestTime - %time) * 1000)/1000;
 		}
 		else {
 			%formatL = "(+";
@@ -589,6 +601,32 @@ function SkiFreeGame::calculateTimeTrialScore(%game, %client, %player) {
 	
 	messageAllExcept(%client, -1, 0, '%1 finished the course %3in %2 seconds.%4', %playerName, %time, %handicap, %rankOthers);
 	messageClient(%client, 0, '\c2You finished the course %3in %2 seconds%5.%4', %playerName, %time, %handicap, %rankPersonal, %timeCompare);
+
+	if( !%qualified ) {
+		%diff = %time - MissionGroup.SkiFree_qualifierTime;
+		if( %diff < 2 ) {
+			%comment = "You're so close...";
+		}
+		else if( %diff < 5 ) {
+			%comment = "Just a little more...";
+		}
+		else if( %diff < 10 ) {
+			%comment = "You're almost there!";
+		}
+		else if( %diff < 15 ) {
+			%comment = "You can do it!";
+		}
+		else if( %diff < 20 ) {
+			%comment = "That was a good try.";
+		}
+		else {
+			%comment = "If you dare...";
+		}
+		messageClient(%client, 0, '\c3Try to beat %1! %2', MissionGroup.SkiFree_qualifierTime, %comment);
+	}
+	else if( MissionGroup.SkiFree_qualifierTime !$= "" ) {
+		messageClient(%client, 0, '\c3You have a qualifying time!');
+	}
 }
 
 function SkiFreeGame::calculateSurvivalScore(%game, %client, %player, %damageType) {
@@ -789,16 +827,8 @@ function SkiFreeGame::updateScoreHud(%game, %client, %tag)
 				
 			%scoreAddendum = " (" @ %cl.maxGates @ " gates)";
 		}
-			
-		if( %cl.AI_skiFreeBotLevel !$= "" ) {
-			%title = "<spush><color:ff8080>Bot Level" SPC %cl.AI_skiFreeBotLevel @ "<spop>";
-		}
-		else if( %cl.bestHandicap !$= "" ) {
-			%title = "<spush><color:ff8000>" @ %cl.bestHandicap @ "<spop>";
-		}
-		else {
-			%title = "";
-		}
+		
+		%title = %game.prestigeTitle(%cl);
 
 		//if the client is not an observer, send the message
 		if (%client.team != 0)
@@ -1440,7 +1470,6 @@ function SkiFreeGame::generateSpawnPlatform(%game) {
 			// variance should be less than 50 - if it's more, reroll it. we don't want the terrain to intersect the spawn platform
 			//messageAll(0, "old variance=" @ (%maxZ - %z));
 			if( %maxZ - %z >= 50 ) {
-				%game.dailyPatch103 = 1; // integrity of the daily is called into question if this code is hit (though i'm not sure it's possible)
 				continue;
 			}
 			
@@ -1845,9 +1874,11 @@ function SkiFreeGame::iterateRevealHiddenGates(%game, %simgroup) {
 }
 
 function SkiFreeGame::getDailySeed(%game) {
-	return formatTimeString("dd") + 
-		(formatTimeString("mm") * 32) + 
-		(formatTimeString("yy") * 420);
+	%d = formatTimeString("dd");
+	%m = formatTimeString("mm");
+	%y = formatTimeString("y");
+	
+	return %d + (%m * 32) + (%y * 420);
 }
 
 function SkiFreeGame::breakOutTerraformer(%game, %skill, %definedSeed) {
@@ -1936,7 +1967,8 @@ function SkiFreeGame::breakOutTerraformer(%game, %skill, %definedSeed) {
 
 function SkiFreeGame::isSinglePlayer(%game) { 
 	return $CurrentMission $= "SkiFree_Daily"
-		|| $CurrentMission $= "SkiFree_Randomizer";
+		|| $CurrentMission $= "SkiFree_Randomizer"
+		|| $CurrentMission $= "SkiFreeZ_Championship_2021";
 }
 
 function SkiFreeGame::getServerStatusString(%game)
@@ -2015,4 +2047,29 @@ function SkiFreeGame::isAprilFools(%game, %year) {
 	// it's april 1st - check the year qualifier
 	if( %year $= "" ) return true;
 	return (formatTimeString("yy") > %year);
+}
+
+function SkiFreeGame::prestigeTitle(%game, %client) {
+	%title = "";
+	if( %client.AI_skiFreeBotLevel !$= "" ) {
+		%title = "<color:ff8080>Bot Level" SPC %client.AI_skiFreeBotLevel;
+	}
+	else {
+		//%title = "<color:ffff00>Tourney 2021 Champion";
+		//%title = "<color:e0e0e0>Tourney 2021 Runner-up";
+		//%title = "<color:f6983c>Tourney 2021 Third";
+		//%title = "<color:A0A0A0>Tourney 2021 Fourth";
+		//%title = "<color:A0A0A0>Tourney 2021 Fifth";
+		//%title = "<color:808080>Tourney 2021 Qualifier";
+		
+		switch( %client.guid ) {
+		case 2019153: // red shifter
+			%title = "<color:ff4040>SkiFree Lead Developer";
+		}
+	}
+	
+	if( %title !$= "" ) {
+		%title = "<spush>" @ %title @ "<spop>";
+	}
+	return %title;
 }

@@ -76,6 +76,15 @@ if( !isObject(SkiFreeGateField) ) {
 		shapeFile = "beacon.dts";
 	};
 
+	datablock StaticShapeData(SkiFreeMapConverter) {
+		catagory = "SkiFree Objects";
+		className = "Map Converter";
+		isInvincible = true;
+		needsNoPower = true;
+		alwaysAmbient = true;
+		shapeFile = "beacon.dts";
+	};
+
 }
 
 function SkiFreeTriggerSpawn::onEnterTrigger(%this, %trigger, %player) {
@@ -156,3 +165,56 @@ function SkiFreeCustomGate::onAdd(%this, %obj) {
 		if( %obj.isFinish__ $= "" )%obj.isFinish__ = 0;
 	}
 }
+
+function SkiFreeMapConverter::onAdd(%this, %obj) {
+	%convert = false;
+	// check spawnplatform - if it's not in missioncleanup, this is a misclick
+	if( isObject(SpawnPlatform) ) {
+		for( %i = 0; %i < MissionCleanup.getCount(); %i++ ) {
+			if( MissionCleanup.getObject(%i) == nameToID(SpawnPlatform) ) {
+				%convert = true;
+				break;
+			}
+		}
+	}
+	
+	if( !%convert ) {
+		messageAll(0, "~wfx/powered/station_denied.wav");
+	}
+	else {
+		// move the spawn platform into MissionGroup
+		MissionGroup.add(SpawnPlatform);
+		
+		// go find the gates
+		for( %i = 1; %i < 420; %i++ ) {
+			%gate = nameToID("GatePoint" @ %i);
+			
+			if( !isObject(%gate) ) {
+				if( %i == 1 ) {
+					messageAll(0, "~wfx/powered/station_denied.wav");
+				}
+				else {
+					%newObj.isFinish__ = "1";
+				}
+				break;
+			}
+
+			%gatePos = getWords(%gate.position, 0, 1) SPC (getWord(%gate.position,2) - 25);
+			
+			%newObj = new StaticShape() {
+				position = %gatePos;
+				rotation = "1 0 0 0";
+				scale = "1 1 1";
+				dataBlock = "SkiFreeCustomGate";
+				lockCount = "0";
+				homingCount = "0";
+
+				gateNum__ = %i;
+				isFinish__ = "0";
+			};
+			MissionGroup.add(%newObj);
+		}
+	}
+	
+	%obj.schedule(0, delete);
+}	

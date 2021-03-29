@@ -1,5 +1,5 @@
 // SkiFree Terrain List
-// Input File Date: 2021-03-25 13:03:21
+// Input File Date: 2021-03-29 19:50:29
 
 // A good terrain has the following qualities:
 // - doesn't have a bunch of flat ground, even if it's right outside the mission bounds (high octane)
@@ -11,7 +11,7 @@
 %i = -1; // %i++ is pre-increment for some reason; it's -1 so it can start at 0
 %j = -1; // %j++ is pre-increment for some reason; it's -1 so it can start at 0
 
-// ACCEPTED TERRAINS (83)
+// ACCEPTED TERRAINS (82)
 $SkiFreeTerrainList[%i++] = "Alcatraz.ter"; // yeah. seems fine
 $SkiFreeTerrainList[%i++] = "Attrition.ter";
 $SkiFreeTerrainList[%i++] = "BastardForge.ter";
@@ -90,7 +90,6 @@ $SkiFreeTerrainList[%i++] = "TWL2_Crevice.ter";
 $SkiFreeTerrainList[%i++] = "TWL2_Frozenglory.ter";
 $SkiFreeTerrainList[%i++] = "Wasteland.ter"; // whatever sure
 $SkiFreeTerrainList[%i++] = "WoodyMyrkSE.ter";
-$SkiFreeTerrainList[%i++] = "Xtra_AshenPowder.ter"; // massive flat area is in a place the player would want to discjump over anyway
 $SkiFreeTerrainList[%i++] = "Xtra_Bastage.ter";
 $SkiFreeTerrainList[%i++] = "Xtra_SoupLadle.ter";
 $SkiFreeTerrainList[%i++] = "Xtra_ThunderGiant.ter"; // this map is garbage but it's fun to try to ski on it
@@ -226,7 +225,7 @@ $SkiFreeTerrainListSuperHard[%j++] = "Xtra_Stripmine.ter";
 //$SkiFreeTerrainList[%i++] = "Xtra_Voodoo.ter";
 //$SkiFreeTerrainList[%i++] = "Xtra_Xerxes.ter";
 
-// REJECTED FOR SOME OTHER REASON (13)
+// REJECTED FOR SOME OTHER REASON (14)
 //$SkiFreeTerrainList[%i++] = "Chasmaclysmic.ter"; // this level is really kinda boring if it spawns right (which it can not do)
 //$SkiFreeTerrainList[%i++] = "DMP_Pantheon.ter"; // there isn't enough value to this map to risk deadstopping
 //$SkiFreeTerrainList[%i++] = "Lakefront.ter"; // just kinda hate this map tbh
@@ -239,6 +238,7 @@ $SkiFreeTerrainListSuperHard[%j++] = "Xtra_Stripmine.ter";
 //$SkiFreeTerrainList[%i++] = "TL_Magnum.ter"; // the best route is “discjump and keep landing on the flat parts at the top” – this is not compelling gameplay
 //$SkiFreeTerrainList[%i++] = "Training5.ter"; // Terrain is WAY too dark and you can't tell features on it.
 //$SkiFreeTerrainList[%i++] = "TWL-Drifts.ter"; // there's nothing really to this map outside the mission bounds
+//$SkiFreeTerrainList[%i++] = "Xtra_AshenPowder.ter"; // can’t read that fucking terrain so i’m removing
 //$SkiFreeTerrainList[%i++] = "Xtra_Helion.ter"; // this is just a really boring terrain
 
 // DUPLICATES (15)

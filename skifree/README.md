@@ -55,7 +55,7 @@ After that, if you want to set down gates, use the **SkiFreeCustomGate** object,
 - **gateNum__:**: The gate number being created.
 - **isFinish__**: Whether this should be the last gate of a Time Trial. Remember, Survival mode will ignore this and keep generating gates on the terrain!
 
-This stuff is mostly untested, so make sure to let me know if it doesn't work.
+You can also take a map you're looking at offline and spawn in a SkiFreeMapConverter object to save it. (I'm working on making a better mechanism for saving.)
 
 # SPECIAL THANKS
 - DarkTiger: made the mempatch needed to phase through players.
