@@ -16,6 +16,7 @@ $SkiFreeVersionString = "1.04";
 // - add tourney 2021 map and add qualifier support
 // - removed beacons because you can't see them anyway
 // - removed Xtra_Ashen_Powder because i can't fucking read the terrain
+// - added "prestige title" concept. currently only bots and i have a prestige title
 
 // version 1.03 (2021-03-25)
 // - fixed issue where spawn platform was sometimes cutting into terrain (it was checked but it was just ignoring the result)
@@ -460,6 +461,8 @@ function SkiFreeGame::resetScore(%game, %client) {
 		if( %client.gateTime[%i] $= "" ) break;
 		%client.gateTime[%i] = "";
 	}
+	
+	%game.prestigeTitle(%client);
 }
 
 // calculate how good a run it was
@@ -801,7 +804,7 @@ function SkiFreeGame::updateScoreHud(%game, %client, %tag)
 
 	// Send the subheader:
 	//messageClient(%client, 'SetScoreHudSubheader', "", '<tab:15,247,430>\tPLAYER\tRUNS (FULL)\tBEST');
-	messageClient(%client, 'SetScoreHudSubheader', "", '<tab:15,430>\tPLAYER\tBEST');
+	messageClient(%client, 'SetScoreHudSubheader', "", '<tab:15,460>\tPLAYER\tBEST');
 
 	for (%index = 0; %index < $TeamRank[0, count]; %index++)
 	{
@@ -828,18 +831,20 @@ function SkiFreeGame::updateScoreHud(%game, %client, %tag)
 			%scoreAddendum = " (" @ %cl.maxGates @ " gates)";
 		}
 		
-		%title = %game.prestigeTitle(%cl);
-
+		if( %cl.isAIControlled() && %cl.SkiFreeTitle $= "" ) {
+			%game.prestigeTitle(%cl);
+		}
+		
 		//if the client is not an observer, send the message
 		if (%client.team != 0)
 		{
 			// why am i using word wrap lol
-			messageClient( %client, 'SetLineHud', "", %tag, %index, '%5<tab:20,450,500>\t<clip:200>%1</clip><rmargin:360><just:right>%2<rmargin:461><just:right>%3<rmargin:580><just:left>%4', %cl.name, %title, %score, %scoreAddendum, %clStyle, %cl);
+			messageClient( %client, 'SetLineHud', "", %tag, %index, '%5<tab:20,450,500>\t<clip:200>%1</clip><rmargin:400><just:right>%2<rmargin:490><just:right>%3<rmargin:580><just:left>%4', %cl.name, %cl.SkiFreeTitle, %score, %scoreAddendum, %clStyle, %cl);
 		}
 		//else for observers, create an anchor around the player name so they can be observed
 		else
 		{
-			messageClient( %client, 'SetLineHud', "", %tag, %index, '%5<tab:20,450,500>\t<clip:200><a:gamelink\t%6>%1</a></clip><rmargin:360><just:right>%2<rmargin:461><just:right>%3<rmargin:580><just:left>%4', %cl.name, %title, %score, %scoreAddendum, %clStyle, %cl);
+			messageClient( %client, 'SetLineHud', "", %tag, %index, '%5<tab:20,450,500>\t<clip:200><a:gamelink\t%6>%1</a></clip><rmargin:400><just:right>%2<rmargin:490><just:right>%3<rmargin:580><just:left>%4', %cl.name, %cl.SkiFreeTitle, %score, %scoreAddendum, %clStyle, %cl);
 		}
 	}
 
@@ -2050,26 +2055,26 @@ function SkiFreeGame::isAprilFools(%game, %year) {
 }
 
 function SkiFreeGame::prestigeTitle(%game, %client) {
-	%title = "";
+	%client.SkiFreeTitle = "";
 	if( %client.AI_skiFreeBotLevel !$= "" ) {
-		%title = "<color:ff8080>Bot Level" SPC %client.AI_skiFreeBotLevel;
+		%client.SkiFreeTitle = "<color:ff8080>Bot Level" SPC %client.AI_skiFreeBotLevel;
 	}
 	else {
-		//%title = "<color:ffff00>Tourney 2021 Champion";
-		//%title = "<color:e0e0e0>Tourney 2021 Runner-up";
-		//%title = "<color:f6983c>Tourney 2021 Third";
-		//%title = "<color:A0A0A0>Tourney 2021 Fourth";
-		//%title = "<color:A0A0A0>Tourney 2021 Fifth";
-		//%title = "<color:808080>Tourney 2021 Qualifier";
+		//%client.SkiFreeTitle = "<color:ffff00>Tourney 2021 Champion";
+		//%client.SkiFreeTitle = "<color:e0e0e0>Tourney 2021 Runner-up";
+		//%client.SkiFreeTitle = "<color:f6983c>Tourney 2021 3rd Place";
+		//%client.SkiFreeTitle = "<color:B0D0FF>Tourney 2021 4th Place";
+		//%client.SkiFreeTitle = "<color:B0B0B0>Tourney 2021 5th Place";
+		//%client.SkiFreeTitle = "Tourney 2021 Qualifier";
+		//%client.SkiFreeTitle = "Tourney 2021 Participant";
 		
 		switch( %client.guid ) {
 		case 2019153: // red shifter
-			%title = "<color:ff4040>SkiFree Lead Developer";
+			%client.SkiFreeTitle = "<color:ff8080>SkiFree Lead Developer";
 		}
 	}
 	
-	if( %title !$= "" ) {
-		%title = "<spush>" @ %title @ "<spop>";
+	if( %client.SkiFreeTitle !$= "" ) {
+		%client.SkiFreeTitle = "<spush>" @ %client.SkiFreeTitle @ "<spop>";
 	}
-	return %title;
 }
