@@ -36,10 +36,12 @@
 //--- OBJECT WRITE BEGIN ---
 new SimGroup(MissionGroup) {
 
-	powerCount = "0";
+				  
 	cdTrack = "6";
+	SkiFree_qualifierTime = "73.868";
+	powerCount = "0";
 	musicTrack = "lush";
-	SkiFree_qualifierTime = 73.868;
+								
 
 	new MissionArea(MissionArea) {
 		area = "-1024 -1024 2048 2048";
@@ -86,7 +88,7 @@ new SimGroup(MissionGroup) {
 		position = "1024 512 0";
 		rotation = "1 0 0 0";
 		scale = "1 1 1";
-		direction = "0.22528 -0.904932 -0.361037";
+		direction = "0.57735 0.57735 -0.57735";
 		color = "0.600000 0.600000 0.600000 1.000000";
 		ambient = "0.600000 0.600000 0.600000 1.000000";
 		texture[0] = "special/sunFlare";
@@ -100,27 +102,41 @@ new SimGroup(MissionGroup) {
 		backFlareSize = "500";
 		flareColor = "0.200000 0.350000 0.400000 1.000000";
 
-		texture1 = "special/sunFlare02";
+								  
 		texture2 = "special/LensFlare/flare01";
 		texture3 = "special/LensFlare/flare02";
 		locked = "true";
 		texture4 = "special/LensFlare/flare03";
 		texture0 = "special/sunFlare";
+		texture1 = "special/sunFlare02";
+	};
+	new TerrainBlock(terrain) {
+		rotation = "1 0 0 0";
+		scale = "1 1 1";
+		detailTexture = "details/lushdet1";
+		terrainFile = "SkiFreeZ_Championship_2021.ter";
+		squareSize = "8";
+
+							 
+		locked = "true";
+		position = "-1024 -1024 0";
 	};
 	new NavigationGraph(NavGraph) {
 		conjoinAngleDev = "45";
 		cullDensity = "0.3";
 		customArea = "0 0 0 0";
 
-		rotation = "0 0 0 0";
+					   
 		YDimOverSize = "0";
+		GraphFile = "SkiFree.nav";
 		scale = "1 1 1";
 		conjoinBowlDev = "20";
 		locked = "true";
-		GraphFile = "SkiFree.nav";
+							
 		position = "0 0 0 1";
 		coverage = "0";
 		XDimOverSize = "0";
+		rotation = "0 0 0 0";
 	};
 	new SimGroup(Teams) {
 
@@ -168,8 +184,9 @@ new SimGroup(MissionGroup) {
 		lockCount = "0";
 		homingCount = "0";
 
-		gateNum__ = "1";
+				  
 		isFinish__ = "0";
+		gateNum__ = "1";
 	};
 	new StaticShape() {
 		position = "1667.62 465.963 104.027";
@@ -179,8 +196,9 @@ new SimGroup(MissionGroup) {
 		lockCount = "0";
 		homingCount = "0";
 
-		gateNum__ = "2";
+				  
 		isFinish__ = "0";
+		gateNum__ = "2";
 	};
 	new StaticShape() {
 		position = "2342.69 788.114 78.089";
@@ -190,8 +208,9 @@ new SimGroup(MissionGroup) {
 		lockCount = "0";
 		homingCount = "0";
 
-		gateNum__ = "3";
+				  
 		isFinish__ = "0";
+		gateNum__ = "3";
 	};
 	new StaticShape() {
 		position = "2881.27 1144.82 118.167";
@@ -201,8 +220,9 @@ new SimGroup(MissionGroup) {
 		lockCount = "0";
 		homingCount = "0";
 
-		gateNum__ = "4";
+				  
 		isFinish__ = "0";
+		gateNum__ = "4";
 	};
 	new StaticShape() {
 		position = "3598.22 1488.35 88.625";
@@ -212,8 +232,9 @@ new SimGroup(MissionGroup) {
 		lockCount = "0";
 		homingCount = "0";
 
-		gateNum__ = "5";
+				  
 		isFinish__ = "0";
+		gateNum__ = "5";
 	};
 	new StaticShape() {
 		position = "4243.66 2065.73 77.061";
@@ -223,8 +244,9 @@ new SimGroup(MissionGroup) {
 		lockCount = "0";
 		homingCount = "0";
 
-		gateNum__ = "6";
+				  
 		isFinish__ = "0";
+		gateNum__ = "6";
 	};
 	new StaticShape() {
 		position = "4297.5 2869.93 63.0078";
@@ -234,8 +256,9 @@ new SimGroup(MissionGroup) {
 		lockCount = "0";
 		homingCount = "0";
 
-		gateNum__ = "7";
+				  
 		isFinish__ = "0";
+		gateNum__ = "7";
 	};
 	new StaticShape() {
 		position = "4665.18 3599.52 86.497";
@@ -245,12 +268,13 @@ new SimGroup(MissionGroup) {
 		lockCount = "0";
 		homingCount = "0";
 
-		gateNum__ = "8";
+				  
 		isFinish__ = "1";
+		gateNum__ = "8";
 	};
 };
 //--- OBJECT WRITE END ---
 
 // break out the terraformer to make the terrain
-Game.breakOutTerraformer(2, 17892);
+//Game.breakOutTerraformer(2, 17892); // demos don't work with this!
 Game.terrain = "Tourney 2021";
