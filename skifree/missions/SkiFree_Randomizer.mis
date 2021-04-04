@@ -76,7 +76,7 @@ new SimGroup(MissionGroup) {
 		position = "1024 512 0";
 		rotation = "1 0 0 0";
 		scale = "1 1 1";
-		direction = "0.22528 -0.904932 -0.361037";
+		direction = "0.57735 0.57735 -0.57735";
 		color = "0.600000 0.600000 0.600000 1.000000";
 		ambient = "0.600000 0.600000 0.600000 1.000000";
 		texture[0] = "special/sunFlare";
