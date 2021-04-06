@@ -15,15 +15,18 @@ import java.util.List;
 public class SkiFreeCreator {
 	private static File inputFile;
 	private static File outputFile;
+	private static File metaFile;
 	
 	private static List<String> outputText = new LinkedList<>();
+	private static List<Terrain> terrainList = new LinkedList<>();
 	private static int ERRORLEVEL = 0;
 	
 	public static void main(String[] args) {
-		if( args.length == 0 || args.length > 2 ) {
-			System.out.println("Parameters: inFile outFile");
+		if( args.length == 0 || args.length > 3 ) {
+			System.out.println("Parameters: inFile terFile metaFile");
 			System.out.println("inFile should be the input CSV. Make sure it's saved as UTF-8.");
-			System.out.println("outFile (optional) should be the output CS (if not included, output is printed to console). That CS will be overwritten.");
+			System.out.println("terFile (optional) should be the output CS that will have Normal and Superhard terrains (for server use)");
+			System.out.println("metaFile (optional) should be the output CS that will have Reject terrains and terrain metadata (for client use)");
 			System.exit(1);
 		}
 		inputFile = new File(args[0]);
@@ -33,18 +36,36 @@ public class SkiFreeCreator {
 		}
 		
 		if( args.length > 1 ) outputFile = new File(args[1]);
+		if( args.length > 2 ) metaFile = new File(args[2]);
 		
 		try {
-			generate(args);
+			generateTerrain(args);
+			generateMeta(args);
 		}
 		catch( Exception e ) {
 			e.printStackTrace();
 			ERRORLEVEL = 1;
 		}
+		
+		if( outputFile != null ) {
+			if( ERRORLEVEL == 0 ) {
+				System.out.println("Task completed successfully");
+			}
+			else {
+				System.out.println("Task completed with errors");
+			}
+		}
+		else if( ERRORLEVEL == 1 ) {
+			System.out.println("");
+			System.out.println("Script generated with errors. Please correct them.");
+		}
+
 		System.exit(ERRORLEVEL);
 	}
 	
-	private static void generate(String[] args) throws IOException {
+	private static void generateTerrain(String[] args) throws IOException {
+		outputText.clear();
+
 		println("// SkiFree Terrain List");
 		println("// Input File Date: " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(inputFile.lastModified()));
 		println();
@@ -57,10 +78,10 @@ public class SkiFreeCreator {
 		println();
 		println("%i = -1; // %i++ is pre-increment for some reason; it's -1 so it can start at 0");
 		println("%j = -1; // %j++ is pre-increment for some reason; it's -1 so it can start at 0");
+		println("%k = -1; // %k++ is pre-increment for some reason; it's -1 so it can start at 0");
 		println();
 		
 		List<String> fileLines = Files.readAllLines(inputFile.toPath(), Charset.forName("UTF-8"));
-		List<Terrain> terrainList = new LinkedList<>();
 		
 		for( String line : fileLines ) {
 			String[] split = line.split(",");
@@ -78,9 +99,9 @@ public class SkiFreeCreator {
 		for( String[] output : new String[][] {
 			{"ACCEPTED TERRAINS", ""},
 			{"SUPERHARD (APRIL FOOLS)", "SUPERHARD"},
-			{"REJECTED FOR DEADSTOPS", "DEADSTOP"},
-			{"REJECTED FOR BEING UNSKIIABLE", "VARIANCE"},
-			{"REJECTED FOR SOME OTHER REASON", "OVERRIDE"},
+			{"REJECTED FOR DEADSTOPS", "DEADSTOPS"},
+			{"REJECTED FOR BEING UNSKIIABLE", "UNSKIIABLE"},
+			{"REJECTED FOR SOME OTHER REASON", "OTHER"},
 			{"DUPLICATES", "DUPLICATE"}
 		}) {
 			String listName = output[0];
@@ -106,24 +127,32 @@ public class SkiFreeCreator {
 		
 		println("$SkiFreeTerrainListMAX = %i;");
 		println("$SkiFreeTerrainListSuperHardMAX = %j;");
+		println("$SkiFreeTerrainListRejectedMAX = %k;");
 
-		writeFile();
-
-		if( outputFile != null ) {
-			if( ERRORLEVEL == 0 ) {
-				System.out.println("Task completed successfully");
-			}
-			else {
-				System.out.println("Task completed with errors");
-			}
-		}
-		else if( ERRORLEVEL == 1 ) {
-			System.out.println("");
-			System.out.println("Script generated with errors. Please correct them.");
-		}
+		writeTerrainFile();
 	}
+	
+	private static void generateMeta(String[] args) throws IOException {
+		outputText.clear();
+		
+		println("// SkiFree Terrain Metadata");
+		println("// Input File Date: " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(inputFile.lastModified()));
+		println();
+		println("// This file contains terrain metadata. It's only meant to be read from the client.");
+		println();
+		
+		// if you don't want me at my new String[][] {}, you don't deserve me at my ______________
+		for( Terrain terrain : terrainList ) {
+			String var = "$SkiFreeMeta[\"" + terrain.terrainName + "\","; 
+			println(var + "MapPack] = \"" + terrain.mapPack + "\";");
+			println(var + "RejectReason] = \"" + terrain.rejectReason + "\";");
+		}
 
-	private static void writeFile() throws IOException {
+		writeMetadataFile();
+	}
+	
+
+	private static void writeTerrainFile() throws IOException {
 		if( outputFile != null) {
 			Files.write(outputFile.toPath(), outputText, StandardOpenOption.TRUNCATE_EXISTING);
 		}
@@ -133,6 +162,18 @@ public class SkiFreeCreator {
 			}
 		}
 	}
+	
+	private static void writeMetadataFile() throws IOException {
+		if( outputFile != null) {
+			Files.write(metaFile.toPath(), outputText, StandardOpenOption.TRUNCATE_EXISTING);
+		}
+		else {
+			for( String line : outputText ) {
+				System.out.println(line);
+			}
+		}
+	}
+
 
 	private static void println() {
 		println("");
@@ -148,6 +189,8 @@ public class SkiFreeCreator {
 		String rejectReason;
 		String comment;
 		boolean hasErrors = false;
+		
+		String mapPack;
 		
 		public Terrain(String[] split) {
 			terrainName = split[0];
@@ -181,13 +224,13 @@ public class SkiFreeCreator {
 				rejectReason = "SUPERHARD";
 			}
 			else if( "Yes".equals(split[1]) ) {
-				rejectReason = "DEADSTOP";
+				rejectReason = "DEADSTOPS";
 			}
 			else if( "Yes".equals(split[2]) ) {
-				rejectReason = "VARIANCE";
+				rejectReason = "UNSKIIABLE";
 			}
 			else if( "Yes".equals(split[3]) ) {
-				rejectReason = "OVERRIDE";
+				rejectReason = "OTHER";
 			}
 			else if ( "Duplicate".equals(result) ) {
 				rejectReason = "DUPLICATE";
@@ -195,9 +238,13 @@ public class SkiFreeCreator {
 			else {
 				rejectReason = "";
 			}
-			
-			if( split.length > 5 ) {
-				comment = split[5];
+
+			// metadata
+			mapPack = split[5];
+
+			// comment should always be last
+			if( split.length > 6 ) {
+				comment = split[6];
 				if( comment.startsWith("\"") ) {
 					comment = comment.substring(1, comment.length() - 1);
 				}
@@ -217,7 +264,7 @@ public class SkiFreeCreator {
 				value = "$SkiFreeTerrainListSuperHard[%j++] = \"";
 			}
 			else {
-				value = "//$SkiFreeTerrainList[%i++] = \"";
+				value = "$SkiFreeTerrainListRejected[%k++] = \"";
 			}
 			
 			// automatically makes string builder on real versions of java, fuck you
