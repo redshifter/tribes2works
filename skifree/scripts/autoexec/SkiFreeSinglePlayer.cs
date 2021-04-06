@@ -55,11 +55,8 @@ function SinglePlayerEscapeDlg::leaveGame( %this )
 		if( %client.bestTime != Game.trialDefaultTime ) {
 			%line = %line @ ".\n\nDaily: " @ Game.terrain;
 			%line = %line @ "\nTime: " @ %client.bestTime;
-			%line = %line @ "\n\nVersion " @ $SkiFreeVersionString;
-			
-			if( %client.bestHandicap !$= "" ) {
-				%line = %line @ "\n" @ %client.bestHandicap;
-			}
+			%line = %line @ "\n" @ %client.bestHandicap;
+			%line = %line @ "\nVersion " @ $SkiFreeVersionString;
 		}
 		else {
 			%line = %line @ "\nin The Daily.";
@@ -79,11 +76,8 @@ function SinglePlayerEscapeDlg::leaveGame( %this )
 		if( %client.bestTime != Game.trialDefaultTime ) {
 			%line = %line @ ".\n\n" @ Game.terrain;
 			%line = %line @ "\nTime: " @ %client.bestTime;
-			%line = %line @ "\n\nVersion " @ $SkiFreeVersionString;
-			
-			if( %client.bestHandicap !$= "" ) {
-				%line = %line @ "\n" @ %client.bestHandicap;
-			}
+			%line = %line @ "\n" @ %client.bestHandicap;
+			%line = %line @ "\nVersion " @ $SkiFreeVersionString;
 		}
 		else {
 			%line = %line @ "\nin the Championship.";

@@ -152,23 +152,17 @@ function Armor::damageObject(%data, %targetObject, %sourceObject, %position, %am
 			  
    		   // if the damage of a discjump would kill, override
 		   if( %damageType == $DamageType::Disc ) {
-			   %targetObject.hasDiscjumped = 1;
-			   if( %targetObject.getDamageLevel() + %amount > 0.66 ) {
-				   if( %targetObject.launchTime $= "" ) {
-					   %amount = (0.65 - %targetObject.getDamageLevel());
-					   if( %amount <= 0 ) return;
+			   %maxHealth = %targetObject.dataBlock.maxDamage;
+			   if( %targetObject.getDamageLevel() + %amount > %maxHealth ) {
+				   if( %targetObject.safetyFeature $= "" ) {
+					   %targetObject.safetyFeature = 1;
+					   messageClient(%targetClient, 0, 'NOT ENOUGH HEALTH FOR DISCJUMP~wfx/misc/red_alert_short.wav');
 				   }
 				   else {
-					   if( %targetObject.safetyFeature $= "" ) {
-						   %targetObject.safetyFeature = 1;
-						   messageClient(%targetClient, 0, 'NOT ENOUGH HEALTH FOR DISCJUMP~wfx/misc/red_alert_short.wav');
-					   }
-					   else {
-						   messageClient(%targetClient, 0, '~wfx/misc/red_alert_short.wav');
-					   }
-					   %targetObject.schedule(0, setVelocity, %oldVector);
-					   return;
+					   messageClient(%targetClient, 0, '~wfx/misc/red_alert_short.wav');
 				   }
+				   %targetObject.schedule(0, setVelocity, %oldVector);
+				   return;
 			   }
 		   }
 		   
@@ -239,8 +233,9 @@ function ForceFieldBareData::onAdd(%data, %obj) {
 	%obj.open();
 }
 
-// can't get items back after tossing them - this prevents cheating the handicap modes
+// can't get items back after tossing them - this prevents cheating the handicap modes (you also need to define each one because packs override things)
 function EnergyPack::onCollision(%data, %obj, %col) {}
+function ShieldPack::onCollision(%data, %obj, %col) {}
 function Disc::onCollision(%data, %obj, %col) {}
 function DiscAmmo::onCollision(%data, %obj, %col) {}
 function RepairKit::onCollision(%data, %obj, %col) {}
@@ -249,16 +244,7 @@ function ShockLance::onCollision(%data, %obj, %col) {}
 // no looting either
 function Armor::onCollision(%this,%obj,%col,%forceVehicleNode) {}
 
-// turn the player to glass if they throw their repair kit away
-function ShapeBase::throwItem(%this, %data) {
-	Parent::throwItem(%this, %data);
-	if( %data $= RepairKit && %this.launchTime $= "" ) {
-		// turn the player to glass
-		%this.setDamageLevel(0.65);
-	}
-}
-
-// turn phasing on/off
+// put the vote back into the gametype (should never be in two files)
 function serverCmdStartNewVote(%client, %typeName, %arg1, %arg2, %arg3, %arg4, %playerVote) {
 	Parent::serverCmdStartNewVote(%client, %typeName, %arg1, %arg2, %arg3, %arg4, %playerVote);
 	
@@ -291,5 +277,15 @@ function GameConnection::onDrop(%client, %reason) {
 		Parent::onDrop(%client, %reason);
 	}
 }
+
+// warn the player that challenges should be done from Mod Hud now
+function ShapeBase::throwItem(%this, %data) {
+	Parent::throwItem(%this, %data);
+	if( %this.launchTime $= "" && %this.getState() !$= "Dead" && isObject(%this.client) ) {
+	   messageClient(%this.client, 0, '~wfx/misc/red_alert_short.wav');
+	   centerPrint(%this.client, "Handicaps are assigned through the Mod Hud now.\nPlease assign a bind for it!", 3, 2);
+	}
+}
+
 
 };

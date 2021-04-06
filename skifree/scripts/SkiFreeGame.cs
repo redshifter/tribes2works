@@ -5,17 +5,28 @@
 //Use discjumps when needed
 //Compete for the best time
 //Happy 20th Anniversary to Tribes 2
-//<spush><color:FFFF80>Version 1.04 (2021-03-29)<spop>
+//<spush><color:FFFF80>Version 1.05 (2021-04-06)<spop>
 //--- GAME RULES END ---
 
-$SkiFreeVersionString = "1.04";
+$SkiFreeVersionString = "1.05";
+
+// version 1.05 (2021-04-06)
+// - added the prestige titles for skifree spring tourney 2021
+// - normalize the sun
+// - give a warning if the player might not be able to finish the run they start
+// - add KPH to final gate
+// - add a skifree challenge hud (press the "MOD HUD" button). also warn player if they try to do a challenge run without using MOD HUD
+// - re-added number of runs as a stat
+// - remove the ability to discjump from the launch point in glass mode
+// - remove the "following" players because everyone Ctrl+K's too much and it's too much work to fix it
+// - yeti spawns at 300 seconds (time limit) instead of 200 seconds (before time limit)
 
 // version 1.04 (2021-03-29)
 // - fix issue with comparison numbers at the end of the run (floating point sucks)
 // - fix issue with daily seed always generating the same set of gates in medium/hard modes (floating point still sucks)
-// - add tourney 2021 map and add qualifier support
+// - add (spring) tourney 2021 map and add qualifier support
 // - removed beacons because you can't see them anyway
-// - removed Xtra_Ashen_Powder because i can't fucking read the terrain
+// - removed Xtra_AshenPowder because i can't fucking read the terrain
 // - added "prestige title" concept. currently only bots and i have a prestige title
 
 // version 1.03 (2021-03-25)
@@ -274,7 +285,6 @@ function SkiFreeGame::initGameVars(%game) {
 		// scoring by time trial
 		%game.trialGates = 8;
 		%game.trialDefaultTime = 5 * 60;
-		%game.yetiSpawnTime = 200; // you're not done yet? get fucking going already
 	}
 	else {
 		// scoring by distance
@@ -345,23 +355,61 @@ function SkiFreeGame::equip(%game, %player) {
 	for(%i =0; %i<$InventoryHudCount; %i++)
 		%player.client.setInventoryHudItem($InventoryHudData[%i, itemDataName], 0, 1);
 	%player.client.clearBackpackIcon();
-
-	//%player.setArmor("Light");
 	
+	%client = %player.client;
+	//%player.setArmor("Light");
+	if( %client.SkiFreeArmor !$= "" ) %player.setArmor(%client.SkiFreeArmor);
+
 	%player.clearInventory();
+	
+	// change packs
+	if( %client.SkiFreePack $= "" )
+		%player.setInventory(EnergyPack, 1);
+	else if( %client.SkiFreePack $= "Shield" ) {
+		%player.setInventory(ShieldPack, 1);
+		%player.modShield = 1;
+	}
+	// don't need to assign
+		
+	if( %client.SkiFreePack !$= "Jetless" ) {
+		%player.setEnergyLevel(120);
+		
+		if( %client.SkiFreePack $= "HalfCharge" ) {
+			%player.setRechargeRate(0.128);
+		}
+	}
+	else {
+		// why would you do this to yourself
+		%player.setEnergyLevel(0);
+		%player.setRechargeRate(0);
+	}
+	
 
-	%player.setInventory(EnergyPack, 1);
+	// odds and ends
+	%player.setInventory(FlareGrenade, 8);
 	%player.setInventory(TargetingLaser, 1);
-//	%player.setInventory(Beacon, 3); // you can't see them anyway
-
-	%player.setDamageLevel(0);
-	%player.setEnergyLevel(60);
-	%player.setInventory(FlareGrenade,5);
-	%player.setInventory(Disc,1);
-	%player.setInventory(DiscAmmo, 15);
-	%player.setInventory(RepairKit,1);
-	%player.weaponCount = 1;
-	%player.use("Disc");
+	
+	// TODO set the proper level if challenge is glass
+	if( %client.SkiFreeChallenge !$= "Glass" ) {
+		%player.setDamageLevel(0);
+		%player.setInventory(RepairKit,1);
+	}
+	else {
+		%player.setDamageLevel(%player.dataBlock.maxDamage - 0.01);
+		%player.modGlass = 1;
+	}
+	
+	// set up discless
+	if( %client.SkiFreeChallenge !$= "Discless" ) {
+		%player.setInventory(Disc,1);
+		%player.setInventory(DiscAmmo, 15);
+		%player.weaponCount = 1;
+		%player.use("Disc");
+	}
+	else {
+		%player.weaponCount = 0;
+		%player.use("TargetingLaser");
+	}
 }
 
 function SkiFreeGame::pickPlayerSpawn(%game, %client, %respawn) {
@@ -456,6 +504,8 @@ function SkiFreeGame::resetScore(%game, %client) {
 	%client.lastTime = %game.trialDefaultTime;
 	%client.bestHandicap = "";
 	%client.maxGates = 0;
+	%client.attempts = 0;
+	%client.completions = 0;
 	
 	for( %i = 1; %i < 420; %i++ ) {
 		if( %client.gateTime[%i] $= "" ) break;
@@ -463,6 +513,7 @@ function SkiFreeGame::resetScore(%game, %client) {
 	}
 	
 	%game.prestigeTitle(%client);
+	%game.recalcScore(%client);
 }
 
 // calculate how good a run it was
@@ -490,6 +541,8 @@ function SkiFreeGame::onClientKilled(%game, %clVictim, %clKiller, %damageType, %
 
 function SkiFreeGame::calculateTimeTrialScore(%game, %client, %player) {
 	// finished a run
+	%kph = mFloor(VectorLen(setWord(%player.getVelocity(), 2, 0)) * 3.6);
+
 	%time = (getSimTime() - %player.launchTime) / 1000;
 	%dot = strlen(strchr(%time, "."));
 	if( %dot == 0 ) %time = %time @ ".000";
@@ -501,6 +554,7 @@ function SkiFreeGame::calculateTimeTrialScore(%game, %client, %player) {
 	}
 	
 	%client.lastTime = %time;
+	%client.completions++;
 	
 	if( %player.handicap $= "NONE" ) {
 		%handicap = "";
@@ -603,7 +657,7 @@ function SkiFreeGame::calculateTimeTrialScore(%game, %client, %player) {
 
 	
 	messageAllExcept(%client, -1, 0, '%1 finished the course %3in %2 seconds.%4', %playerName, %time, %handicap, %rankOthers);
-	messageClient(%client, 0, '\c2You finished the course %3in %2 seconds%5.%4', %playerName, %time, %handicap, %rankPersonal, %timeCompare);
+	messageClient(%client, 0, '\c2You finished the course %3in %2 seconds (Speed: %6kph)%5.%4', %playerName, %time, %handicap, %rankPersonal, %timeCompare, %kph);
 
 	if( !%qualified ) {
 		%diff = %time - MissionGroup.SkiFree_qualifierTime;
@@ -799,12 +853,14 @@ function SkiFreeGame::leaveMissionArea(%game, %playerData, %player) {
 
 function SkiFreeGame::updateScoreHud(%game, %client, %tag)
 {
+	%client.SkiFreeDisplayTitle = !%client.SkiFreeDisplayTitle;
+	
 	// Clear the header:
 	messageClient( %client, 'SetScoreHudHeader', "", "" );
 
 	// Send the subheader:
 	//messageClient(%client, 'SetScoreHudSubheader', "", '<tab:15,247,430>\tPLAYER\tRUNS (FULL)\tBEST');
-	messageClient(%client, 'SetScoreHudSubheader', "", '<tab:15,460>\tPLAYER\tBEST');
+	messageClient(%client, 'SetScoreHudSubheader', "", '<tab:15,415,510>\tPLAYER\tRUNS\tBEST');
 
 	for (%index = 0; %index < $TeamRank[0, count]; %index++)
 	{
@@ -821,30 +877,43 @@ function SkiFreeGame::updateScoreHud(%game, %client, %tag)
 				%score = %game.trialDefaultTime @ ".000";
 			}
 				
-			%scoreAddendum = "";
+			//%scoreAddendum = "";
 		}
 		else {
 			%score = mFloor(%cl.score) == %cl.score
 				? %cl.score @ ".0"
 				: %cl.score;
 				
-			%scoreAddendum = " (" @ %cl.maxGates @ " gates)";
+			//%scoreAddendum = " (" @ %cl.maxGates @ " gates)";
 		}
-		
+
+		// bot workaround for addBots() command
 		if( %cl.isAIControlled() && %cl.SkiFreeTitle $= "" ) {
 			%game.prestigeTitle(%cl);
+		}
+
+		if( %cl.SkiFreeTitle !$= "" && %cl.bestHandicap !$= "" ) {
+			%title = %client.SkiFreeDisplayTitle
+				? %cl.SkiFreeTitle
+				: %cl.bestHandicap;
+		}
+		else if( %cl.bestHandicap $= "" ) {
+			%title = %cl.SkiFreeTitle;
+		}
+		else {
+			%title = %cl.bestHandicap;
 		}
 		
 		//if the client is not an observer, send the message
 		if (%client.team != 0)
 		{
 			// why am i using word wrap lol
-			messageClient( %client, 'SetLineHud', "", %tag, %index, '%5<tab:20,450,500>\t<clip:200>%1</clip><rmargin:400><just:right>%2<rmargin:490><just:right>%3<rmargin:580><just:left>%4', %cl.name, %cl.SkiFreeTitle, %score, %scoreAddendum, %clStyle, %cl);
+			messageClient( %client, 'SetLineHud', "", %tag, %index, '%4<tab:20,450,500>\t<clip:200>%1</clip><rmargin:370><just:right><spush><font:univers condensed:18>%2<spop><rmargin:450><just:right>%6 (%7)<rmargin:540><just:right>%3', %cl.name, %title, %score, %clStyle, %cl, %cl.completions, %cl.attempts);
 		}
 		//else for observers, create an anchor around the player name so they can be observed
 		else
 		{
-			messageClient( %client, 'SetLineHud', "", %tag, %index, '%5<tab:20,450,500>\t<clip:200><a:gamelink\t%6>%1</a></clip><rmargin:400><just:right>%2<rmargin:490><just:right>%3<rmargin:580><just:left>%4', %cl.name, %cl.SkiFreeTitle, %score, %scoreAddendum, %clStyle, %cl);
+			messageClient( %client, 'SetLineHud', "", %tag, %index, '%4<tab:20,450,500>\t<clip:200><a:gamelink\t%5>%1</a></clip><rmargin:370><just:right><spush><font:univers condensed:18>%2<spop><rmargin:450><just:right>%6 (%7)<rmargin:540><just:right>%3', %cl.name, %title, %score, %clStyle, %cl, %cl.completions, %cl.attempts);
 		}
 	}
 
@@ -1149,43 +1218,20 @@ function SkiFreeGame::leaveSpawnTrigger(%game, %player) {
 		}
 		return;
 	}
-	
-	// start the run for this player
-	%mod = "";
-	
-	if( %player.getDamageLevel() >= 0.649 ) {
-		%player.modGlass = 1;
-		%mod = %mod @ "glass ";
 
-		%player.setInventory(RepairKit, 0);
-		Game.schedule(1000, GlassModeAnticheat, %player); // in case we ate a repair kit at exactly the right time
-	}
-	else if( %player.getInventory("Disc") == 0 ) {
-		// check velocity
-		if( !%player.hasDiscjumped ) {
-			%mod = %mod @ "discless ";
-		}
-		else {
-			%mod = %mod @ "single discjump ";
-		}
-	}
-	
-	if( %player.getInventory("EnergyPack") == 0 ) {
-		%player.modHard = 1;
-		%mod = %mod @ "hard mode ";
-	}
-	
-	if( %mod !$= "" ) {
-		%player.handicap = getSubStr(%mod, 0, strlen(%mod) - 1);
-	}
-	else {
-		%player.handicap = "NONE";
-	}
-	
  	%client = %player.client;
 	
+	// increment attempts counter
+	%client.attempts++;
+	
+	// start the run for this player
+	%player.handicap = %game.getCurrentHandicap(%client);
+	%mod = %player.handicap $= "NONE" 
+		? "" 
+		: (%player.handicap @ " ");
+	
 	if( %game.timeTrial ) {
-		%objective = "Ski through the gates in order until you get to the Finish Gate.";
+		%objective = "Ski through the gates in order!";
 		
 		if( !Game.isSinglePlayer() ) {
 			%player.schedule(Game.trialDefaultTime * 1000, scriptKill, $DamageType::NexusCamping);
@@ -1196,27 +1242,38 @@ function SkiFreeGame::leaveSpawnTrigger(%game, %player) {
 				Game.createYetiFor(%player, nameToID("GatePoint" @ Game.trialGates).getTransform());
 			}
 			else {
-				Game.schedule(Game.yetiSpawnTime * 1000, createYetiFor, %player, nameToID("GatePoint" @ Game.trialGates).getTransform());
+				Game.schedule(Game.trialDefaultTime * 1000, createYetiFor, %player, nameToID("GatePoint" @ Game.trialGates).getTransform());
 			}
 		}
+		
 	}
 	else {
 		%objective = "You have" SPC (Game.survivalLifeTime / 1000) SPC "seconds to go as far as you can.";
 		%player.schedule(Game.survivalLifeTime, scriptKill, $DamageType::NexusCamping);
 		Game.schedule(Game.survivalLifeTime - Game.survivalWarningTime, warningMessage, %player);
 	}
+
+	// add this as a message callback (for later) - when we get this on the client, we should be starting a client timer
+	messageClient(%client, 'MsgSkiFreeStartRun', '\c2Your %1run has begun. %2~wfx/misc/target_waypoint.wav', %mod, %objective, %player.attempts);
+
+	// check that the player has enough time to do a run
+	%curTimeLeftMS = ($Host::TimeLimit * 60 * 1000) + $missionStartTime - getSimTime();
+	if( %curTimeLeftMS < Game.trialDefaultTime * 1000 ) {
+		%seconds = mFloor(%curTimeLeftMS / 1000);
+		messageClient(%client, 0, '\c5Watch the clock! You only have %1 seconds to finish this run!~wfx/powered/inv_pad_off.wav', %seconds);
+	}
 	
-	messageClient(%client, 0, '\c2Your %1run has begun. %2~wfx/misc/target_waypoint.wav', %mod, %objective);
 	%player.launchTime = getSimTime();
 	Game.lastLaunchTime = getSimTime();
 	Game.setPlayerGate(%player, 1);
 	
 	// remove invincibility
-	%player.setInvincibleMode(0 ,0.00);
+	%player.setInvincibleMode(0, 0.00);
 	%player.setInvincible( false );
 	
-	Game.checkFollowingPlayers(%player);
-	Game.schedule(Game.followTime, listFollowingPlayers, %player);
+	// removed "following" because nobody is playing the game this way
+	//Game.checkFollowingPlayers(%player);
+	//Game.schedule(Game.followTime, listFollowingPlayers, %player);
 }
 
 function SkiFreeGame::setPlayerGate(%game, %player, %gate) {
@@ -1307,17 +1364,6 @@ function SkiFreeGame::listFollowingPlayers(%game, %player) {
 	}
 }
 
-function SkiFreeGame::GlassModeAntiCheat(%game, %player) {
-	if( !isObject(%player.client) ) return;
-	if( %player.getState() $= "Dead" ) return;
-
-	if( %player.getDamageLevel() < 0.649 ) {
-		%player.setDamageLevel(0.65);
-		Game.schedule(100, GlassModeAnticheat, %player);
-	}
-}
-
-
 function SkiFreeGame::enterGateTrigger(%game, %trigger, %player) {
 	if( !isObject(%player.client) ) return;
 	if( %player.getState() $= "Dead" ) return;
@@ -1338,8 +1384,10 @@ function SkiFreeGame::enterGateTrigger(%game, %trigger, %player) {
 		}
 		else {
 			// ready the next gate
-			if( !%player.modGlass ) %player.applyRepair(0.125);
-			%player.setInventory(DiscAmmo, 15);
+			if( !%player.modShield ) {
+				if( !%player.modGlass ) %player.applyRepair(0.125);
+				%player.setInventory(DiscAmmo, 15);
+			}
 			
 			// get other variables
 			%timeMS = (getSimTime() - %player.launchTime) / 1000;
@@ -2060,21 +2108,191 @@ function SkiFreeGame::prestigeTitle(%game, %client) {
 		%client.SkiFreeTitle = "<color:ff8080>Bot Level" SPC %client.AI_skiFreeBotLevel;
 	}
 	else {
-		//%client.SkiFreeTitle = "<color:ffff00>Tourney 2021 Champion";
-		//%client.SkiFreeTitle = "<color:e0e0e0>Tourney 2021 Runner-up";
-		//%client.SkiFreeTitle = "<color:f6983c>Tourney 2021 3rd Place";
-		//%client.SkiFreeTitle = "<color:B0D0FF>Tourney 2021 4th Place";
-		//%client.SkiFreeTitle = "<color:B0B0B0>Tourney 2021 5th Place";
-		//%client.SkiFreeTitle = "Tourney 2021 Qualifier";
-		//%client.SkiFreeTitle = "Tourney 2021 Participant";
+		// these titles were never given out
+		//%client.SkiFreeTitle = "SkiFree Spring 2021 Qualifier";
+		//%client.SkiFreeTitle = "SkiFree Spring 2021 Participant";
 		
 		switch( %client.guid ) {
 		case 2019153: // red shifter
 			%client.SkiFreeTitle = "<color:ff8080>SkiFree Lead Developer";
+			
+		// SkiFree Spring 2021
+		case 2807799: // The D_e_V_i_L
+			%client.SkiFreeTitle = "<color:ffff00>SkiFree Spring 2021 Champion";
+		case 2843281: // LOLCAPS
+			%client.SkiFreeTitle = "<color:D0D0FF>SkiFree Spring 2021 Runner-up";
+		case 2320199: // HDP|Tetchy
+			%client.SkiFreeTitle = "<color:f6983c>SkiFree Spring 2021 3rd Place";
+		case 2995341: // Rooster128
+			%client.SkiFreeTitle = "<color:B0B0C0>SkiFree Spring 2021 4th Place";
+		case 2608533: // Stormcrow IV
+			%client.SkiFreeTitle = "<color:A0A0A0>SkiFree Spring 2021 5th Place";
 		}
 	}
-	
-	if( %client.SkiFreeTitle !$= "" ) {
-		%client.SkiFreeTitle = "<spush>" @ %client.SkiFreeTitle @ "<spop>";
+}
+
+function SkiFreeGame::InitModHud(%game, %client, %value)
+{
+	// Clear out any previous settings
+	commandToClient(%client, 'InitializeModHud', "");
+	//commandToClient(%client, 'InitializeModHud', "SkiFree"); // don't put the name of it or it'll try to save it to file and make everything weird
+
+	// Send the hud labels                 |  Hud Label  |  | Option label | | Setting label |
+	commandToClient(%client, 'ModHudHead', "SkiFree Challenge HUD", "Option:", "Setting:");
+
+	// Send the Option list and settings per option    | Option |    | Setting |
+	commandToClient(%client, 'ModHudPopulate', 
+		"Armor",
+			"Light", 
+			"Medium", 
+			"Heavy"
+	);
+	commandToClient(%client, 'ModHudPopulate', 
+		"Pack", 
+			"Energy", 
+			"Shield (no repair/refill from gates)", 
+			"Packless",
+			"Half Recharge Rate",
+			"Jetless"
+	);
+	commandToClient(%client, 'ModHudPopulate', 
+		"Handicap", 
+			"<none>", 
+			"Discless", 
+			"Glass"
+	);
+
+	// Send the button labels and visual settings  |  Button  |  | Label |  | Visible |  | Active |
+	//commandToClient(%client,                       'ModHudBtn1',  "BUTTON1",      0,          0);
+	commandToClient(%client, 'ModHudBtn1', "Reset Handicap", 1, 1);
+	commandToClient(%client, 'ModHudBtn2', "No Handicap", 0, 1);
+	commandToClient(%client, 'ModHudBtn3', "Reset Time", 1, 1);
+	commandToClient(%client, 'ModHudBtn4', "CONFIRM RESET", 0, 1);
+
+	// We're done!
+	commandToClient(%client, 'ModHudDone');
+}
+
+function SkiFreeGame::UpdateModHudSet(%game, %client, %option, %value)
+{
+	if( %option == 1 ) {
+		if( %value == 1 )
+			%client.SkiFreeArmor = "";
+		else if( %value == 2 )
+			%client.SkiFreeArmor = "Medium";
+		else if( %value == 3 )
+			%client.SkiFreeArmor = "Heavy";
+		else
+			messageClient( %client, 'MsgModHud', 'Invalid option.' );
 	}
+	else if( %option == 2 ) {
+		if( %value == 1 )
+			%client.SkiFreePack = "";
+		else if( %value == 2 )
+			%client.SkiFreePack = "Shield";
+		else if( %value == 3 )
+			%client.SkiFreePack = "Packless";
+		else if( %value == 4 )
+			%client.SkiFreePack = "HalfCharge";
+		else if( %value == 5 )
+			%client.SkiFreePack = "Jetless";
+		else
+			messageClient( %client, 'MsgModHud', 'Invalid option.' );
+	}
+	else if( %option == 3 ) {
+		if( %value == 1 )
+			%client.SkiFreeChallenge = "";
+		else if( %value == 2 )
+			%client.SkiFreeChallenge = "Discless";
+		else if( %value == 3 )
+			%client.SkiFreeChallenge = "Glass";
+		else
+			messageClient( %client, 'MsgModHud', 'Invalid option.' );
+	}
+	else
+		messageClient( %client, 'MsgModHud', 'Invalid option.' );
+
+	%handicap = Game.getCurrentHandicap(%client);
+	if( %handicap $= "NONE" ) %handicap = "No Handicap";
+	commandToClient(%client, 'ModHudBtn2', %handicap, 0, 1);
+
+	if( !isObject(%client.player) ) return;
+	%client.player.scriptKill(0);
+}
+
+function SkiFreeGame::ModButtonCmd(%game, %client, %button, %value)
+{
+	switch ( %button )
+	{
+		case 11: // reset handicap
+			%client.SkiFreeArmor = "";
+			%client.SkiFreePack = "";
+			%client.SkiFreeChallenge = "";
+			%game.UpdateModHudSet(%client, 1, 1);
+			
+		//case 12: // handicap - can't be clicked
+			
+		case 13: // reset time
+			%handicap = %client.bestHandicap;
+			if( %handicap $= "" ) %handicap = "NONE";
+			if( 
+				%game.getCurrentHandicap(%client) !$= %handicap
+				&& %client.bestTime !$= ""
+				&& %client.bestTime != %game.trialDefaultTime
+				&& (!isObject(%client.player) || %client.player.launchTime $= "")
+			) {
+				// confirm this shit
+				commandToClient(%client, 'ModHudBtn4', "CONFIRM RESET", 1, 1);
+				schedule(2000, 0, commandToClient, %client, 'ModHudBtn4', "CONFIRM RESET", 0, 1);
+			}
+			else if( %client.bestTime $= "" || %client.bestTime == %game.trialDefaultTime ) {
+				messageClient(%client, 0, 'You have not set a time to reset.~wfx/powered/station_denied.wav');
+			}
+			else if( %game.getCurrentHandicap(%client) $= %handicap ) {
+				messageClient(%client, 0, 'You\'re still in the same handicap. Why reset the time?~wfx/powered/station_denied.wav');
+			}
+			else if( isObject(%client.player) || %client.player.launchTime !$= "" ) {
+				messageClient(%client, 0, 'Quit your run before resetting your time!~wfx/powered/station_denied.wav');
+			}
+			else {
+				messageClient(%client, 0, '~wfx/powered/station_denied.wav');
+			}
+
+		case 14:
+			%handicap = %client.bestHandicap;
+			if( %handicap $= "" ) %handicap = "NONE";
+			if( 
+				%game.getCurrentHandicap(%client) !$= %handicap
+				&& %client.bestTime !$= ""
+				&& %client.bestTime != %game.trialDefaultTime
+				&& (!isObject(%client.player) || %client.player.launchTime $= "")
+			) {
+				%handicap = %client.bestHandicap;
+				if( %handicap !$= "" ) %handicap = " " @ %handicap;
+				messageAll(0, '%1 reset their time (old time: %2%3)~wfx/Bonuses/Nouns/special3.wav', %client.name, %client.bestTime, %handicap);
+				%game.resetScore(%client);
+			}
+			else {
+				messageClient(%client, 0, '~wfx/powered/station_denied.wav');
+			}
+			commandToClient(%client, 'ModHudBtn4', "CONFIRM RESET", 0, 1);
+		default:
+			messageClient( %client, 'MsgModHud', 'Invalid option.' );
+   }
+}
+
+function SkiFreeGame::getCurrentHandicap(%game, %client) {
+	%handicap = "";
+	if( %client.SkiFreeArmor $= "" && %client.SkiFreePack $= "" && %client.SkiFreeChallenge $= "" ) {
+		%handicap = "NONE";
+	}
+	else {
+		%armor = %client.SkiFreeArmor $= "" ? "Light" : %client.SkiFreeArmor;
+		%pack  = %client.SkiFreePack $= "" ? "Energy" : %client.SkiFreePack;
+		%chal  = %client.SkiFreeChallenge $= "" ? "" : "/" @ %client.SkiFreeChallenge;
+		
+		%handicap = %armor @ "/" @ %pack @ %chal;
+	}
+	
+	return %handicap;
 }
