@@ -5,36 +5,36 @@ AgentsOfFortune.ter,Yes,Yes,,Reject,Dynamix Original (2001),
 Alcatraz.ter,Trace,No,,Accept,Dynamix Original (2001),yeah. seems fine
 Archipelago.ter,No,Yes,,Reject,Dynamix Original (2001),
 AshesToAshes.ter,Yes,Yes,,Reject,Dynamix Original (2001),
-Attrition.ter,Trace,No,,Accept,Discord Map Pack (2021),
-BastardForge.ter,No,No,,Accept,Discord Map Pack (2021),
-BeggarsRun.ter,Duplicate,Duplicate,,Duplicate,Dynamix Original (2001),
+Attrition.ter,Trace,No,,Accept,Discord Map Pack (2020),
+BastardForge.ter,No,No,,Accept,Discord Map Pack (2020),
+BeggarsRun.ter,No,Yes,,Reject,Dynamix Original (2001),
 Broadside_nef.ter,No,No,,Accept,Classic Patch (2002),
-Bunkered.ter,No,Yes,,Reject,Discord Map Pack (2021),
+Bunkered.ter,No,Yes,,Reject,Discord Map Pack (2020),
 Caldera.ter,No,No,,Accept,Dynamix Original (2001),
 Cardiac.ter,No,No,,Accept,Season 8 (2013),
 Casern_Cavite.ter,Yes,Yes,,Reject,Dynamix Original (2001),
 CCD.ter,Trace,No,,Accept,TWL2 Map Pack (2007),
 CeleritySE.ter,Trace,No,,Accept,TWL2 Map Pack (2007),I was on the fence on this one
-Chasmaclysmic.ter,Trace,Kinda,Yes,Reject,Discord Map Pack (2021),this level is really kinda boring if it spawns right (which it can not do)
-Cinerarium.ter,Trace,No,,Accept,Discord Map Pack (2021),
+Chasmaclysmic.ter,Trace,Kinda,Yes,Reject,Discord Map Pack (2020),this level is really kinda boring if it spawns right (which it can not do)
+Cinerarium.ter,Trace,No,,Accept,Discord Map Pack (2020),
 cloak.ter,No,Yes,,Reject,TWL2 Map Pack (2007),the terrain is just too big for a fun race
 CompUSA_Melee.ter,No,Yes,,Reject,Dynamix Original (2001),the hill is causing too much grief and the rest of the map doesn’t have enough value to justify it
 Confusco.ter,No,Yes,,Superhard,Classic Patch (2002),WAY too big.
-Coppera.ter,No,No,,Accept,Discord Map Pack (2021),this seems fine. just gotta keep jumping over the mesas? plateaus? fjordr? Whatever
+Coppera.ter,No,No,,Accept,Discord Map Pack (2020),this seems fine. just gotta keep jumping over the mesas? plateaus? fjordr? Whatever
 Crater71.ter,No,Yes,,Reject,Classic Patch (2002),this almost always generates something very unfun
 Damnation.ter,Duplicate,Duplicate,,Duplicate,Dynamix Original (2001),
 DangerousCrossing_nef.ter,No,No,,Accept,Classic Patch (2002),this level is fine
-DBS_Smoothed.ter,Trace,Yes,,Reject,Discord Map Pack (2021),
+DBS_Smoothed.ter,Trace,Yes,,Reject,Discord Map Pack (2020),
 DeathBirdsFly.ter,Trace,No,,Accept,Dynamix Original (2001),
 DesertofDeath_nef.ter,No,No,,Accept,Classic Patch (2002),
-Desiccator.ter,Duplicate,Duplicate,,Duplicate,Dynamix Original (2001),Things clearly seem to be at 4 plateaus of height. which doesn't make for good skiing.
-DMP_Pantheon.ter,Trace,Kinda,Yes,Reject,Discord Map Pack (2021),there isn't enough value to this map to risk deadstopping
+Desiccator.ter,Yes,Yes,,Reject,Dynamix Original (2001),Things clearly seem to be at 4 plateaus of height. which doesn't make for good skiing.
+DMP_Pantheon.ter,Trace,Kinda,Yes,Reject,Discord Map Pack (2020),there isn't enough value to this map to risk deadstopping
 DustToDust.ter,Yes,Yes,,Reject,Dynamix Original (2001),
-DX_Badlands.ter,Duplicate,Duplicate,,Duplicate,Discord Map Pack (2021),
-DX_Desert.ter,Duplicate,Duplicate,,Duplicate,Discord Map Pack (2021),
-DX_Ice.ter,Duplicate,Duplicate,,Duplicate,Discord Map Pack (2021),
+DX_Badlands.ter,Duplicate,Duplicate,,Duplicate,Discord Map Pack (2020),
+DX_Desert.ter,Duplicate,Duplicate,,Duplicate,Discord Map Pack (2020),
+DX_Ice.ter,Duplicate,Duplicate,,Duplicate,Discord Map Pack (2020),
 EB_Hades.ter,No,Yes,,Reject,Dynamix Original (2001),not only is it extreme but you kinda have trouble reading the terrain too
-Embers.ter,Trace,No,,Accept,Discord Map Pack (2021),
+Embers.ter,Trace,No,,Accept,Discord Map Pack (2020),
 Equinox.ter,Yes,No,,Reject,Dynamix Original (2001),
 Escalade.ter,No,Yes,,Reject,Dynamix Original (2001),
 Euro_Drifts_SE.ter,Trace,Yes,,Reject,TWL2 Map Pack (2007),
@@ -53,79 +53,79 @@ GodsRift.ter,No,Yes,,Reject,Classic Patch (2002),
 Gorgon.ter,No,No,,Accept,Classic Patch (2002),
 Haven.ter,Yes,Kinda,,Reject,Classic Patch (2002),
 Hildebrand.ter,No,No,,Accept,TWL2 Map Pack (2007),
-HillKing.ter,No,Yes,,Reject,Discord Map Pack (2021),
+HillKing.ter,No,Yes,,Reject,Discord Map Pack (2020),
 Hillside.ter,Yes,Yes,,Superhard,Classic Patch (2002),accepted into april fools set (though it really shouldn’t be – too many deadstops)
-HO_Badlands.ter,Yes,,,Reject,Discord Map Pack (2021),
-HO_Desert.ter,Yes,,,Reject,Discord Map Pack (2021),
-HO_Ice.ter,Yes,,,Reject,Discord Map Pack (2021),
-HO_Lush.ter,Yes,,,Reject,Discord Map Pack (2021),
-Hoth.ter,No,Yes,Yes,Reject,Discord Map Pack (2021),why would you name a terrain hoth if it isn't snowy
+HO_Badlands.ter,Yes,,,Reject,Discord Map Pack (2020),
+HO_Desert.ter,Yes,,,Reject,Discord Map Pack (2020),
+HO_Ice.ter,Yes,,,Reject,Discord Map Pack (2020),
+HO_Lush.ter,Yes,,,Reject,Discord Map Pack (2020),
+Hoth.ter,No,Yes,Yes,Reject,Discord Map Pack (2020),why would you name a terrain hoth if it isn't snowy
 IceBound.ter,Yes,,,Reject,Dynamix Original (2001),
 icedagger.ter,No,No,,Accept,TWL2 Map Pack (2007),
-IceGiant.ter,No,Yes,,Reject,Discord Map Pack (2021),terrain is kinda extreme
+IceGiant.ter,Trace,Kinda,,Accept,Discord Map Pack (2020),a smoothed version of xtra_thundergiant
 IceRidge_nef.ter,No,Yes,,Reject,Classic Patch (2002),canyons are just bad for this
 Insalubria.ter,No,Yes,,Reject,Dynamix Original (2001),
 Invictus.ter,Yes,,,Reject,Dynamix Original (2001),
 JacobsLadder.ter,Trace,Yes,,Reject,Dynamix Original (2001),hills are WAY too extreme
 jaggedclaw.ter,No,No,,Accept,TWL2 Map Pack (2007),
-Katabatic.ter,Duplicate,Duplicate,,Duplicate,Dynamix Original (2001),
+Katabatic.ter,Yes,,,Reject,Dynamix Original (2001),
 Lakefront.ter,Trace,Likely,Yes,Reject,Classic Patch (2002),just kinda hate this map tbh
-LavaGods.ter,No,No,,Accept,Discord Map Pack (2021),this is fine
-Magellan.ter,No,No,,Accept,Discord Map Pack (2021),
+LavaGods.ter,No,No,,Accept,Discord Map Pack (2020),this is fine
+Magellan.ter,No,No,,Accept,Discord Map Pack (2020),
 Magmatic.ter,Trace,No,,Accept,Classic Patch (2002),a bit on the hard side
-MapAssets.ter,Yes,,,Reject,Discord Map Pack (2021),
+MapAssets.ter,Yes,,,Reject,Discord Map Pack (2020),
 Masada.ter,Yes,,,Reject,Dynamix Original (2001),tiny dicked map
 Minotaur.ter,No,Yes,,Reject,Dynamix Original (2001),
 mmd.ter,Yes,,,Reject,TWL2 Map Pack (2007),
-MoonDance2.ter,Yes,No,,Reject,Discord Map Pack (2021),too many deadstop splotches
-Moonwalk.ter,No,No,Yes,Reject,Discord Map Pack (2021),magnum-like terrain
+MoonDance2.ter,Yes,No,,Reject,Discord Map Pack (2020),too many deadstop splotches
+Moonwalk.ter,No,No,Yes,Reject,Discord Map Pack (2020),magnum-like terrain
 mountking.ter,No,Yes,,Reject,Season 8 (2013),
 MyrkWood.ter,No,No,Yes,Reject,Dynamix Original (2001),we don't need this when we have woodymyrk
 norty.ter,No,Yes,,Reject,TWL2 Map Pack (2007),too extreme
-Oasis.ter,No,No,,Accept,Dynamix Original (2001),
-Octane.ter,Yes,,,Reject,Discord Map Pack (2021),
+Oasis.ter,Duplicate,Duplicate,,Duplicate,Dynamix Original (2001),duplicate of Respite
+Octane.ter,Yes,,,Reject,Discord Map Pack (2020),
 Ocular.ter,No,No,,Accept,TWL2 Map Pack (2007),
 Overreach.ter,Yes,Yes,,Reject,Dynamix Original (2001),
-Paranoia.ter,Trace,Kinda,Yes,Reject,Discord Map Pack (2021),this map is basically flat garbage with a few hills to get in your way
-Pariah.ter,Trace,Yes,,Reject,Discord Map Pack (2021),these hills are too fucking steep
-Pariah2.ter,Trace,Yes,,Reject,Discord Map Pack (2021),ditto
+Paranoia.ter,Trace,Kinda,Yes,Reject,Discord Map Pack (2020),this map is basically flat garbage with a few hills to get in your way
+Pariah.ter,Trace,Yes,,Reject,Discord Map Pack (2020),these hills are too fucking steep
+Pariah2.ter,Trace,Yes,,Reject,Discord Map Pack (2020),ditto
 PhasmaDust.ter,Yes,,,Reject,Classic Patch (2002),
-PlanetX2.ter,Trace,No,,Accept,Discord Map Pack (2021),
-PuliVeivari.ter,No,Yes,,Reject,Discord Map Pack (2021),
+PlanetX2.ter,Trace,No,,Accept,Discord Map Pack (2020),
+PuliVeivari.ter,No,Yes,,Reject,Discord Map Pack (2020),
 Pyroclasm.ter,Yes,,,Reject,Dynamix Original (2001),
 Quagmire.ter,Yes,,,Reject,Dynamix Original (2001),
 Raindance_nef.ter,No,No,,Accept,Classic Patch (2002),
 Ramparts.ter,No,Likely,Yes,Reject,Classic Patch (2002),biased against copyright violation map
-RandomTer1.ter,No,No,,Accept,Discord Map Pack (2021),
-RandomTer10.ter,No,No,,Accept,Discord Map Pack (2021),
-RandomTer2.ter,No,No,,Accept,Discord Map Pack (2021),
-RandomTer3.ter,No,Yes,,Reject,Discord Map Pack (2021),canyon fractal
-RandomTer4.ter,No,No,,Accept,Discord Map Pack (2021),
-RandomTer5.ter,No,No,,Accept,Discord Map Pack (2021),
-RandomTer6.ter,No,No,,Accept,Discord Map Pack (2021),
-RandomTer7.ter,No,No,,Accept,Discord Map Pack (2021),
-RandomTer8.ter,No,No,,Accept,Discord Map Pack (2021),
-RandomTer9.ter,No,No,,Accept,Discord Map Pack (2021),this canyon works somehow
+RandomTer1.ter,No,No,,Accept,Discord Map Pack (2020),
+RandomTer10.ter,No,No,,Accept,Discord Map Pack (2020),
+RandomTer2.ter,No,No,,Accept,Discord Map Pack (2020),
+RandomTer3.ter,No,Yes,,Reject,Discord Map Pack (2020),canyon fractal
+RandomTer4.ter,No,No,,Accept,Discord Map Pack (2020),
+RandomTer5.ter,No,No,,Accept,Discord Map Pack (2020),
+RandomTer6.ter,No,No,,Accept,Discord Map Pack (2020),
+RandomTer7.ter,No,No,,Accept,Discord Map Pack (2020),
+RandomTer8.ter,No,No,,Accept,Discord Map Pack (2020),
+RandomTer9.ter,No,No,,Accept,Discord Map Pack (2020),this canyon works somehow
 Rasp.ter,Trace,Yes,,Reject,Dynamix Original (2001),
-Ravine.ter,Duplicate,Duplicate,,Duplicate,Discord Map Pack (2021),
-RavineV.ter,Trace,Yes,,Reject,Discord Map Pack (2021),
+Ravine.ter,Trace,Yes,,Reject,Discord Map Pack (2020),
+RavineV.ter,Trace,Yes,,Reject,Discord Map Pack (2020),
 Recalescence.ter,Yes,,,Reject,Dynamix Original (2001),
 Respite.ter,No,No,,Accept,Dynamix Original (2001),
 Reversion.ter,Yes,Kinda,,Reject,Dynamix Original (2001),
 Rimehold.ter,No,Yes,,Reject,Dynamix Original (2001),
 RiverDance.ter,Yes,,,Reject,Dynamix Original (2001),
 Rollercoaster_nef.ter,No,No,,Accept,Classic Patch (2002),unlike most canyon maps this actually turns out to be skiiable
-rst_agroleon.ter,Trace,Kinda,Yes,Reject,Discord Map Pack (2021),the outer half of the terrain is too flat. and I deadstopped somewhere weird
-rst_Astro.ter,No,No,,Accept,Discord Map Pack (2021),
-rst_bittergorge.ter,No,No,,Accept,Discord Map Pack (2021),
-rst_crumpie.ter,No,No,,Accept,Discord Map Pack (2021),
-rst_dermcity.ter,No,No,Yes,Reject,Discord Map Pack (2021),whatever the fuck this is doesn't seem good for this
-rst_FaceCrossing.ter,No,No,,Accept,Discord Map Pack (2021),
-rst_isledebatalla.ter,Yes,,,Reject,Discord Map Pack (2021),
-Rst_ScorchedEarth.ter,Trace,No,,Accept,Discord Map Pack (2021),it's fine
-rst_SimpleFlagArena.ter,No,Yes,,Reject,Discord Map Pack (2021),literally squares
-rst_spit.ter,No,No,,Accept,Discord Map Pack (2021),i got to gate 5 on a discless discjump launch run
-Rush.ter,No,No,,Accept,Discord Map Pack (2021),
+rst_agroleon.ter,Trace,Kinda,Yes,Reject,Discord Map Pack (2020),the outer half of the terrain is too flat. and I deadstopped somewhere weird
+rst_Astro.ter,No,No,,Accept,Discord Map Pack (2020),
+rst_bittergorge.ter,No,No,,Accept,Discord Map Pack (2020),
+rst_crumpie.ter,No,No,,Accept,Discord Map Pack (2020),
+rst_dermcity.ter,No,No,Yes,Reject,Discord Map Pack (2020),whatever the fuck this is doesn't seem good for this
+rst_FaceCrossing.ter,No,No,,Accept,Discord Map Pack (2020),
+rst_isledebatalla.ter,Yes,,,Reject,Discord Map Pack (2020),
+Rst_ScorchedEarth.ter,Trace,No,,Accept,Discord Map Pack (2020),it's fine
+rst_SimpleFlagArena.ter,No,Yes,,Reject,Discord Map Pack (2020),literally squares
+rst_spit.ter,No,No,,Accept,Discord Map Pack (2020),i got to gate 5 on a discless discjump launch run
+Rush.ter,No,No,,Accept,Discord Map Pack (2020),
 S5_Centaur.ter,No,No,,Accept,Season 5 (2012),
 S5_Drache.ter,No,No,,Accept,Season 5 (2012),
 S5_Icedance.ter,No,No,,Accept,Season 5 (2012),
@@ -144,24 +144,24 @@ S8_rst_opus.ter,Trace,No,,Accept,Season 8 (2013),
 S8_zilch.ter,No,Yes,,Reject,Season 8 (2013),
 Sanctuary.ter,Trace,Yes,,Reject,Dynamix Original (2001),
 Sandstorm.ter,No,No,,Accept,Classic Patch (2002),
-SC_Badlands.ter,Yes,,,Reject,Discord Map Pack (2021),
-SC_Desert.ter,Yes,,,Reject,Discord Map Pack (2021),
-SC_Ice.ter,Yes,,,Reject,Discord Map Pack (2021),
-SC_Lush.ter,Yes,,,Reject,Discord Map Pack (2021),
-SC_Night.ter,Yes,,,Reject,Discord Map Pack (2021),
-SC_Normal.ter,Yes,,,Reject,Discord Map Pack (2021),
+SC_Badlands.ter,Yes,,,Reject,Discord Map Pack (2020),
+SC_Desert.ter,Yes,,,Reject,Discord Map Pack (2020),
+SC_Ice.ter,Yes,,,Reject,Discord Map Pack (2020),
+SC_Lush.ter,Yes,,,Reject,Discord Map Pack (2020),
+SC_Night.ter,Yes,,,Reject,Discord Map Pack (2020),
+SC_Normal.ter,Yes,,,Reject,Discord Map Pack (2020),
 Scarabrae_nef.ter,Yes,,,Reject,Classic Patch (2002),
 ShockRidge.ter,No,Yes,,Reject,Classic Patch (2002),not a fan of these canyon levels
 Sirocco.ter,Yes,,,Reject,Dynamix Original (2001),
 SkinnyDip.ter,Trace,No,,Accept,Classic Patch (2002),really wanted to use one of the TR2 maps. This has a big scale but also nice hills
-Slapdash.ter,Duplicate,Duplicate,,Duplicate,Dynamix Original (2001),
+Slapdash.ter,Yes,,,Reject,Dynamix Original (2001),
 Snowblind_nef.ter,Trace,Yes,,Reject,Classic Patch (2002),already knew this is a bad idea before I even started
 SolsDescent.ter,Yes,,,Reject,Classic Patch (2002),
-SpinCycle.ter,No,No,,Accept,Discord Map Pack (2021),this was borderline rejected
-StarFallCTF2.ter,Trace,No,,Accept,Discord Map Pack (2021),
+SpinCycle.ter,No,No,,Accept,Discord Map Pack (2020),this was borderline rejected
+StarFallCTF2.ter,Trace,No,,Accept,Discord Map Pack (2020),
 Starfallen.ter,Trace,No,,Accept,Classic Patch (2002),
 Stonehenge_nef.ter,No,Yes,,Reject,Classic Patch (2002),kryand tried to tell me this was a skiiable terrain. so I put the flags in different places. he no longer believes it's a skiiable terrain
-SubZero.ter,Duplicate,Duplicate,,Duplicate,Classic Patch (2002),
+SubZero.ter,Trace,Yes,,Reject,Classic Patch (2002),
 SunDried.ter,Yes,,,Reject,Dynamix Original (2001),
 Surreal.ter,Trace,Yes,,Reject,Classic Patch (2002),
 Talus.ter,Trace,Yes,,Reject,Dynamix Original (2001),
@@ -184,14 +184,14 @@ TWL-Abaddon.ter,No,Yes,,Reject,TWL Map Pack (2003),
 TWL-BaNsHee.ter,Yes,,,Reject,TWL Map Pack (2003),
 TWL-BeachBlitz.ter,Trace,No,,Accept,TWL Map Pack (2003),
 TWL-BeggarsRun.ter,No,Yes,,Reject,TWL Map Pack (2003),
-TWL-BlueMoon.ter,Duplicate,Duplicate,,Duplicate,TWL Map Pack (2003),
+TWL-BlueMoon.ter,Yes,,,Reject,TWL Map Pack (2003),
 TWL-Boss.ter,No,No,,Accept,TWL Map Pack (2003),this level is acceptable
 TWL-Chokepoint.ter,Trace,Yes,,Reject,TWL Map Pack (2003),
 TWL-Cinereous.ter,Trace,No,,Accept,TWL Map Pack (2003),
 TWL-Clusterfuct.ter,No,Yes,,Reject,TWL Map Pack (2003),
 TWL-Curtilage.ter,Yes,,,Reject,TWL Map Pack (2003),
 TWL-Damnation.ter,Trace,No,,Accept,TWL Map Pack (2003),
-TWL-DeadlyBirdsSong.ter,Duplicate,Duplicate,,Duplicate,TWL Map Pack (2003),DBS_Smoothed.ter
+TWL-DeadlyBirdsSong.ter,Yes,,,Reject,TWL Map Pack (2003),DBS_Smoothed.ter
 TWL-Deserted.ter,Trace,No,,Accept,TWL Map Pack (2003),
 TWL-Desiccator.ter,No,Yes,,Reject,TWL Map Pack (2003),
 TWL-Drifts.ter,Trace,Likely,Yes,Reject,TWL Map Pack (2003),there's nothing really to this map outside the mission bounds
@@ -209,28 +209,28 @@ TWL-Runenmacht.ter,Trace,Yes,,Reject,TWL Map Pack (2003),nah
 TWL-Slapdash.ter,Yes,,,Reject,TWL Map Pack (2003),crapdash
 TWL-SubZero.ter,No,Yes,,Reject,TWL Map Pack (2003),
 TWL-WilderZone.ter,Trace,No,,Accept,TWL Map Pack (2003),
-TWL-WoodyMyrk.ter,No,No,,Accept,TWL Map Pack (2003),
+TWL-WoodyMyrk.ter,Duplicate,Duplicate,,Duplicate,TWL Map Pack (2003),
 TWL2_Crevice.ter,No,No,,Accept,TWL2 Map Pack (2007),
 TWL2_Frozenglory.ter,No,No,,Accept,TWL2 Map Pack (2007),
 TWL2_Ruined.ter,Yes,No,,Reject,TWL2 Map Pack (2007),looks like a decent terrain but isn’t
-Tyre.ter,Yes,Yes,,Reject,Discord Map Pack (2021),
+Tyre.ter,Yes,Yes,,Reject,Discord Map Pack (2020),
 UltimaThule.ter,Trace,Yes,,Reject,Dynamix Original (2001),
 Underhill.ter,Trace,Yes,,Reject,Dynamix Original (2001),
-Wasteland.ter,No,No,,Accept,Discord Map Pack (2021),whatever sure
+Wasteland.ter,No,No,,Accept,Discord Map Pack (2020),whatever sure
 WhiteDwarf.ter,Trace,Yes,,Reject,Classic Patch (2002),
 Whiteout.ter,No,Yes,,Reject,Dynamix Original (2001),
 WoodyMyrkSE.ter,No,No,,Accept,TWL2 Map Pack (2007),
-Xtra_AshenPowder.ter,Trace,No,Yes,Reject,Discord Map Pack (2021),can’t read that fucking terrain so i’m removing
-Xtra_Bastage.ter,Trace,No,,Accept,Discord Map Pack (2021),
-Xtra_Birthright.ter,No,Yes,,Reject,Discord Map Pack (2021),
-Xtra_Crown.ter,Trace,Yes,,Reject,Discord Map Pack (2021),
-Xtra_DesertedSE.ter,Trace,Yes,,Reject,Discord Map Pack (2021),This is a VERY jagged terrain.
-Xtra_Helion.ter,Likely,No,Yes,Reject,Discord Map Pack (2021),this is just a really boring terrain
-Xtra_SoupLadle.ter,No,No,,Accept,Discord Map Pack (2021),
-Xtra_StarFall_T1.ter,Yes,,,Reject,Discord Map Pack (2021),
-Xtra_Stripmine.ter,Yes,Yes,,Superhard,Discord Map Pack (2021),
-Xtra_ThunderGiant.ter,Trace,No,,Accept,Discord Map Pack (2021),this map is garbage but it's fun to try to ski on it
-Xtra_VanDamned.ter,No,No,,Accept,Discord Map Pack (2021),
-Xtra_Voodoo.ter,No,Yes,,Reject,Discord Map Pack (2021),
-Xtra_Xerxes.ter,Likely,Yes,,Reject,Discord Map Pack (2021),
-Xtra_ziggurat.ter,Yes,,,Reject,Discord Map Pack (2021),
+Xtra_AshenPowder.ter,Trace,No,Yes,Reject,Discord Map Pack (2020),can’t read that fucking terrain so i’m removing
+Xtra_Bastage.ter,Trace,No,,Accept,Discord Map Pack (2020),
+Xtra_Birthright.ter,No,Yes,,Reject,Discord Map Pack (2020),
+Xtra_Crown.ter,Trace,Yes,,Reject,Discord Map Pack (2020),
+Xtra_DesertedSE.ter,Trace,Yes,,Reject,Discord Map Pack (2020),This is a VERY jagged terrain.
+Xtra_Helion.ter,Likely,No,Yes,Reject,Discord Map Pack (2020),this is just a really boring terrain
+Xtra_SoupLadle.ter,No,No,,Accept,Discord Map Pack (2020),
+Xtra_StarFall_T1.ter,Yes,,,Reject,Discord Map Pack (2020),
+Xtra_Stripmine.ter,Yes,Yes,,Superhard,Discord Map Pack (2020),
+Xtra_ThunderGiant.ter,Duplicate,Duplicate,,Duplicate,Discord Map Pack (2020),duplicate of IceGiant
+Xtra_VanDamned.ter,No,No,,Accept,Discord Map Pack (2020),
+Xtra_Voodoo.ter,No,Yes,,Reject,Discord Map Pack (2020),
+Xtra_Xerxes.ter,Likely,Yes,,Reject,Discord Map Pack (2020),
+Xtra_ziggurat.ter,Yes,,,Reject,Discord Map Pack (2020),
