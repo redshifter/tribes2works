@@ -287,5 +287,13 @@ function ShapeBase::throwItem(%this, %data) {
 	}
 }
 
+// fix the goddamn yeti skin already
+function allocClientTarget(%client, %nameTag, %skinTag, %voiceTag, %typeTag, %sensorGroup, %datablock, %voicePitch) {
+	if( $SkiFreeYetiSpawning ) {
+		%client.skin = addTaggedString("base");
+		%skinTag = %client.skin;
+	}
+	return Parent::allocClientTarget(%client, %nameTag, %skinTag, %voiceTag, %typeTag, %sensorGroup, %datablock, %voicePitch);
+}
 
 };

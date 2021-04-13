@@ -4,11 +4,25 @@
 //Ski through all the gates in order
 //Use discjumps when needed
 //Compete for the best time
-//Happy 20th Anniversary to Tribes 2
-//<spush><color:FFFF80>Version 1.05 (2021-04-06)<spop>
+//Made for 20th Anniversary to Tribes 2
+//<spush><color:FFFF80>Version 1.06 (2021-04-12)<spop>
 //--- GAME RULES END ---
 
-$SkiFreeVersionString = "1.05";
+// absolutely DO NOT mess with the formatting of these lines - parsed by SkiFreeSinglePlayer.cs
+$SkiFreeVersionString = "1.06";
+$SkiFreeBuildDate = "April 12, 2021";
+$SkiFreeClientVersion = 1;
+
+// version 1.06 (2021-04-12)
+// - fix issue where players keep killing themselves upon entering map
+// - remove the ability to clear your time (it's just a really weird feature that probably isn't needed)
+// - rewrote the offline code entirely to use a tab and removed now-unused assets from when skifree was under training
+// - added ability to recall a map that you've played in the past
+// - added extra GUI for people who download skifree
+// - removed duplicate terrains Oasis (Respite), ThunderGiant (IceGiant), TWL-WoodyMyrk (WoodyMyrkSE)
+// - fixed some metadata for terrains (Discord Map Pack is 2020, not 2021)
+// - fixed yeti skin (for real this time)
+// - gave s0ap the "Resident Deathmatcher" title
 
 // version 1.05 (2021-04-06)
 // - added the prestige titles for skifree spring tourney 2021
@@ -53,7 +67,6 @@ $SkiFreeVersionString = "1.05";
 // Created by Red Shifter
 // Thanks to:
 // - DarkTiger for the phase through players code
-// - Rooster128 for testing and saying stupid shit on stream
 // - A bunch of people on T2 Discord for testing
 // SkiFree is dedicated to the memory of Zengato, who was always there to read any shitty gametype idea I had, regardless of how stupid it was.
 // Happy 20th Anniversary to Tribes 2. One more year until this game is old enough to drink.
@@ -91,9 +104,6 @@ $SkiFreeVersionString = "1.05";
 if( $Host::SkiRacePhaseThroughPlayers $= "" ) {
 	$Host::SkiRacePhaseThroughPlayers = 0;
 }
-if( $Host::SkiRaceTimeTrialScoringSystem $= "" ) {
-	$Host::SkiRaceTimeTrialScoringSystem = 1;
-}
 if( $Host::SkiRaceAllowPvPDiscBoosting $= "" ) {
 	$Host::SkiRaceAllowPvPDiscBoosting = 1;
 }
@@ -115,13 +125,6 @@ function SkiFreeGame::sendGameVoteMenu( %game, %client, %key ) {
 			? 'SkiFree: Turn Player Phasing OFF'
 			: 'SkiFree: Turn Player Phasing ON'
 		);
-		
-		// removed for lack of interest
-		//messageClient( %client, 'MsgVoteItem', "", %key, 'VoteChangeScoringSystem', "", 
-		//	$Host::SkiRaceTimeTrialScoringSystem
-		//	? 'SkiFree: Change to SURVIVAL scoring (next map)'
-		//	: 'SkiFree: Change to TIME TRIAL scoring (next map)'
-		//);
 
 		// player-to-player disc 
 		messageClient( %client, 'MsgVoteItem', "", %key, 'VoteAllowPlayerDiscing', "", 
@@ -156,18 +159,6 @@ function SkiFreeGame::checkSkiFreeVote(%game, %client, %typeName) {
 		else {
 			messageAll('MsgAdminForce', '\c0%1 turned OFF player phasing.', %client.name);
 		}
-	}
-	else if( %typeName $= "VoteChangeScoringSystem" ) {
-		//$Host::SkiRaceTimeTrialScoringSystem = !$Host::SkiRaceTimeTrialScoringSystem;
-		//
-		//if( $Host::SkiRaceTimeTrialScoringSystem ) {
-		//	messageAll('MsgAdminForce', '\c0%1 switched to TIME TRIAL scoring (next map).', %client.name);
-		//}
-		//else {
-		//	messageAll('MsgAdminForce', '\c0%1 switched to SURVIVAL scoring (next map).', %client.name);
-		//}
-
-		messageClient( %client, 0, 'Removed for lack of interest.' );
 	}
 	else if( %typeName $= "VoteAllowPlayerDiscing" ) {
 		$Host::SkiRaceAllowPvPDiscBoosting = !$Host::SkiRaceAllowPvPDiscBoosting;
@@ -273,13 +264,8 @@ function SkiFreeGame::initGameVars(%game) {
 	// player variables
 	%game.followTime = 5 * 1000; // if someone follows you off the spawn platform in this amount of time, give a message
 
-	// always time trial for single player, otherwise use host setting
-	if( %game.isSinglePlayer() ) {
-		%game.timeTrial = 1;
-	}
-	else {
-		%game.timeTrial = $Host::SkiRaceTimeTrialScoringSystem;
-	}
+	// always time trial, dummy out the stupid survival mode nobody liked
+	%game.timeTrial = 1;
 
 	if( %game.timeTrial ) {
 		// scoring by time trial
@@ -389,7 +375,7 @@ function SkiFreeGame::equip(%game, %player) {
 	%player.setInventory(FlareGrenade, 8);
 	%player.setInventory(TargetingLaser, 1);
 	
-	// TODO set the proper level if challenge is glass
+	// set the proper level if challenge is glass
 	if( %client.SkiFreeChallenge !$= "Glass" ) {
 		%player.setDamageLevel(0);
 		%player.setInventory(RepairKit,1);
@@ -470,23 +456,23 @@ function SkiFreeGame::assignClientTeam(%game, %client)
 }
 
 function SkiFreeGame::clientMissionDropReady(%game, %client) {
-	if( %client.hasSkiGameClient ) {
-		// TODO are we even going to make this?
+	if( %client.SkiFreePassport >= 1 && %game.blueprint !$= "" ) {
+		commandToClient(%client, 'SendSkiFreeBlueprint', %game.blueprint);
+	}
+
+	// invoke bounty to give player info (mostly score and terrain info)
+	if( %client.SkiFreePassport >= 1 ) {
+		messageClient(%client, 'MsgClientReady',"", SkiFreeGame);
+		messageClient(%client, 'MsgSkiFreePhaseThroughPlayers', "", $Host::SkiRacePhaseThroughPlayers);
 	}
 	else {
-		// invoke bounty to give player info (mostly score and terrain info)
 		messageClient(%client, 'MsgClientReady',"", BountyGame);
-		messageClient(%client, 'msgBountyTargetIs', "", %game.terrain); // terrain
-		if( %game.timeTrial ) {
-			messageClient(%client, 'MsgYourScoreIs', "", '<none>');
-		}
-		else {
-			messageClient(%client, 'MsgYourScoreIs', "", 0);
-		}
 	}
+	messageClient(%client, 'msgBountyTargetIs', "", %game.terrain); // terrain
 	
 	%game.resetScore(%client);
-
+	%game.recalcScore(%client);
+	
 	messageClient(%client, 'MsgMissionDropInfo', '\c0You are in mission %1 (%2).', $MissionDisplayName, $MissionTypeDisplayName, $ServerName ); 
 	
 	DefaultGame::clientMissionDropReady(%game, %client);
@@ -499,6 +485,9 @@ function SkiFreeGame::createPlayer(%game, %client, %spawnLoc, %respawn)
 }
 
 function SkiFreeGame::resetScore(%game, %client) {
+	// single player hack
+	if( %client.skipScoreReset ) return;
+
 	%client.score = 0;
 	%client.bestTime = %game.trialDefaultTime;
 	%client.lastTime = %game.trialDefaultTime;
@@ -635,6 +624,21 @@ function SkiFreeGame::calculateTimeTrialScore(%game, %client, %player) {
 			if( %player.curGateTime[%i] $= "" ) break;
 			%client.gateTime[%i] = %player.curGateTime[%i];
 		}
+		
+		if( %client.SkiFreePassport >= 1 ) {
+			%fields = "";
+			for( %i = 1; %i < 420; %i++ ) {
+				if( %player.curGateTime[%i] $= "" ) break;
+				%fields = %fields 
+					@ (%i > 1 ? "\t" : "")
+					@ %player.curGateTime[%i]
+					@ "\t" @ %player.curGateKPH[%i];
+			}
+			%fields = %fields 
+				@ "\t" @ %time 
+				@ "\t" @ %kph;
+		}
+		
 
 		%game.recalcScore(%client);
 		
@@ -653,6 +657,11 @@ function SkiFreeGame::calculateTimeTrialScore(%game, %client, %player) {
 				%rankOthers = " " SPC %gender SPC "is now in" SPC %game.getWordForRank(%rankNumber) SPC "place.";
 			}
 		}
+		
+		if( %client.SkiFreePassport >= 1 ) commandToClient(%client, 'SendSkiFreeEnd', %client.completions, 1, %fields);
+	}
+	else {
+		if( %client.SkiFreePassport >= 1 ) commandToClient(%client, 'SendSkiFreeEnd', %client.completions, 0);
 	}
 
 	
@@ -794,7 +803,6 @@ function SkiFreeGame::updateKillScores(%game, %clVictim, %clKiller, %damageType,
 	// no killing
 }
 
-// need to do this to get the recalculations
 function SkiFreeGame::recalcScore(%game, %client){
 	if( %game.timeTrial ) {
 		if( %client.bestTime == %game.trialDefaultTime ) {
@@ -810,6 +818,14 @@ function SkiFreeGame::recalcScore(%game, %client){
 
 	%game.recalcTeamRanks(%client);
 	%game.checkScoreLimit(%client);
+	
+	// send the lead info to all the clients
+	if( %game.isSinglePlayer() ) {
+		messageAll('MsgSkiFreeLeaderScoreIs', "", %client.bestTime);
+	}
+	else {
+		messageAll('MsgSkiFreeLeaderScoreIs', "", $TeamRank[0, 0].bestTime);
+	}
 }
 
 function SkiFreeGame::timeLimitReached(%game) {
@@ -866,6 +882,7 @@ function SkiFreeGame::updateScoreHud(%game, %client, %tag)
 	{
 		//get the client info
 		%cl = $TeamRank[0, %index];
+		if( %cl == $SkiFreeYeti ) continue; // it's a secret to everybody
 
 		%clStyle = %cl == %client ? "<color:dcdcdc>" : "";
 		
@@ -922,7 +939,6 @@ function SkiFreeGame::updateScoreHud(%game, %client, %tag)
 	for (%i = 0; %i < ClientGroup.getCount(); %i++)
 	{
 		%cl = ClientGroup.getObject(%i);
-		if( %cl == $SkiFreeYeti ) continue; // it's a secret to everybody
 		if (%cl.team == 0)
 			%observerCount++;
 	}
@@ -1245,16 +1261,20 @@ function SkiFreeGame::leaveSpawnTrigger(%game, %player) {
 				Game.schedule(Game.trialDefaultTime * 1000, createYetiFor, %player, nameToID("GatePoint" @ Game.trialGates).getTransform());
 			}
 		}
-		
 	}
 	else {
 		%objective = "You have" SPC (Game.survivalLifeTime / 1000) SPC "seconds to go as far as you can.";
 		%player.schedule(Game.survivalLifeTime, scriptKill, $DamageType::NexusCamping);
 		Game.schedule(Game.survivalLifeTime - Game.survivalWarningTime, warningMessage, %player);
 	}
-
+	
 	// add this as a message callback (for later) - when we get this on the client, we should be starting a client timer
-	messageClient(%client, 'MsgSkiFreeStartRun', '\c2Your %1run has begun. %2~wfx/misc/target_waypoint.wav', %mod, %objective, %player.attempts);
+	messageClient(%client, 'MsgSkiFreeStartRun', '\c2Your %1run has begun. %2~wfx/misc/target_waypoint.wav', %mod, %objective);
+	
+	if( %client.SkiFreePassport >= 1 ) {
+		commandToClient(%client, 'SendSkiFreeStart', %client.attempts);
+		%game.schedule(10000, correctDrift, %player);
+	}
 
 	// check that the player has enough time to do a run
 	%curTimeLeftMS = ($Host::TimeLimit * 60 * 1000) + $missionStartTime - getSimTime();
@@ -1413,6 +1433,7 @@ function SkiFreeGame::enterGateTrigger(%game, %trigger, %player) {
 			}
 			
 			%player.curGateTime[%trigger.gate] = %timeMS;
+			%player.curGateKPH[%trigger.gate] = %kph;
 			
 			messageClient(%player.client, 0, '\c0Passed Gate %1 at %2 seconds (Speed: %3kph) %4%5%6~wfx/misc/target_waypoint.wav', %trigger.gate, %timeMS, %kph, %formatL, %compare, %formatR);
 			
@@ -1476,6 +1497,15 @@ function SkiFreeGame::generateLevel(%game) {
 	if( %oldseed !$= "" ) {
 		setRandomSeed(%oldseed);
 		$SkiFreeRandomSeed = "";
+	}
+	
+	// generate a blueprint when we can
+	if( $CurrentMission $= "SkiFree" ) {
+		%blueprint = %game.terrain @ "\t" @ nameToId("SpawnPlatform").position;
+		for( %i = 1; %i <= %game.trialGates; %i++ ) {
+			%blueprint = %blueprint @ "\t" @ getWords(nameToId("GatePoint" @ %i).position, 0, 1);
+		}
+		%game.blueprint = %blueprint;
 	}
 }
 
@@ -1749,6 +1779,10 @@ function SkiFreeGame::findHeight(%game, %location) {
 }
 
 function SkiFreeGame::displayDeathMessages(%game, %clVictim, %clKiller, %damageType, %implement) {
+	if( %clVictim.SkiFreePassport >= 1 ) {
+		commandToClient(%clVictim, 'SendSkiFreeStop');
+	}
+	
    // ----------------------------------------------------------------------------------
    // z0dd - ZOD, 6/18/02. From Panama Jack, send the damageTypeText as the last varible
    // in each death message so client knows what weapon it was that killed them.
@@ -1906,6 +1940,8 @@ function SkiFreeGame::phaseThroughPlayers(%game, %active) {
 	memPatch("83FBF4", %patch1);
 	memPatch("79B40C", %patch2);
 	memPatch("83FBF8", %patch3);
+	
+	messageAll('MsgSkiFreePhaseThroughPlayers', "", %active);
 }
 
 function SkiFreeGame::runEditorTasks(%game) {
@@ -2019,9 +2055,7 @@ function SkiFreeGame::breakOutTerraformer(%game, %skill, %definedSeed) {
 }
 
 function SkiFreeGame::isSinglePlayer(%game) { 
-	return $CurrentMission $= "SkiFree_Daily"
-		|| $CurrentMission $= "SkiFree_Randomizer"
-		|| $CurrentMission $= "SkiFreeZ_Championship_2021";
+	return strpos($CurrentMission, "SkiFreeSP") == 0;
 }
 
 function SkiFreeGame::getServerStatusString(%game)
@@ -2127,6 +2161,9 @@ function SkiFreeGame::prestigeTitle(%game, %client) {
 			%client.SkiFreeTitle = "<color:B0B0C0>SkiFree Spring 2021 4th Place";
 		case 2608533: // Stormcrow IV
 			%client.SkiFreeTitle = "<color:A0A0A0>SkiFree Spring 2021 5th Place";
+			
+		case 4179519: // AllSoap
+			%client.SkiFreeTitle = "<color:FF2020>Resident Deathmatcher";
 		}
 	}
 }
@@ -2166,8 +2203,10 @@ function SkiFreeGame::InitModHud(%game, %client, %value)
 	//commandToClient(%client,                       'ModHudBtn1',  "BUTTON1",      0,          0);
 	commandToClient(%client, 'ModHudBtn1', "Reset Handicap", 1, 1);
 	commandToClient(%client, 'ModHudBtn2', "No Handicap", 0, 1);
-	commandToClient(%client, 'ModHudBtn3', "Reset Time", 1, 1);
-	commandToClient(%client, 'ModHudBtn4', "CONFIRM RESET", 0, 1);
+	
+	// don't actually allow these anymore
+	commandToClient(%client, 'ModHudBtn3', "Reset Time", 0, 0);
+	commandToClient(%client, 'ModHudBtn4', "CONFIRM RESET", 0, 0);
 
 	// We're done!
 	commandToClient(%client, 'ModHudDone');
@@ -2175,6 +2214,9 @@ function SkiFreeGame::InitModHud(%game, %client, %value)
 
 function SkiFreeGame::UpdateModHudSet(%game, %client, %option, %value)
 {
+	%oldHandicap = Game.getCurrentHandicap(%client);
+	if( %oldHandicap $= "NONE" ) %oldHandicap = "No Handicap";
+	
 	if( %option == 1 ) {
 		if( %value == 1 )
 			%client.SkiFreeArmor = "";
@@ -2216,7 +2258,9 @@ function SkiFreeGame::UpdateModHudSet(%game, %client, %option, %value)
 	if( %handicap $= "NONE" ) %handicap = "No Handicap";
 	commandToClient(%client, 'ModHudBtn2', %handicap, 0, 1);
 
+	if( %oldHandicap $= %handicap ) return;
 	if( !isObject(%client.player) ) return;
+	error("old: " @ %oldHandicap @ " new: " @ %handicap);
 	%client.player.scriptKill(0);
 }
 
@@ -2230,9 +2274,15 @@ function SkiFreeGame::ModButtonCmd(%game, %client, %button, %value)
 			%client.SkiFreeChallenge = "";
 			%game.UpdateModHudSet(%client, 1, 1);
 			
+			if( !isObject(%client.player) )
+				%client.player.scriptKill(0);		
+			
 		//case 12: // handicap - can't be clicked
 			
 		case 13: // reset time
+			messageClient( %client, 'MsgModHud', 'This option has been disabled.' );
+			return;
+			
 			%handicap = %client.bestHandicap;
 			if( %handicap $= "" ) %handicap = "NONE";
 			if( 
@@ -2259,6 +2309,9 @@ function SkiFreeGame::ModButtonCmd(%game, %client, %button, %value)
 			}
 
 		case 14:
+			messageClient( %client, 'MsgModHud', 'This option has been disabled.' );
+			return;
+
 			%handicap = %client.bestHandicap;
 			if( %handicap $= "" ) %handicap = "NONE";
 			if( 
@@ -2295,4 +2348,14 @@ function SkiFreeGame::getCurrentHandicap(%game, %client) {
 	}
 	
 	return %handicap;
+}
+
+function SkiFreeGame::correctDrift(%game, %player) {
+	if( !isObject(%player.client) ) return;
+	if( %player.getState() $= "Dead" ) return;
+
+	%timeMS = getSimTime() - %player.launchTime;
+	commandToClient(%player.client, 'CorrectSkiFreeDrift', %timeMS);
+	
+	%game.schedule(10000, correctDrift, %player);
 }

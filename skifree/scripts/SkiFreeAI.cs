@@ -7,6 +7,7 @@
 // level 4 - don't ski down hills that are sloped to the side (to avoid going way off-course)
 
 // yeti - just wrecks your shit if you're not going fast enough
+// ghost?
 
 function SkiFreeGame::addNamedBot(%game, %name) {
 	// why did i do this lol
