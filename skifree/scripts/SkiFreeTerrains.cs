@@ -1,5 +1,5 @@
 // SkiFree Terrain List
-// Input File Date: 2021-04-04 23:18:35
+// Input File Date: 2021-04-11 02:58:49
 
 // A good terrain has the following qualities:
 // - doesn't have a bunch of flat ground, even if it's right outside the mission bounds (high octane)
@@ -12,7 +12,7 @@
 %j = -1; // %j++ is pre-increment for some reason; it's -1 so it can start at 0
 %k = -1; // %k++ is pre-increment for some reason; it's -1 so it can start at 0
 
-// ACCEPTED TERRAINS (82)
+// ACCEPTED TERRAINS (80)
 $SkiFreeTerrainList[%i++] = "Alcatraz.ter"; // yeah. seems fine
 $SkiFreeTerrainList[%i++] = "Attrition.ter";
 $SkiFreeTerrainList[%i++] = "BastardForge.ter";
@@ -33,11 +33,11 @@ $SkiFreeTerrainList[%i++] = "Euro4_FrozenHope.ter"; // seems fine?
 $SkiFreeTerrainList[%i++] = "Gorgon.ter";
 $SkiFreeTerrainList[%i++] = "Hildebrand.ter";
 $SkiFreeTerrainList[%i++] = "icedagger.ter";
+$SkiFreeTerrainList[%i++] = "IceGiant.ter"; // a smoothed version of xtra_thundergiant
 $SkiFreeTerrainList[%i++] = "jaggedclaw.ter";
 $SkiFreeTerrainList[%i++] = "LavaGods.ter"; // this is fine
 $SkiFreeTerrainList[%i++] = "Magellan.ter";
 $SkiFreeTerrainList[%i++] = "Magmatic.ter"; // a bit on the hard side
-$SkiFreeTerrainList[%i++] = "Oasis.ter";
 $SkiFreeTerrainList[%i++] = "Ocular.ter";
 $SkiFreeTerrainList[%i++] = "PlanetX2.ter";
 $SkiFreeTerrainList[%i++] = "Raindance_nef.ter";
@@ -86,14 +86,12 @@ $SkiFreeTerrainList[%i++] = "TWL-Harvester.ter"; // why did I take this one
 $SkiFreeTerrainList[%i++] = "TWL-Os_Iris.ter";
 $SkiFreeTerrainList[%i++] = "TWL-Pandemonium.ter";
 $SkiFreeTerrainList[%i++] = "TWL-WilderZone.ter";
-$SkiFreeTerrainList[%i++] = "TWL-WoodyMyrk.ter";
 $SkiFreeTerrainList[%i++] = "TWL2_Crevice.ter";
 $SkiFreeTerrainList[%i++] = "TWL2_Frozenglory.ter";
 $SkiFreeTerrainList[%i++] = "Wasteland.ter"; // whatever sure
 $SkiFreeTerrainList[%i++] = "WoodyMyrkSE.ter";
 $SkiFreeTerrainList[%i++] = "Xtra_Bastage.ter";
 $SkiFreeTerrainList[%i++] = "Xtra_SoupLadle.ter";
-$SkiFreeTerrainList[%i++] = "Xtra_ThunderGiant.ter"; // this map is garbage but it's fun to try to ski on it
 $SkiFreeTerrainList[%i++] = "Xtra_VanDamned.ter";
 
 // SUPERHARD (APRIL FOOLS) (6)
@@ -104,12 +102,13 @@ $SkiFreeTerrainListSuperHard[%j++] = "TL_Skylight.ter";
 $SkiFreeTerrainListSuperHard[%j++] = "TWL-Katabatic.ter"; // oob still bad. this was accepted into april fools because you always need a katabatic joke somewhere
 $SkiFreeTerrainListSuperHard[%j++] = "Xtra_Stripmine.ter";
 
-// REJECTED FOR DEADSTOPS (61)
+// REJECTED FOR DEADSTOPS (66)
 $SkiFreeTerrainListRejected[%k++] = "Abominable.ter";
 $SkiFreeTerrainListRejected[%k++] = "AcidRain.ter";
 $SkiFreeTerrainListRejected[%k++] = "AgentsOfFortune.ter";
 $SkiFreeTerrainListRejected[%k++] = "AshesToAshes.ter";
 $SkiFreeTerrainListRejected[%k++] = "Casern_Cavite.ter";
+$SkiFreeTerrainListRejected[%k++] = "Desiccator.ter"; // Things clearly seem to be at 4 plateaus of height. which doesn't make for good skiing.
 $SkiFreeTerrainListRejected[%k++] = "DustToDust.ter";
 $SkiFreeTerrainListRejected[%k++] = "Equinox.ter";
 $SkiFreeTerrainListRejected[%k++] = "Extra_Badlands1.ter";
@@ -125,6 +124,7 @@ $SkiFreeTerrainListRejected[%k++] = "HO_Ice.ter";
 $SkiFreeTerrainListRejected[%k++] = "HO_Lush.ter";
 $SkiFreeTerrainListRejected[%k++] = "IceBound.ter";
 $SkiFreeTerrainListRejected[%k++] = "Invictus.ter";
+$SkiFreeTerrainListRejected[%k++] = "Katabatic.ter";
 $SkiFreeTerrainListRejected[%k++] = "MapAssets.ter";
 $SkiFreeTerrainListRejected[%k++] = "Masada.ter"; // tiny dicked map
 $SkiFreeTerrainListRejected[%k++] = "mmd.ter";
@@ -146,6 +146,7 @@ $SkiFreeTerrainListRejected[%k++] = "SC_Night.ter";
 $SkiFreeTerrainListRejected[%k++] = "SC_Normal.ter";
 $SkiFreeTerrainListRejected[%k++] = "Scarabrae_nef.ter";
 $SkiFreeTerrainListRejected[%k++] = "Sirocco.ter";
+$SkiFreeTerrainListRejected[%k++] = "Slapdash.ter";
 $SkiFreeTerrainListRejected[%k++] = "SolsDescent.ter";
 $SkiFreeTerrainListRejected[%k++] = "SunDried.ter";
 $SkiFreeTerrainListRejected[%k++] = "ThinIce.ter";
@@ -157,7 +158,9 @@ $SkiFreeTerrainListRejected[%k++] = "Training4.ter";
 $SkiFreeTerrainListRejected[%k++] = "TreasureIsland.ter";
 $SkiFreeTerrainListRejected[%k++] = "TWL_Crossfire.ter";
 $SkiFreeTerrainListRejected[%k++] = "TWL-BaNsHee.ter";
+$SkiFreeTerrainListRejected[%k++] = "TWL-BlueMoon.ter";
 $SkiFreeTerrainListRejected[%k++] = "TWL-Curtilage.ter";
+$SkiFreeTerrainListRejected[%k++] = "TWL-DeadlyBirdsSong.ter"; // DBS_Smoothed.ter
 $SkiFreeTerrainListRejected[%k++] = "TWL-Horde.ter";
 $SkiFreeTerrainListRejected[%k++] = "TWL-Neve.ter"; // it's trace amounts but they're in places you would probably do routes
 $SkiFreeTerrainListRejected[%k++] = "TWL-NoShelter.ter";
@@ -167,8 +170,9 @@ $SkiFreeTerrainListRejected[%k++] = "Tyre.ter";
 $SkiFreeTerrainListRejected[%k++] = "Xtra_StarFall_T1.ter";
 $SkiFreeTerrainListRejected[%k++] = "Xtra_ziggurat.ter";
 
-// REJECTED FOR BEING UNSKIIABLE (57)
+// REJECTED FOR BEING UNSKIIABLE (59)
 $SkiFreeTerrainListRejected[%k++] = "Archipelago.ter";
+$SkiFreeTerrainListRejected[%k++] = "BeggarsRun.ter";
 $SkiFreeTerrainListRejected[%k++] = "Bunkered.ter";
 $SkiFreeTerrainListRejected[%k++] = "cloak.ter"; // the terrain is just too big for a fun race
 $SkiFreeTerrainListRejected[%k++] = "CompUSA_Melee.ter"; // the hill is causing too much grief and the rest of the map doesn’t have enough value to justify it
@@ -181,7 +185,6 @@ $SkiFreeTerrainListRejected[%k++] = "Geothermal.ter"; // spawn is usually on the
 $SkiFreeTerrainListRejected[%k++] = "GodsRift.ter";
 $SkiFreeTerrainListRejected[%k++] = "HillKing.ter";
 $SkiFreeTerrainListRejected[%k++] = "Hoth.ter"; // why would you name a terrain hoth if it isn't snowy
-$SkiFreeTerrainListRejected[%k++] = "IceGiant.ter"; // terrain is kinda extreme
 $SkiFreeTerrainListRejected[%k++] = "IceRidge_nef.ter"; // canyons are just bad for this
 $SkiFreeTerrainListRejected[%k++] = "Insalubria.ter";
 $SkiFreeTerrainListRejected[%k++] = "JacobsLadder.ter"; // hills are WAY too extreme
@@ -193,6 +196,7 @@ $SkiFreeTerrainListRejected[%k++] = "Pariah2.ter"; // ditto
 $SkiFreeTerrainListRejected[%k++] = "PuliVeivari.ter";
 $SkiFreeTerrainListRejected[%k++] = "RandomTer3.ter"; // canyon fractal
 $SkiFreeTerrainListRejected[%k++] = "Rasp.ter";
+$SkiFreeTerrainListRejected[%k++] = "Ravine.ter";
 $SkiFreeTerrainListRejected[%k++] = "RavineV.ter";
 $SkiFreeTerrainListRejected[%k++] = "Rimehold.ter";
 $SkiFreeTerrainListRejected[%k++] = "rst_SimpleFlagArena.ter"; // literally squares
@@ -204,6 +208,7 @@ $SkiFreeTerrainListRejected[%k++] = "Sanctuary.ter";
 $SkiFreeTerrainListRejected[%k++] = "ShockRidge.ter"; // not a fan of these canyon levels
 $SkiFreeTerrainListRejected[%k++] = "Snowblind_nef.ter"; // already knew this is a bad idea before I even started
 $SkiFreeTerrainListRejected[%k++] = "Stonehenge_nef.ter"; // kryand tried to tell me this was a skiiable terrain. so I put the flags in different places. he no longer believes it's a skiiable terrain
+$SkiFreeTerrainListRejected[%k++] = "SubZero.ter";
 $SkiFreeTerrainListRejected[%k++] = "Surreal.ter";
 $SkiFreeTerrainListRejected[%k++] = "Talus.ter";
 $SkiFreeTerrainListRejected[%k++] = "Titan.ter"; // why did I even open this. probably not stupid enough as a terrain choice for april fools
@@ -242,22 +247,17 @@ $SkiFreeTerrainListRejected[%k++] = "TWL-Drifts.ter"; // there's nothing really 
 $SkiFreeTerrainListRejected[%k++] = "Xtra_AshenPowder.ter"; // can’t read that fucking terrain so i’m removing
 $SkiFreeTerrainListRejected[%k++] = "Xtra_Helion.ter"; // this is just a really boring terrain
 
-// DUPLICATES (15)
-$SkiFreeTerrainListRejected[%k++] = "BeggarsRun.ter";
+// DUPLICATES (10)
 $SkiFreeTerrainListRejected[%k++] = "Damnation.ter";
-$SkiFreeTerrainListRejected[%k++] = "Desiccator.ter"; // Things clearly seem to be at 4 plateaus of height. which doesn't make for good skiing.
 $SkiFreeTerrainListRejected[%k++] = "DX_Badlands.ter";
 $SkiFreeTerrainListRejected[%k++] = "DX_Desert.ter";
 $SkiFreeTerrainListRejected[%k++] = "DX_Ice.ter";
-$SkiFreeTerrainListRejected[%k++] = "Katabatic.ter";
-$SkiFreeTerrainListRejected[%k++] = "Ravine.ter";
+$SkiFreeTerrainListRejected[%k++] = "Oasis.ter"; // duplicate of Respite
 $SkiFreeTerrainListRejected[%k++] = "S5-Icedance.ter";
 $SkiFreeTerrainListRejected[%k++] = "S5-massive.ter";
 $SkiFreeTerrainListRejected[%k++] = "S5-Mordacity.ter";
-$SkiFreeTerrainListRejected[%k++] = "Slapdash.ter";
-$SkiFreeTerrainListRejected[%k++] = "SubZero.ter";
-$SkiFreeTerrainListRejected[%k++] = "TWL-BlueMoon.ter";
-$SkiFreeTerrainListRejected[%k++] = "TWL-DeadlyBirdsSong.ter"; // DBS_Smoothed.ter
+$SkiFreeTerrainListRejected[%k++] = "TWL-WoodyMyrk.ter";
+$SkiFreeTerrainListRejected[%k++] = "Xtra_ThunderGiant.ter"; // duplicate of IceGiant
 
 $SkiFreeTerrainListMAX = %i;
 $SkiFreeTerrainListSuperHardMAX = %j;
