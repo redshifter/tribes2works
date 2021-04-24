@@ -19,6 +19,7 @@ package RegisterSkiFreeClient {
 			saveSkiFreePrefs();
 		}
 		allowSkiFreePhasing(0, 0, false);
+		$SkiFreeClientTimer = "";
 		Parent::lobbyDisconnect();
 	}
 	
@@ -31,7 +32,7 @@ package RegisterSkiFreeClient {
 	}
 
 };
-activatePackage(RegisterSkiFreeClient);
+if( !isActivePackage(RegisterSkiFreeClient) ) activatePackage(RegisterSkiFreeClient);
 
 function clientCmdSendSkiFreeBlueprint(%fields) {
 	for( %i = 0; %i < $SkiFreeBlueprintCount; %i++ ) {
@@ -139,6 +140,7 @@ function allowSkiFreePhasing(%msgType, %msgString, %active) {
 // gets the current Unix Epoch time from Ruby -- in seconds
 function currentEpochTime()
 {
+	$temp = "";
 	rubyEval("tsEval '$temp=' + Time.now.to_i.to_s + ';'");
 	return $temp;
 }
@@ -146,6 +148,7 @@ function currentEpochTime()
 // compute the addition in Ruby, due to the Torque script precision problems for >1e6 values
 function getEpochOffset(%seconds)
 {
+	$temp = "";
 	rubyEval("tsEval '$temp=' + (Time.now.to_i + " @ %seconds @ ").to_s + ';'");
 	return $temp;
 }
@@ -163,13 +166,13 @@ function loadSkiFreePrefs() {
 		exec("prefs/SkiFreeBlueprint.cs");
 	
 	// garbage collection
-	%modified = garbageCollect();
+	%modified = skifreeGarbageCollect();
 	if( %modified ) {
 		saveSkiFreePrefs();
 	}
 }
 
-function garbageCollect() {
+function skifreeGarbageCollect() {
 	%modified = false;
 	
 	%killWithRun =   "2678400";
@@ -180,6 +183,7 @@ function garbageCollect() {
 		
 		// the "-" needs to be concatenated or you are going to have conversion problems
 		%offset = getEpochOffset("-" @ $SkiFreeBlueprint[%i,Epoch]);
+		if( %offset $= "" ) return false; // don't delete everything if we don't have ruby active!
 		%killPoint = ($SkiFreeBlueprint[%i,Fields] $= "" ? %killWithoutRun : %killWithRun);
 		//error(%i SPC %offset SPC %killPoint);
 		
