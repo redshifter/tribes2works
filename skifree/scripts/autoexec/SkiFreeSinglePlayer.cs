@@ -81,7 +81,7 @@ function GuiMLTextCtrl::onURL(%this, %url) {
 }
 
 };
-activatePackage(SkiFreeTabPackage);
+if( !isActivePackage(SkiFreeTabPackage) ) activatePackage(SkiFreeTabPackage);
 
 // TODO add writer support for this tab bullshit
 
@@ -199,7 +199,7 @@ function generateSkiFreePreviousGames() {
 		
 		// start by putting the time down
 		//%diff = currentEpochTime() - $SkiFreeBlueprint[%i,Epoch]; // don't ever do this, currentEpochTime() is too big
-		%diff = getEpochOffset(-$SkiFreeBlueprint[%i,Epoch]); // do this instead
+		%diff = getEpochOffset("-" @ $SkiFreeBlueprint[%i,Epoch]); // do this instead
 		if( %diff < 60 * 60 ) {
 			%name = mFloor(%diff / 60) @ " mins ago, ";
 		}
@@ -470,7 +470,7 @@ function generateSkiFreeText() {
 		else {
 			%favorite = "This map is in your favorites.";
 			
-			%diff = getEpochOffset(-$SkiFreeBlueprint[%id,Epoch]);
+			%diff = getEpochOffset("-" @ $SkiFreeBlueprint[%id,Epoch]);
 			if( (%fields $= "" && %diff >= 60 * 60 * 24 * 7) ||
 				(%fields !$= "" && %diff >= 60 * 60 * 24 * 31)
 			) {
