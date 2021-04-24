@@ -5,13 +5,18 @@
 //Use discjumps when needed
 //Compete for the best time
 //Made for 20th Anniversary to Tribes 2
-//<spush><color:FFFF80>Version 1.06 (2021-04-12)<spop>
+//<spush><color:FFFF80>Version 1.07 (2021-04-24)<spop>
 //--- GAME RULES END ---
 
 // absolutely DO NOT mess with the formatting of these lines - parsed by SkiFreeSinglePlayer.cs
-$SkiFreeVersionString = "1.06";
-$SkiFreeBuildDate = "April 12, 2021";
+$SkiFreeVersionString = "1.07";
+$SkiFreeBuildDate = "April 24, 2021";
 $SkiFreeClientVersion = 1;
+
+// version 1.07 (2021-04-24)
+// - DO NOT OVERLOAD ALLOCCLIENTTARGET EVER
+// - fixed issue with timers
+// - fixed issue where all history would be deleted if ruby is broken
 
 // version 1.06 (2021-04-12)
 // - fix issue where players keep killing themselves upon entering map
@@ -152,7 +157,6 @@ function SkiFreeGame::checkSkiFreeVote(%game, %client, %typeName) {
 		$Host::SkiRacePhaseThroughPlayers = !$Host::SkiRacePhaseThroughPlayers;
 		Game.phaseThroughPlayers($Host::SkiRacePhaseThroughPlayers);
 		
-		// TODO need to trap this event in skifree client script for best performance
 		if( $Host::SkiRacePhaseThroughPlayers ) {
 			messageAll('MsgAdminForce', '\c0%1 turned ON player phasing.', %client.name);
 		}
