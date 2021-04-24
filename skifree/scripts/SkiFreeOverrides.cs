@@ -287,13 +287,79 @@ function ShapeBase::throwItem(%this, %data) {
 	}
 }
 
-// fix the goddamn yeti skin already
-function allocClientTarget(%client, %nameTag, %skinTag, %voiceTag, %typeTag, %sensorGroup, %datablock, %voicePitch) {
-	if( $SkiFreeYetiSpawning ) {
-		%client.skin = addTaggedString("base");
-		%skinTag = %client.skin;
-	}
-	return Parent::allocClientTarget(%client, %nameTag, %skinTag, %voiceTag, %typeTag, %sensorGroup, %datablock, %voicePitch);
+// fix the skin for the yeti
+// the virgin allocClientTarget overload (doesn't work and i have no idea why)
+//function allocClientTarget(%client, %nameTag, %skinTag, %voiceTag, %typeTag, %sensorGroup, %datablock, %voicePitch) {
+//	if( $SkiFreeYetiSpawning ) {
+//		%client.skin = addTaggedString("base");
+//		%skinTag = %client.skin;
+//	}
+//	return Parent::allocClientTarget(%client, %nameTag, %skinTag, %voiceTag, %typeTag, %sensorGroup, %datablock, %voicePitch);
+//}
+// the chad AIConnection::onAIConnect overload
+function AIConnection::onAIConnect(%client, %name, %team, %skill, %offense, %voice, %voicePitch)
+{
+   // Sex/Race defaults
+   %client.sex = "Male";
+   %client.race = "Human";
+   %client.armor = "Light";
+
+   //setup the voice and voicePitch
+   if (%voice $= "")
+      %voice = "Bot1";
+   %client.voice = %voice;
+   %client.voiceTag = addTaggedString(%voice);
+   
+   if (%voicePitch $= "" || %voicePitch < 0.5 || %voicePitch > 2.0)
+      %voicePitch = 1.0;
+	%client.voicePitch = %voicePitch;
+
+   %client.name = addTaggedString( "\cp\c9" @ %name @ "\co" );
+	%client.nameBase = %name;
+
+   echo(%client.name);
+   echo("CADD: " @ %client @ " " @ %client.getAddress());
+   $HostGamePlayerCount++;
+   
+   //set the initial team - Game.assignClientTeam() should be called later on...
+   %client.team = %team;
+   if( $SkiFreeYetiSpawning )
+      %client.skin = addTaggedString( "base" ); // skifree should spawn as storm
+   else if ( %client.team & 1 )
+      %client.skin = addTaggedString( "basebot" );
+   else
+      %client.skin = addTaggedString( "basebbot" );
+
+	//setup the target for use with the sensor net, etc...
+   %client.target = allocClientTarget(%client, %client.name, %client.skin, %client.voiceTag, '_ClientConnection', 0, 0, %client.voicePitch);
+   
+   //i need to send a "silent" version of this for single player but still use the callback  -jr`
+   if($currentMissionType $= "SinglePlayer")
+		messageAllExcept(%client, -1, 'MsgClientJoin', "", %name, %client, %client.target, true);
+   else
+	   messageAllExcept(%client, -1, 'MsgClientJoin', '\c1%1 joined the game.', %name, %client, %client.target, true);
+
+	//assign the skill
+	%client.setSkillLevel(%skill);
+	
+	//assign the affinity
+   %client.offense = %offense;
+    
+   //clear any flags
+   %client.stop(); // this will clear the players move state
+   %client.clearStep();
+   %client.lastDamageClient = -1;
+   %client.lastDamageTurret = -1;
+   %client.setEngageTarget(-1);
+   %client.setTargetObject(-1);
+   %client.objective = "";
+
+	//clear the defaulttasks flag
+	%client.defaultTasksAdded = false;
+
+	//if the mission is already running, spawn the bot
+   if ($missionRunning)
+      %client.startMission();
 }
 
 };
