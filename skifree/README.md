@@ -16,8 +16,11 @@ Take discjumps when you can. Your armor has a safety feature that stops you from
 
 You should be watching the gate you're on and the next one. Plan out your turns across the terrain!
 
+# SINGLE PLAYER MODE
+SkiFree comes with an extensive Single Player mode, which will appear as a tab at the bottom of the screen. You can preview existing terrains, play the daily challenge, randomizers, and even revisit maps you've played in the past!
+
 # THE DAILY CHALLENGE
-If you open the Classic Solo & LAN shortcut, you can play on a randomly generated terrain, created by Tribes 2 at run time. Just select it under Training.
+You can play on a randomly generated terrain, created by Tribes 2 at run time.
 
 The terrain changes every day, and will be the same for each player, so you can compare scores against each other! Just be careful of time zone differences, as Tribes 2 doesn't have an implementation of UTC...
 
@@ -30,14 +33,14 @@ There's also a Randomizer mode that generates a randomly generated terrain, when
 # OPTIONS
 Admins can set options on the server:
 - Phase Through Players: Run some magic and now players can go through each other. Good to keep people from running into each other doing a route.
-- Player-to-Player Disc Boosting: You can turn off the ability to disc other players.
+- Player-to-Player Disc Boosting: You can turn off the ability to disc other players. (All discs that would slow players down are disabled by default regardless of this setting.)
 
 # HANDICAPS
-If you leave the spawn platform after handicapping yourself, the game will acknowledge the challenge you've given yourself.
-- Hard Mode: Throw away your Energy Pack.
-- Discless: Throw away your Spinfusor, without discjumping from the spawn platform.
-- Single Discjump: Throw away your Spinfusor as you discjump from the spawn platform.
-- Glass: Throw away your Repair Kit, or reduce your health to a sliver with the spinfusor. You will have a sliver of health and cannot get any health back. You MUST finish the course without taking damage!
+If you open the Mod Hud menu (bindable within Tribes 2 settings), you should be able to select a Handicap.
+- Armor: You can change your armor.
+- Pack: You can change your pack to Shield, go packless, or even go without a jetpack at all!
+- Discless: Get rid of your spinfusor and do it without a discjump!
+- Glass: You will have a sliver of health and cannot get any health back. You MUST finish the course without taking damage!
 
 # ARTIFICAL INTELLIGENCE
 You can add bots to the SkiFree map. They suck, but I did make them to the point that they kinda understand how to play...
