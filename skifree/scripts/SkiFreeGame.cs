@@ -4,17 +4,25 @@
 //Ski through all the gates in order
 //Use discjumps when needed
 //Compete for the best time
-//Made for 20th Anniversary to Tribes 2
-//<spush><color:FFFF80>Version 1.07 (2021-04-24)<spop>
+//Made for the 20th Anniversary of Tribes 2
+//<spush><color:FFFF80>Version 1.08 (2021-05-01)<spop>
 //--- GAME RULES END ---
 
 // absolutely DO NOT mess with the formatting of these lines - parsed by SkiFreeSinglePlayer.cs
-$SkiFreeVersionString = "1.07";
-$SkiFreeBuildDate = "April 24, 2021";
+$SkiFreeVersionString = "1.08";
+$SkiFreeBuildDate = "May 1, 2021";
 $SkiFreeClientVersion = 1;
 
+// version 1.08 (2021-05-01)
+// - fixed issue where Spring 2021 Tourney wasn't loading
+// - combined Randomizers and Special Maps into one set of maps
+// - add staff ghosts to Spring 2020 Tourney
+// - removed qualifying times and replaced with staff ghost unlocks
+// - removed console error from main gametype code
+// - yeti now sometimes yeets you instead of eats you (10% chance)
+
 // version 1.07 (2021-04-24)
-// - DO NOT OVERLOAD ALLOCCLIENTTARGET EVER
+// - DO NOT OVERLOAD ALLOCCLIENTTARGET EVER (fixed yeti skin in a new way)
 // - fixed issue with timers
 // - fixed issue where all history would be deleted if ruby is broken
 
@@ -505,6 +513,8 @@ function SkiFreeGame::resetScore(%game, %client) {
 		%client.gateTime[%i] = "";
 	}
 	
+	%client.SkiFreeQualifier = "";
+	
 	%game.prestigeTitle(%client);
 	%game.recalcScore(%client);
 }
@@ -533,6 +543,9 @@ function SkiFreeGame::onClientKilled(%game, %clVictim, %clKiller, %damageType, %
 }
 
 function SkiFreeGame::calculateTimeTrialScore(%game, %client, %player) {
+	// ghosts don't report scores!
+	if( %client == $SkiFreeGhost ) return;
+	
 	// finished a run
 	%kph = mFloor(VectorLen(setWord(%player.getVelocity(), 2, 0)) * 3.6);
 
@@ -672,30 +685,44 @@ function SkiFreeGame::calculateTimeTrialScore(%game, %client, %player) {
 	messageAllExcept(%client, -1, 0, '%1 finished the course %3in %2 seconds.%4', %playerName, %time, %handicap, %rankOthers);
 	messageClient(%client, 0, '\c2You finished the course %3in %2 seconds (Speed: %6kph)%5.%4', %playerName, %time, %handicap, %rankPersonal, %timeCompare, %kph);
 
-	if( !%qualified ) {
-		%diff = %time - MissionGroup.SkiFree_qualifierTime;
-		if( %diff < 2 ) {
-			%comment = "You're so close...";
+	// qualifier times are dumb - we're not doing that
+	// if( !%qualified ) {
+		// %diff = %time - MissionGroup.SkiFree_qualifierTime;
+		// if( %diff < 2 ) {
+			// %comment = "You're so close...";
+		// }
+		// else if( %diff < 5 ) {
+			// %comment = "Just a little more...";
+		// }
+		// else if( %diff < 10 ) {
+			// %comment = "You're almost there!";
+		// }
+		// else if( %diff < 15 ) {
+			// %comment = "You can do it!";
+		// }
+		// else if( %diff < 20 ) {
+			// %comment = "That was a good try.";
+		// }
+		// else {
+			// %comment = "If you dare...";
+		// }
+		// messageClient(%client, 0, '\c3Try to beat %1! %2', MissionGroup.SkiFree_qualifierTime, %comment);
+	// }
+	// else if( MissionGroup.SkiFree_qualifierTime !$= "" ) {
+		// messageClient(%client, 0, '\c3You have a qualifying time!');
+	// }
+	
+	if( MissionGroup.SkiFree_GhostCode0 !$= "" ) {
+		%level = %client.SkiFreeQualifier;
+		if( %level $= "" ) %level = -1;
+
+		for( %i = %level + 1; %i < 37; %i++ ) {
+			if( MissionGroup.SkiFree_GhostCode[%i] $= "" ) break;
+			if( %client.bestTime < MissionGroup.SkiFree_GhostTime[%i] + 13 ) {
+				%client.SkiFreeQualifier = %i;
+				messageClient(%client, 0, '\c2You have unlocked a staff ghost! Type \c4.%1\c2 in chat! (\c4.off\c2 to turn off the ghost)', MissionGroup.SkiFree_GhostCode[%i]);
+			}
 		}
-		else if( %diff < 5 ) {
-			%comment = "Just a little more...";
-		}
-		else if( %diff < 10 ) {
-			%comment = "You're almost there!";
-		}
-		else if( %diff < 15 ) {
-			%comment = "You can do it!";
-		}
-		else if( %diff < 20 ) {
-			%comment = "That was a good try.";
-		}
-		else {
-			%comment = "If you dare...";
-		}
-		messageClient(%client, 0, '\c3Try to beat %1! %2', MissionGroup.SkiFree_qualifierTime, %comment);
-	}
-	else if( MissionGroup.SkiFree_qualifierTime !$= "" ) {
-		messageClient(%client, 0, '\c3You have a qualifying time!');
 	}
 }
 
@@ -925,16 +952,21 @@ function SkiFreeGame::updateScoreHud(%game, %client, %tag)
 			%title = %cl.bestHandicap;
 		}
 		
+		%runString = %cl.completions @ " (" @ %cl.attempts @ ")";
+		if( %cl.AI_ghost ) {
+			%runString = "<spush><font:univers condensed:18><color:808080>GHOST<spop>";
+		}
+		
 		//if the client is not an observer, send the message
 		if (%client.team != 0)
 		{
 			// why am i using word wrap lol
-			messageClient( %client, 'SetLineHud', "", %tag, %index, '%4<tab:20,450,500>\t<clip:200>%1</clip><rmargin:370><just:right><spush><font:univers condensed:18>%2<spop><rmargin:450><just:right>%6 (%7)<rmargin:540><just:right>%3', %cl.name, %title, %score, %clStyle, %cl, %cl.completions, %cl.attempts);
+			messageClient( %client, 'SetLineHud', "", %tag, %index, '%4<tab:20,450,500>\t<clip:200>%1</clip><rmargin:370><just:right><spush><font:univers condensed:18>%2<spop><rmargin:450><just:right>%6<rmargin:540><just:right>%3', %cl.name, %title, %score, %clStyle, %cl, %runString);
 		}
 		//else for observers, create an anchor around the player name so they can be observed
 		else
 		{
-			messageClient( %client, 'SetLineHud', "", %tag, %index, '%4<tab:20,450,500>\t<clip:200><a:gamelink\t%5>%1</a></clip><rmargin:370><just:right><spush><font:univers condensed:18>%2<spop><rmargin:450><just:right>%6 (%7)<rmargin:540><just:right>%3', %cl.name, %title, %score, %clStyle, %cl, %cl.completions, %cl.attempts);
+			messageClient( %client, 'SetLineHud', "", %tag, %index, '%4<tab:20,450,500>\t<clip:200><a:gamelink\t%5>%1</a></clip><rmargin:370><just:right><spush><font:univers condensed:18>%2<spop><rmargin:450><just:right>%6<rmargin:540><just:right>%3', %cl.name, %title, %score, %clStyle, %cl, %runString);
 		}
 	}
 
@@ -2088,6 +2120,8 @@ function SkiFreeGame::getServerStatusString(%game)
 }
 
 function SkiFreeGame::checkInterference(%game, %targetObject, %sourceObject, %oldVector) {
+	if( %targetObject.client.AI_ghost ) return;
+	
 	// a player hit someone else with a disc
 	%illegalHit = 0;
 	
@@ -2142,7 +2176,10 @@ function SkiFreeGame::isAprilFools(%game, %year) {
 
 function SkiFreeGame::prestigeTitle(%game, %client) {
 	%client.SkiFreeTitle = "";
-	if( %client.AI_skiFreeBotLevel !$= "" ) {
+	if( %client.AI_ghost ) {
+		%client.SkiFreeTitle = " ";
+	}
+	else if( %client.AI_skiFreeBotLevel !$= "" ) {
 		%client.SkiFreeTitle = "<color:ff8080>Bot Level" SPC %client.AI_skiFreeBotLevel;
 	}
 	else {
@@ -2264,7 +2301,7 @@ function SkiFreeGame::UpdateModHudSet(%game, %client, %option, %value)
 
 	if( %oldHandicap $= %handicap ) return;
 	if( !isObject(%client.player) ) return;
-	error("old: " @ %oldHandicap @ " new: " @ %handicap);
+	//error("old: " @ %oldHandicap @ " new: " @ %handicap);
 	%client.player.scriptKill(0);
 }
 
@@ -2278,7 +2315,7 @@ function SkiFreeGame::ModButtonCmd(%game, %client, %button, %value)
 			%client.SkiFreeChallenge = "";
 			%game.UpdateModHudSet(%client, 1, 1);
 			
-			if( !isObject(%client.player) )
+			if( isObject(%client.player) )
 				%client.player.scriptKill(0);		
 			
 		//case 12: // handicap - can't be clicked
@@ -2362,4 +2399,36 @@ function SkiFreeGame::correctDrift(%game, %player) {
 	commandToClient(%player.client, 'CorrectSkiFreeDrift', %timeMS);
 	
 	%game.schedule(10000, correctDrift, %player);
+}
+
+function SkiFreeGame::checkSecretCodes(%game, %client, %text) {
+	// secret codes only work offline, what are you trying to pull
+	if( %game.isSinglePlayer() ) {
+		if( "off" $= %text ) {
+			%game.createGhost(); // clears the ghost
+			messageAll(0, '~wfx/Bonuses/Nouns/special3.wav');
+			return 1;
+		}
+		
+		for( %i = 0; %i < 37; %i++ ) {
+			if( MissionGroup.SkiFree_GhostCode[%i] $= %text ) {
+				%name = MissionGroup.SkiFree_GhostName[%i];
+				if( $pref::enableBadWordFilter && MissionGroup.SkiFree_GhostKnrl[%i] ) {
+					%name = MissionGroup.SkiFree_GhostKnrl[%i];
+				}
+				
+				%game.createGhost(
+					%name,
+					MissionGroup.SkiFree_GhostTime[%i],
+					MissionGroup.SkiFree_GhostFile[%i]
+				);
+
+				messageAll(0, '~wfx/Bonuses/high-level4-blazing.wav');
+				
+				return 1;
+			}
+		}
+	}
+	
+	return 0;
 }

@@ -26,8 +26,16 @@ function Armor::damageObject(%data, %targetObject, %sourceObject, %position, %am
 		%amount = 100;
 		%sourceClient.yetiTaunt = 1;
 
-		%targetObject.blowup();
-		%targetObject.setVelocity("0 0 0");
+		if( getRandom() > 0.1 ) {
+			%targetObject.setVelocity("0 0 0");
+			%targetObject.blowup();
+		}
+		else {
+			// yeet the fuck out of the guy
+			%targetObject.setVelocity(
+				VectorScale(%oldVector, 6)
+			);
+		}
 
 		%yetiKill = 1;
 	}
@@ -255,6 +263,8 @@ function serverCmdStartNewVote(%client, %typeName, %arg1, %arg2, %arg3, %arg4, %
 
 // turn off phasing (this is a client method used for listen servers only - you do NOT want this to stay on)
 function lobbyDisconnect() {
+	$SkiFreeYeti = "";
+	$SkiFreeGhost = "";
 	Game.phaseThroughPlayers(false); // make sure this is OFF
 	Parent::lobbyDisconnect();
 }
@@ -360,6 +370,15 @@ function AIConnection::onAIConnect(%client, %name, %team, %skill, %offense, %voi
 	//if the mission is already running, spawn the bot
    if ($missionRunning)
       %client.startMission();
+}
+
+// activate ghost for this map
+function serverCmdMessageSent(%client, %text) {
+	if( strstr(%text, ".") == 0 || strstr(%text, "!") == 0 ) {
+		%found = Game.checkSecretCodes(%client, strlwr(getSubStr(%text, 1, 69)));
+		if( %found ) return;
+	}
+	Parent::serverCmdMessageSent(%client, %text);
 }
 
 };

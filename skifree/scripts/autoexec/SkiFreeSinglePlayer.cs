@@ -105,10 +105,12 @@ function populateSkiFreeModes() {
 	SkiFreeGui_Mode.clear();
 	SkiFreeGui_Mode.add( "Previous Games", 0 );
 	SkiFreeGui_Mode.add( "Choose Terrain", 1 );
-	SkiFreeGui_Mode.add( "Randomizers",    2 );
-	SkiFreeGui_Mode.add( "Special Maps",   3 );
+	SkiFreeGui_Mode.add( "Single Player",    2 );
+	//SkiFreeGui_Mode.add( "Randomizers",    2 );
+	//SkiFreeGui_Mode.add( "Special Maps",   3 );
 	
 	// TODO select based on setup
+	if( $pref::SkiFree::SelectedMode == 3 ) $pref::SkiFree::SelectedMode = 2;
 	SkiFreeGui_Mode.setSelected($pref::SkiFree::SelectedMode);
 	SkiFreeGui_Mode.onSelect($pref::SkiFree::SelectedMode);
 	
@@ -169,15 +171,13 @@ function populateSkiFreeList() {
 	else if( %mode == 1 ) { // choose terrain
 		generateSkiFreeStandardTerrainList();
 	}
-	else if( %mode == 2 ) { // daily challenge
+	else if( %mode == 2 ) { // single player
 		%list.addRow(90001, "Daily Challenge: Easy");
 		%list.addRow(90002, "Daily Challenge: Medium");
 		%list.addRow(90003, "Daily Challenge: Hard");
 		%list.addRow(90004, "Randomizer: Easy");
 		%list.addRow(90005, "Randomizer: Medium");
 		%list.addRow(90006, "Randomizer: Hard");
-	}
-	else if( %mode == 3 ) { // tournaments
 		// TODO make this an actual parsed list instead of hooking it up to an ID
 		%list.addRow(90007, "Spring 2021 Tourney");
 	}
@@ -200,7 +200,11 @@ function generateSkiFreePreviousGames() {
 		// start by putting the time down
 		//%diff = currentEpochTime() - $SkiFreeBlueprint[%i,Epoch]; // don't ever do this, currentEpochTime() is too big
 		%diff = getEpochOffset("-" @ $SkiFreeBlueprint[%i,Epoch]); // do this instead
-		if( %diff < 60 * 60 ) {
+		if( %diff $= "" ) {
+			// broken thing
+			%name = "";
+		}
+		else if( %diff < 60 * 60 ) {
 			%name = mFloor(%diff / 60) @ " mins ago, ";
 		}
 		else if( %diff < 60 * 60 * 24 ) {
@@ -391,7 +395,7 @@ function startSkiFreeSinglePlayer() {
 	$SkiFreeProvingGrounds = %id;
 	$SkiFreeProvingGroundsTerrain = SkiFreeGui_MissionList.getValue();
 
-	if( %id == 7 ) {
+	if( %id == 90007 ) {
 		// override to the correct map
 		%file = "SkiFreeSP_Spring2021";
 	}
@@ -461,17 +465,20 @@ function generateSkiFreeText() {
 			%favorite = "<a:SkiFreeAddToFavorites\t" @ %id @ ">Add to Favorites</a>";
 			
 			if( %fields $= "" ) {
-				%situation = "<spush><color:FF8080>Any map without a time<spop> will be deleted after <spush><color:FF8080>7 days<spop>. If you want to keep it after that point, add it to your Favorites.";
+				%situation = "<spush><color:FF8080>Any map without a time<spop> will be deleted after <spush><color:FF8080>7 days<spop>. If you want to keep this map, add it to your Favorites.";
 			}
 			else {
-				%situation = "<spush><color:FF8080>Any map with a time<spop> will be deleted after <spush><color:FF8080>31 days<spop>. If you want to keep it, add it to your Favorites.";
+				%situation = "<spush><color:FF8080>Any map with a time<spop> will be deleted after <spush><color:FF8080>31 days<spop>. If you want to keep this map, add it to your Favorites.";
 			}
 		}
 		else {
 			%favorite = "This map is in your favorites.";
 			
 			%diff = getEpochOffset("-" @ $SkiFreeBlueprint[%id,Epoch]);
-			if( (%fields $= "" && %diff >= 60 * 60 * 24 * 7) ||
+			if( %diff $= "" ) {
+				// broken thing
+			}
+			else if( (%fields $= "" && %diff >= 60 * 60 * 24 * 7) ||
 				(%fields !$= "" && %diff >= 60 * 60 * 24 * 31)
 			) {
 				%favorite = %favorite @ " <spush><color:FF8080>Removing this map from your favorites will delete it!<spop>";
@@ -487,7 +494,7 @@ function generateSkiFreeText() {
 			@ "Map Pack: " @ %mapPack @ "\n"
 			@ "Date of Game: " @ $SkiFreeBlueprint[%id,Date] @ "\n\n"
 			
-			@ "Completions: " @ $SkiFreeBlueprint[%id,Completions] @ " (" @ $SkiFreeBlueprint[%id,Attempts] @ ")\n"
+			@ "Completions: " @ $SkiFreeBlueprint[%id,Completions] @ " (" @ $SkiFreeBlueprint[%id,Attempts] @ " attempts)\n"
 			@ "Best Time: " @ %bestTime @ "\n"
 
 			@ %splits @ "\n"
@@ -505,7 +512,17 @@ function generateSkiFreeText() {
 		if( %mapPack $= "" ) %mapPack = "UNKNOWN";
 
 		if( %mapPack $= "UNKNOWN" ) {
-			%status = "\nThis terrain does not belong to a map pack used by SkiFree. It might be X, X2, Cluster, one of those Euro packs, or even a map pack that doesn't exist yet. Whatever the reason, it's not a regulation terrain that can ever show up on a server.\n\nAlso the Dynamix Final Map Pack doesn't exist in the Tribes 2 All-in-One install and it's not like any of those terrains will be missed in SkiFree.";
+			%status = "\nThis terrain is not known to SkiFree.";
+			
+			if( %terrain $= "Pantheon.ter"
+				|| %terrain $= "Trident.ter" 
+				|| %terrain $= "InnerSanctum.ter" 
+				|| %terrain $= "DevilsElbow.ter" 
+				|| %terrain $= "IsleOfMan.ter" 
+				|| %terrain $= "BridgeTooFar.ter" 
+			) {
+				%status = %status @ "\n\n(The Dynamix Final Map Pack doesn't exist in the Tribes 2 All-in-One install. For this reason, those terrains are not used by SkiFree. None of them would be good for it anyway.)";
+			}
 		}
 		else if( $SkiFreeMeta[%terrain,RejectReason] $= "" ) {
 			%status = "Regulation SkiFree Terrain\n\nThis terrain can show up on servers running SkiFree.";
@@ -537,6 +554,9 @@ function generateSkiFreeText() {
 			"Terrain: " @ %terrain @ "\n"
 			@ "Map Pack: " @ %mapPack @ "\n"
 			@ %status
+			@ "\n\n"
+			@ "<spush><color:FF8080>Your times and map layouts will not be saved.<spop>"
+
 		;
 	}
 	else if( %id == 90001 || %id == 90002 || %id == 90003 ) { // the daily
@@ -546,7 +566,9 @@ function generateSkiFreeText() {
 			
 			@ "Since the level will be the same regardless of who is playing, you can share times! Talk about how much better you are than everyone else! Forget about the time zone conversions and end up talking about the wrong map! Get banned from Discord for spamming this crap months after everyone else stops caring about it!\n\n"
 			
-			@ "Difficulty will determine how hard the terrain is. So it can really be thought of as a three-in-one challenge. Easy and Medium will just be varying levels of fBM Fractal, which makes some nice rolling hills. But the Hard terrain? You'll have to see it to believe it."
+			@ "Difficulty will determine how hard the terrain is. So it can really be thought of as a three-in-one challenge. Easy and Medium will just be varying levels of fBM Fractal, which makes some nice rolling hills. But the Hard terrain? You'll have to see it to believe it.\n\n"
+			
+			@ "<spush><color:FF8080>Your times will not be saved. <color:FF2020>Demo playback will not work correctly on randomizer maps.<spop>"
 		;
 	}
 	else if( %id == 90004 || %id == 90005 || %id == 90006 ) { // randomizer
@@ -554,7 +576,9 @@ function generateSkiFreeText() {
 		
 			@ "This will generate completely random terrains that nobody has ever seen, and nobody will ever see again.\n\n"
 			
-			@ "Difficulty will determine how hard the terrain is. So it can really be thought of as a three-in-one challenge. Easy and Medium will just be varying levels of fBM Fractal, which makes some nice rolling hills. But the Hard terrain? You'll have to see it to believe it."
+			@ "Difficulty will determine how hard the terrain is. So it can really be thought of as a three-in-one challenge. Easy and Medium will just be varying levels of fBM Fractal, which makes some nice rolling hills. But the Hard terrain? You'll have to see it to believe it.\n\n"
+			
+			@ "<spush><color:FF8080>Your times will not be saved. <color:FF2020>Demo playback will not work correctly on randomizer maps.<spop>"
 		;
 	}
 	else if( %id == 90007 ) { // spring 2021 tourney
@@ -566,10 +590,13 @@ function generateSkiFreeText() {
 			
 			@ "It was played as an offline tournament that ran from 2021-03-30 to 2021-04-05. This didn't end up being a very good tournament format, and a lot of people didn't really get into it until it was already over.\n\n"
 			
+			@ "<spush><color:FF8080>Your times will not be saved.<spop>\n\n"
+			
 			@ "Qualifying Time: 73.868\n"
 			@ "Champion Time: 56.705\n\n"
 			
 			@ "Best Known Time (late submission): 54.753\n\n"
+			
 			@ "Hints:\n"
 			@ "- Discjump twice before Gate 1 and try to hit 450kph\n"
 			@ "- Ride that speed through Gate 5 if you can\n"
@@ -589,16 +616,15 @@ function helpForSkiFree() {
 
 		@ "In SkiFree, a set of gates are randomly generated on a terrain. Try to ski through each one as fast as you can!\n\n"
 
-		@ "This gametype can be played on a server, or offline. Online play is done from the HOST menu, like normal gametypes.\n"
-		@ "<spush><color:C0C0C0>This tab is for offline play.<spop>\n\n"
+		@ "This gametype can be played on a server, or in Host mode, or in this Single Player mode.\n"
+		@ "<spush><color:FF8080>This tab is ONLY for offline play.<spop>\n\n"
 		
 		@ "First, you will want to select a mode. In general, the selections will have their own message text.\n\n"
-		@ "<spush><color:C0C0C0>Previous Games<spop>: Allows you to recall a map you've played online, along with your best time and number of attempts.\n"
-		@ "<spush><color:C0C0C0>Choose Terrain<spop>: Choose a terrain to play on, and it will generate as if on a normal server. You can choose from multiple sets of terrains.\n"
-		@ "<spush><color:C0C0C0>Randomizers<spop>: Play a randomly generated terrain that's never been seen before and will never be seen again.\n"
-		@ "<spush><color:C0C0C0>Special Maps<spop>: Play maps that were used for events.\n\n"
+		@ "<spush><color:FFFFFF>Previous Games<spop>: Allows you to recall a map you've played online, along with your best time and number of attempts.\n"
+		@ "<spush><color:FFFFFF>Choose Terrain<spop>: Choose a terrain to play on, and it will generate as if on a normal server. You can choose from multiple sets of terrains.\n"
+		@ "<spush><color:FFFFFF>Single Player<spop>: Play randomizers, previous tournament maps, etc.\n\n"
 		
-		@ "<spush><color:C0C0C0>Simulated Ping<spop> allows you to set your own ping for offline play. You'll probably need to do some fine-tuning to get it to work correctly, as the ping you have in-game will generally be slightly higher than the ping you select. <spush><color:C0C0C0>Note that this setting is global for ALL offline play, including TRAINING and anything from the HOST menu.<spop>\n\n"
+		@ "<spush><color:FFFFFF>Simulated Ping<spop> allows you to set your own ping for offline play. You'll probably need to do some fine-tuning to get it to work correctly, as the ping you have in-game will generally be slightly higher than the ping you select. <spush><color:FF8080>Note that this setting is global for ALL offline play, including TRAINING and anything from the HOST menu.<spop>\n\n"
 	;
 	
 	if( $SkiFreeMissingMapPack !$= "" ) {
@@ -617,7 +643,7 @@ function helpForSkiFree() {
 	
 	%text = %text @ "<spush><color:FFFFFF>CREDITS<spop>\n"
 		@ "- Red Shifter: Lead Developer\n"
-		@ "- DarkTiger: Gave the lead developer the code for phasing through players\n"
+		@ "- DarkTiger: Gave me the code for phasing through players\n"
 		@ "- Rooster128, Stormcrow IV, LOLCAPS, The D_e_V_i_L, and many others: Playtesting\n\n\n\n"
 		
 		@ "<spush><font:arial:12>SkiFree was created for the 20th Anniversary of Tribes 2 in 2021, and is dedicated to the memory of Zengato, who was always there to read over any shitty gametype idea I had, no matter how stupid it was.<spop>"

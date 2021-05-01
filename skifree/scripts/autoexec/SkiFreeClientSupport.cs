@@ -54,7 +54,9 @@ function clientCmdSendSkiFreeBlueprint(%fields) {
 
 function clientCmdSendSkiFreeStart(%attempts) {
 	if( $SkiFreeCurrentBlueprintMap !$= "" ) {
-		$SkiFreeBlueprint[$SkiFreeCurrentBlueprintMap,Attempts] = %attempts;
+		//$SkiFreeBlueprint[$SkiFreeCurrentBlueprintMap,Attempts] = %attempts;
+		$SkiFreeBlueprint[$SkiFreeCurrentBlueprintMap,Attempts]++;
+
 		// don't save every single time you come off the line - that's way too many writes
 		$SkiFreeDirty = true;
 	}
@@ -91,7 +93,8 @@ function clientCmdSendSkiFreeEnd(%completions, %isBestTime, %fields) {
 	$SkiFreeClientTimer = "";
 
 	if( $SkiFreeCurrentBlueprintMap !$= "" ) {
-		$SkiFreeBlueprint[$SkiFreeCurrentBlueprintMap,Completions] = %completions;
+		//$SkiFreeBlueprint[$SkiFreeCurrentBlueprintMap,Completions] = %completions;
+		$SkiFreeBlueprint[$SkiFreeCurrentBlueprintMap,Completions]++;
 		
 		if( %isBestTime ) {
 			$SkiFreeBlueprint[$SkiFreeCurrentBlueprintMap,Fields] = %fields;

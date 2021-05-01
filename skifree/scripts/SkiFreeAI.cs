@@ -89,7 +89,11 @@ function SkiFreeGame::AI_heartbeat(%game, %client, %player) {
 	}
 	else if( !%player.AI_meantToLaunch ) {
 		%game.AI_mingle(%client, %player);
-		%heartbeat = 1000;
+		%heartbeat = !%client.AI_ghost ? 1000 : 10;
+	}
+	else if( %client.AI_ghost ) {
+		// check back later
+		%heartbeat = %game.AI_checkGhostFinished(%client, %player);
 	}
 	else if( %client.AI_skiFreeBotLevel <= 1 ) {
 		// level 1 is just "turn off the heartbeat and use the standard bot behavior"
@@ -191,9 +195,15 @@ function SkiFreeGame::AI_mingle(%game, %client, %player) {
 function SkiFreeGame::AI_startRun(%game, %client, %player) {
 	// start the run
 	%player.AI_meantToLaunch = 1;
+
 	%client.stepMove(GatePoint1.position, 5);
 	%player.use(Disc);
-	
+
+	// if we're the ghost, start run the correct way
+	if( %client.AI_ghost ) {
+		%game.startGhost(%player);
+	}
+		
 	// tell the other bots that it's time to go
 	%game.lastLaunchTime = getSimTime();
 }
@@ -422,6 +432,7 @@ function SkiFreeGame::createYetiFor(%game, %player, %spawnPosition) {
 	if( !isObject(%player) ) return;
 	if( !isObject(%player.client) ) return;
 	if( %player.getState() $= "Dead" ) return;
+	if( %player.client.isAIControlled() ) return;
 	if( isObject($SkiFreeYeti) ) return;
 
 	%voice = "Derm"@getRandom(1,2); // do humans taste like chicken or fish?
@@ -646,3 +657,66 @@ function SkiFreeGame::AI_Yeti(%game, %client, %player) {
 	}
 }
 
+// spawns a ghost (SINGLE PLAYER ONLY)
+function SkiFreeGame::createGhost(%game, %name, %time, %inputFile) {
+	if( isObject($SkiFreeGhost) ) {
+		$SkiFreeGhost.drop();
+		$SkiFreeGhost = "";
+	}
+	
+	if( %inputFile $= "" ) return;
+
+	%result = exec(%inputFile);
+	if( %result == 1 ) {
+		$SkiFreeGhost = aiConnect(%name, 1, 1.00);
+		$SkiFreeGhost.AI_ghost = true;
+		$SkiFreeGhost.bestTime = %time;
+		$SkiFreeGhost.score = %game.trialDefaultTime - %time;
+		%game.recalcScore($SkiFreeGhost);
+	}
+}
+
+// run the ghost logic
+function SkiFreeGame::startGhost(%game, %player, %step) {
+	if( !isObject(%player.client) ) return;
+	if( %player.getState() $= "Dead" ) return;
+
+	if( %step < $PlayerMovementStep ){
+		if( $PlayerMovement[%step] !$= "" ) {
+			%player.position = $PlayerMovement[%step];
+			%player.setTransform(%player.getTransform());
+			if( $PlayerMovementV[%step] !$= "" ) {
+				%player.setVelocity($PlayerMovementV[%step]);
+			}
+		}
+		
+		%player.setDamageLevel(0);
+		Game.schedule(100, startGhost, %player, %step + 1);
+	}
+	else {
+		%player.AI_ghostDone = true;
+	}
+}
+
+function SkiFreeGame::AI_checkGhostFinished(%game, %client, %player) {
+	if( !isObject(%player.client) ) return;
+	if( %player.getState() $= "Dead" ) return;
+	
+	if( %player.AI_ghostDone ) {
+		%player.scriptKill(0);
+		return -1;
+	}
+	else {
+		%human = ClientGroup.getObject(0);
+		if( %human.team == 1 ) {
+			%humanPlayer = %human.player;
+
+			if( !isObject(%humanPlayer.client) || %humanPlayer.getState() $= "Dead" ) {
+				%player.scriptKill(0);
+				return -1;
+			}
+		}
+	}
+	
+	return 100;
+}

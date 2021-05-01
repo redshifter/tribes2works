@@ -13,10 +13,20 @@ new SimGroup(MissionGroup) {
 
 				  
 	cdTrack = "6";
-	SkiFree_qualifierTime = "73.868";
+//	SkiFree_qualifierTime = "73.868"; // don't need a qualifier time anymore. that was stupid
 	powerCount = "0";
 	musicTrack = "lush";
-								
+	
+	SkiFree_GhostCode0 = "shifty";
+	SkiFree_GhostTime0 = "71.482";
+	SkiFree_GhostName0 = "Red Shitter";
+	SkiFree_GhostKnrl0 = "Staff Ghost";
+	SkiFree_GhostFile0 = "scripts/SkiFreeTourney2021_Staff.cs";
+	
+	SkiFree_GhostCode1 = "wibble";
+	SkiFree_GhostTime1 = "56.705";
+	SkiFree_GhostName1 = "Den Duvel";
+	SkiFree_GhostFile1 = "scripts/SkiFreeTourney2021_Devil.cs";
 
 	new MissionArea(MissionArea) {
 		area = "-1024 -1024 2048 2048";
