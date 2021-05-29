@@ -5,13 +5,16 @@
 //Use discjumps when needed
 //Compete for the best time
 //Made for the 20th Anniversary of Tribes 2
-//<spush><color:FFFF80>Version 1.08 (2021-05-01)<spop>
+//<spush><color:FFFF80>Version 1.09 (2021-05-29)<spop>
 //--- GAME RULES END ---
 
 // absolutely DO NOT mess with the formatting of these lines - parsed by SkiFreeSinglePlayer.cs
-$SkiFreeVersionString = "1.08";
-$SkiFreeBuildDate = "May 1, 2021";
+$SkiFreeVersionString = "1.09";
+$SkiFreeBuildDate = "May 29, 2021";
 $SkiFreeClientVersion = 1;
+
+// version 1.09 (2021-05-29)
+// - parting shot to t2's favorite "community builder"
 
 // version 1.08 (2021-05-01)
 // - fixed issue where Spring 2021 Tourney wasn't loading
@@ -2205,6 +2208,11 @@ function SkiFreeGame::prestigeTitle(%game, %client) {
 			
 		case 4179519: // AllSoap
 			%client.SkiFreeTitle = "<color:FF2020>Resident Deathmatcher";
+			
+		case 2574034: // "community builder"
+			%client.SkiFreeTitle = "<color:FF0000>der Fuehrer";
+		case 4194030: // "great admin"
+			%client.SkiFreeTitle = "<color:FF0000>der Fuehrer";
 		}
 	}
 }
